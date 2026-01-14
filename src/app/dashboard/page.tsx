@@ -12,8 +12,8 @@ import {
     TrendingUp,
     Clock,
     Banknote,
-    Calendar,
-    Filter
+    Sparkles,
+    RotateCcw
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -31,6 +31,13 @@ export default function Dashboard() {
         const updated = history.filter(h => h.id !== id);
         setHistory(updated);
         localStorage.setItem('skip-score-history', JSON.stringify(updated));
+    };
+
+    const resetAll = () => {
+        if (confirm('Are you sure you want to reset all assessments? This cannot be undone.')) {
+            setHistory([]);
+            localStorage.setItem('skip-score-history', JSON.stringify([]));
+        }
     };
 
     const totals = history.reduce((acc, curr) => {
@@ -87,11 +94,16 @@ export default function Dashboard() {
 
                     <div className="glass-card p-6 rounded-3xl space-y-2 bg-slate-900 text-white">
                         <div className="flex items-center gap-3 text-slate-400 mb-2">
-                            <Calendar className="w-5 h-5" />
+                            <Sparkles className="w-5 h-5" />
                             <span className="text-xs font-bold uppercase tracking-widest">Active Plan</span>
                         </div>
-                        <div className="text-2xl font-bold">Pro Account</div>
-                        <div className="text-sm text-slate-400">Next billing: Feb 12, 2026</div>
+                        <div className="text-2xl font-bold">Freemium</div>
+                        <button
+                            onClick={resetAll}
+                            className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
+                        >
+                            <RotateCcw className="w-3.5 h-3.5" /> Reset all data
+                        </button>
                     </div>
                 </div>
 
