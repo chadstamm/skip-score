@@ -98,19 +98,23 @@ export default function Dashboard() {
                             <span className="text-xs font-bold uppercase tracking-widest">Active Plan</span>
                         </div>
                         <div className="text-2xl font-bold text-skip-coral">Freemium</div>
-                        <button
-                            onClick={resetAll}
-                            className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
-                        >
-                            <RotateCcw className="w-3.5 h-3.5" /> Reset all data
-                        </button>
                     </div>
                 </div>
 
                 {/* Content Area */}
                 <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden min-h-[500px]">
                     <div className="p-6 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h2 className="text-2xl font-bold text-slate-800">Past Assessments</h2>
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-2xl font-bold text-slate-800">Past Assessments</h2>
+                            {history.length > 0 && (
+                                <button
+                                    onClick={resetAll}
+                                    className="text-xs text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
+                                >
+                                    <RotateCcw className="w-3 h-3" /> Reset
+                                </button>
+                            )}
+                        </div>
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
