@@ -97,7 +97,7 @@ export default function Dashboard() {
                             <Sparkles className="w-5 h-5" />
                             <span className="text-xs font-bold uppercase tracking-widest">Active Plan</span>
                         </div>
-                        <div className="text-2xl font-bold">Freemium</div>
+                        <div className="text-2xl font-bold text-skip-coral">Freemium</div>
                         <button
                             onClick={resetAll}
                             className="text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"
