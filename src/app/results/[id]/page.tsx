@@ -107,33 +107,54 @@ export default function ResultsPage() {
                                 </p>
                             </div>
 
-                            <div className="relative w-32 h-32 flex items-center justify-center">
-                                <svg className="w-full h-full transform -rotate-90">
-                                    <circle
-                                        cx="64"
-                                        cy="64"
-                                        r="58"
-                                        stroke="currentColor"
-                                        strokeWidth="10"
-                                        fill="transparent"
-                                        className="text-slate-100"
-                                    />
-                                    <circle
-                                        cx="64"
-                                        cy="64"
-                                        r="58"
-                                        stroke="currentColor"
-                                        strokeWidth="10"
-                                        fill="transparent"
-                                        strokeDasharray={364}
-                                        strokeDashoffset={364 - (364 * (data.score || 0)) / 10}
-                                        strokeLinecap="round"
-                                        className="text-score-teal transition-all duration-1000"
-                                    />
-                                </svg>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-3xl font-black text-slate-900">{data.score}</span>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center leading-tight">My<br />SkipScore</span>
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="relative w-44 h-44 flex items-center justify-center">
+                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 176 176">
+                                        <circle
+                                            cx="88"
+                                            cy="88"
+                                            r="80"
+                                            stroke="currentColor"
+                                            strokeWidth="12"
+                                            fill="transparent"
+                                            className="text-slate-100"
+                                        />
+                                        <circle
+                                            cx="88"
+                                            cy="88"
+                                            r="80"
+                                            stroke="currentColor"
+                                            strokeWidth="12"
+                                            fill="transparent"
+                                            strokeDasharray={502}
+                                            strokeDashoffset={502 - (502 * (data.score || 0)) / 10}
+                                            strokeLinecap="round"
+                                            className="text-score-teal transition-all duration-1000"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-5xl font-black text-slate-900">{data.score}</span>
+                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center leading-tight">My<br />SkipScore</span>
+                                    </div>
+                                </div>
+
+                                {/* Score Guide - compact version under score */}
+                                <div className="w-full max-w-xs space-y-1.5">
+                                    {[
+                                        { range: '0-2.9', label: 'SKIP', rec: 'SKIP' },
+                                        { range: '3-4.9', label: 'ASYNC', rec: 'ASYNC_FIRST' },
+                                        { range: '5-6.9', label: 'SHORTEN', rec: 'SHORTEN' },
+                                        { range: '7-10', label: 'PROCEED', rec: 'PROCEED' }
+                                    ].map((tier) => {
+                                        const isCurrent = data.recommendation === tier.rec;
+                                        const tierStyle = REC_STYLES[tier.rec as Recommendation];
+                                        return (
+                                            <div key={tier.label} className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all ${isCurrent ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-50 text-slate-400'}`}>
+                                                <span className="font-mono font-bold">{tier.range}</span>
+                                                <span className={`font-bold ${isCurrent ? 'text-white' : tierStyle.text}`}>{tier.label}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -200,30 +221,6 @@ export default function ResultsPage() {
                                             <div className="p-4 bg-slate-50 rounded-2xl">
                                                 <div className="text-xs font-bold text-slate-400 uppercase mb-1">Interactivity</div>
                                                 <div className="font-bold text-slate-800">{data.interactivity}</div>
-                                            </div>
-                                        </div>
-
-                                        <div className="pt-6 border-t border-slate-100">
-                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Score Guide</h3>
-                                            <div className="space-y-2">
-                                                {[
-                                                    { range: '0.0 - 2.9', label: 'SKIP', desc: 'Low value, cancel it', rec: 'SKIP' },
-                                                    { range: '3.0 - 4.9', label: 'ASYNC FIRST', desc: 'Use email/Slack', rec: 'ASYNC_FIRST' },
-                                                    { range: '5.0 - 6.9', label: 'SHORTEN', desc: 'Too long/large', rec: 'SHORTEN' },
-                                                    { range: '7.0 - 10.0', label: 'PROCEED', desc: 'Well planned', rec: 'PROCEED' }
-                                                ].map((tier) => {
-                                                    const isCurrent = data.recommendation === tier.rec;
-                                                    const tierStyle = REC_STYLES[tier.rec as Recommendation];
-                                                    return (
-                                                        <div key={tier.label} className={`flex items-center justify-between p-3 rounded-xl text-sm transition-all ${isCurrent ? 'bg-slate-900 text-white shadow-lg scale-[1.02] ring-2 ring-offset-2 ring-slate-900' : 'bg-slate-50 text-slate-500'}`}>
-                                                            <div className="flex items-center gap-4">
-                                                                <span className={`font-mono font-bold w-20 ${isCurrent ? 'text-white' : 'text-slate-400'}`}>{tier.range}</span>
-                                                                <span className={`font-bold ${isCurrent ? 'text-white' : tierStyle.text}`}>{tier.label}</span>
-                                                            </div>
-                                                            <span className={`hidden sm:block ${isCurrent ? 'text-white/80' : 'text-slate-400'}`}>{tier.desc}</span>
-                                                        </div>
-                                                    );
-                                                })}
                                             </div>
                                         </div>
                                     </div>
