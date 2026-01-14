@@ -96,6 +96,117 @@ export const calculateSavings = (data: AssessmentData, score: number, recommenda
     };
 };
 
+export interface ScoreFactor {
+    label: string;
+    impact: number;
+    description: string;
+}
+
+export const calculateScoreBreakdown = (data: AssessmentData): { helping: ScoreFactor[]; hurting: ScoreFactor[] } => {
+    const factors: ScoreFactor[] = [];
+
+    // Purpose
+    const purposeLabels: Record<string, string> = {
+        'INFO_SHARE': 'Information sharing',
+        'DECIDE': 'Decision-making',
+        'BRAINSTORM': 'Brainstorming',
+        'ALIGN': 'Alignment'
+    };
+    const purposeImpacts: Record<string, number> = {
+        'INFO_SHARE': -1.5,
+        'DECIDE': 1.0,
+        'BRAINSTORM': 0.5,
+        'ALIGN': 0.5
+    };
+    factors.push({
+        label: 'Purpose',
+        impact: purposeImpacts[data.purpose],
+        description: purposeLabels[data.purpose]
+    });
+
+    // Urgency
+    const urgencyImpacts: Record<string, number> = { 'TODAY': 0.5, 'THIS_WEEK': 0.25, 'FLEXIBLE': -0.5 };
+    const urgencyLabels: Record<string, string> = { 'TODAY': 'Urgent (today)', 'THIS_WEEK': 'This week', 'FLEXIBLE': 'Flexible timing' };
+    factors.push({
+        label: 'Urgency',
+        impact: urgencyImpacts[data.urgency],
+        description: urgencyLabels[data.urgency]
+    });
+
+    // Decision Required
+    factors.push({
+        label: 'Decision Required',
+        impact: data.decisionRequired ? 1.0 : -0.5,
+        description: data.decisionRequired ? 'Yes' : 'No'
+    });
+
+    // Interactivity
+    const interactivityImpacts: Record<string, number> = { 'HIGH': 1.0, 'MEDIUM': 0.5, 'LOW': -1.0 };
+    factors.push({
+        label: 'Interactivity',
+        impact: interactivityImpacts[data.interactivity],
+        description: `${data.interactivity.charAt(0)}${data.interactivity.slice(1).toLowerCase()} interaction needed`
+    });
+
+    // Complexity
+    const complexityImpacts: Record<string, number> = { 'HIGH': 0.75, 'MEDIUM': 0.25, 'LOW': -0.5 };
+    factors.push({
+        label: 'Complexity',
+        impact: complexityImpacts[data.complexity],
+        description: `${data.complexity.charAt(0)}${data.complexity.slice(1).toLowerCase()} complexity topic`
+    });
+
+    // Async Possible
+    factors.push({
+        label: 'Could Be Async',
+        impact: data.asyncPossible ? -1.5 : 1.0,
+        description: data.asyncPossible ? 'Yes, could handle async' : 'No, needs live discussion'
+    });
+
+    // Has Agenda
+    factors.push({
+        label: 'Has Agenda',
+        impact: data.hasAgenda ? 0.5 : -1.0,
+        description: data.hasAgenda ? 'Agenda prepared' : 'No agenda'
+    });
+
+    // Group Size
+    const attendeeCount = data.attendees.length;
+    let groupImpact = 0;
+    let groupDesc = `${attendeeCount} attendees`;
+    if (attendeeCount >= 1 && attendeeCount <= 4) {
+        groupImpact = 0.5;
+        groupDesc = `Small group (${attendeeCount})`;
+    } else if (attendeeCount >= 8) {
+        groupImpact = -0.5;
+        groupDesc = `Large group (${attendeeCount})`;
+    }
+    if (groupImpact !== 0) {
+        factors.push({ label: 'Group Size', impact: groupImpact, description: groupDesc });
+    }
+
+    // DRI
+    const hasDRI = data.attendees.some(a => a.isDRI);
+    if (!hasDRI) {
+        factors.push({
+            label: 'No DRI',
+            impact: -0.75,
+            description: 'No decision maker assigned'
+        });
+    } else {
+        factors.push({
+            label: 'Has DRI',
+            impact: 0,
+            description: 'Decision maker assigned'
+        });
+    }
+
+    const helping = factors.filter(f => f.impact > 0).sort((a, b) => b.impact - a.impact);
+    const hurting = factors.filter(f => f.impact < 0).sort((a, b) => a.impact - b.impact);
+
+    return { helping, hurting };
+};
+
 export const calculateActionPlan = (data: AssessmentData, recommendation: Recommendation): string[] => {
     const actions: string[] = [];
 
