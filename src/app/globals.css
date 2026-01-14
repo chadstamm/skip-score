@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-score-teal: #0d9488;
+  --color-skip-coral: #F97316;
+  --color-teal-dark: #0f766e;
+  --color-teal-darker: #134e4a;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+body {
+  color: var(--foreground);
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #0d9488, #0f766e, #134e4a);
+  background-attachment: fixed;
+}
+
+/* Custom utility for glassmorphism or cards if needed */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}

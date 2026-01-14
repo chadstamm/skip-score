@@ -1,0 +1,111 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Logo } from '@/components/Logo';
+import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { AssessmentData, Attendee, MeetingPurpose, MeetingUrgency, InteractivityLevel, ComplexityLevel } from '@/lib/types';
+import { calculateScore } from '@/lib/scoring';
+import Step1 from '@/components/assess/Step1';
+import Step2 from '@/components/assess/Step2';
+import Step3 from '@/components/assess/Step3';
+
+export default function AssessPage() {
+    const router = useRouter();
+    const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState<Partial<AssessmentData>>({
+        title: '',
+        purpose: 'INFO_SHARE',
+        urgency: 'THIS_WEEK',
+        duration: 30,
+        interactivity: 'MEDIUM',
+        complexity: 'MEDIUM',
+        attendees: [],
+    });
+
+    const updateFormData = (data: Partial<AssessmentData>) => {
+        setFormData(prev => ({ ...prev, ...data }));
+    };
+
+    const nextStep = () => setStep(s => Math.min(s + 1, 3));
+    const prevStep = () => setStep(s => Math.max(s - 1, 1));
+
+    const handleSubmit = () => {
+        const id = crypto.randomUUID();
+        const fullData: AssessmentData = {
+            ...formData,
+            id,
+            createdAt: new Date().toISOString(),
+            attendees: formData.attendees || [],
+        } as AssessmentData;
+
+        const { score, recommendation, reasoning } = calculateScore(fullData);
+        fullData.score = score;
+        fullData.recommendation = recommendation;
+        fullData.reasoning = reasoning;
+
+        // Save to localStorage
+        const pastAssessments = JSON.parse(localStorage.getItem('skip-score-history') || '[]');
+        localStorage.setItem('skip-score-history', JSON.stringify([fullData, ...pastAssessments]));
+
+        router.push(`/results/${id}`);
+    };
+
+    return (
+        <main className="min-h-screen p-4 sm:p-8 flex flex-col items-center">
+            <div className="max-w-2xl w-full space-y-8">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <Link href="/"><Logo className="scale-75 origin-left cursor-pointer" variant="white" /></Link>
+                    <div className="flex items-center gap-2">
+                        {[1, 2, 3].map((s) => (
+                            <div
+                                key={s}
+                                className={`w-3 h-3 rounded-full transition-colors duration-300 ${s === step ? 'bg-white' : s < step ? 'bg-teal-300' : 'bg-white/30'
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                {/* Form Card */}
+                <div className="glass-card rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8 min-h-[500px] flex flex-col">
+                    <div className="flex-1">
+                        {step === 1 && <Step1 data={formData} updateData={updateFormData} onNext={nextStep} />}
+                        {step === 2 && <Step2 data={formData} updateData={updateFormData} onNext={nextStep} />}
+                        {step === 3 && <Step3 data={formData} updateData={updateFormData} onSubmit={handleSubmit} />}
+                    </div>
+
+                    {/* Navigation */}
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+                        <button
+                            onClick={prevStep}
+                            className={`flex items-center gap-2 px-6 py-2 font-semibold transition-all ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                        >
+                            <ArrowLeft className="w-4 h-4" /> Back
+                        </button>
+                        {step < 3 ? (
+                            <button
+                                onClick={nextStep}
+                                disabled={!formData.title}
+                                className="bg-skip-coral text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:bg-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Continue <ArrowRight className="w-4 h-4" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={formData.attendees?.length === 0}
+                                className="bg-skip-coral text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:bg-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                See Results <CheckCircle2 className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </main>
+    );
+}
