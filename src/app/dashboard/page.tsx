@@ -58,8 +58,8 @@ export default function Dashboard() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                     <Link href="/">
-                        <div className="bg-white p-3 rounded-2xl shadow-lg inline-block cursor-pointer">
-                            <Logo className="scale-75 origin-left" />
+                        <div className="bg-white px-4 py-3 rounded-2xl shadow-lg inline-flex items-center cursor-pointer hover:shadow-xl transition-shadow">
+                            <Logo />
                         </div>
                     </Link>
                     <Link
