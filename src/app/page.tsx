@@ -42,13 +42,21 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center space-y-6 text-white">
           <h1 className={`text-5xl sm:text-7xl font-extrabold tracking-tight leading-tight ${eosMode ? 'text-amber-500' : ''}`}>
-            Should You Have<br />This Meeting?
+            {eosMode ? (
+              <>Protect Your<br />L10 Pulse</>
+            ) : (
+              <>Should You Have<br />This Meeting?</>
+            )}
           </h1>
           <p className={`text-xl sm:text-2xl max-w-2xl mx-auto ${eosMode ? 'text-neutral-300' : 'text-teal-50/90'}`}>
-            Score your meetings before you book them. Determine if they're truly needed. Reclaim your time.
+            {eosMode
+              ? 'Keep your weekly meeting pulse sacred. Check if that extra meeting belongs on the calendar—or in a quick IDS.'
+              : 'Score your meetings before you book them. Determine if they\'re truly needed. Reclaim your time.'}
           </p>
           <p className={`text-sm font-medium uppercase tracking-widest ${eosMode ? 'text-amber-400/80' : 'text-teal-200/80'}`}>
-            Notetakers capture what was said. We capture whether it should have been said at all.
+            {eosMode
+              ? 'Built for teams running on Traction. Optimized for the EOS meeting pulse.'
+              : 'Notetakers capture what was said. We capture whether it should have been said at all.'}
           </p>
 
           {/* CTA */}
