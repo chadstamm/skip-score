@@ -17,7 +17,12 @@ import {
     TrendingUp,
     TrendingDown,
     MessageSquare,
-    Mail
+    Mail,
+    Video,
+    FileText,
+    Sparkles,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
@@ -61,6 +66,8 @@ export default function ResultsPage() {
     const [copied, setCopied] = useState(false);
     const [slackCopied, setSlackCopied] = useState(false);
     const [displayScore, setDisplayScore] = useState(0);
+    const [expandedReplacement, setExpandedReplacement] = useState<'slack' | 'loom' | 'doc' | null>(null);
+    const [replacementCopied, setReplacementCopied] = useState<string | null>(null);
     const [animationComplete, setAnimationComplete] = useState(false);
     const hasAnimated = useRef(false);
 
@@ -136,6 +143,129 @@ export default function ResultsPage() {
         const subject = encodeURIComponent(`SkipScore Results: ${data.title}`);
         const body = encodeURIComponent(`SkipScore Results: ${data.title}\n\nScore: ${data.score}/10\nRecommendation: ${style.label}\n\n${style.description}\n\nSuggestions:\n${actionPlan.map((item, i) => `${i + 1}. ${item}`).join('\n')}`);
         window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    };
+
+    // Meeting Replacement Generators
+    const attendeeNames = data.attendees.map(a => a.name).join(', ');
+    const driName = data.attendees.find(a => a.isDRI)?.name || 'the team';
+
+    const generateSlackMessage = () => {
+        const isSkip = data.recommendation === 'SKIP';
+        return `Hey team! 👋
+
+I was planning to schedule "${data.title}" but after thinking it through, I believe we can handle this async instead.
+
+${isSkip ? `**What I need from you:**
+• Please share your updates/thoughts in this thread
+• If you have questions, drop them here and I'll respond
+• ${driName} - I'll need your input on any decisions` : `**Here's what we need to cover:**
+• [Add your key discussion points here]
+• Please review and add your thoughts below
+
+**Timeline:** Let's aim to wrap up discussion by [date]`}
+
+${data.attendees.length > 0 ? `\nTagging: ${attendeeNames}` : ''}
+
+This saves us ${savings.potentialHoursSaved.toFixed(1)} hours of meeting time. Thanks for being async-friendly! 🙌`;
+    };
+
+    const generateLoomScript = () => {
+        return `📹 LOOM SCRIPT: ${data.title}
+${'─'.repeat(40)}
+
+INTRO (30 sec)
+"Hey everyone, I'm recording this instead of scheduling a meeting to save us all some time."
+
+CONTEXT (1 min)
+"Here's what this is about: [Explain the background of ${data.title}]"
+• What led to this
+• Why it matters now
+
+MAIN CONTENT (2-3 min)
+"Let me walk you through the key points..."
+
+${data.decisionRequired ? `DECISION NEEDED
+"We need to decide on [specific decision]. Here are the options:
+• Option A: [describe]
+• Option B: [describe]
+Please comment with your preference by [date]."` : `KEY INFORMATION
+"Here's what you need to know:
+• Point 1
+• Point 2
+• Point 3"`}
+
+CALL TO ACTION (30 sec)
+"After watching this:
+${data.decisionRequired ? '• Comment with your vote/preference' : '• Let me know if you have questions'}
+• ${driName}, I'll need your sign-off
+• Deadline: [add date]"
+
+WRAP UP
+"Thanks for watching! This saved us a ${data.duration || 30}-minute meeting. Drop any questions in the comments."
+
+${'─'.repeat(40)}
+Total runtime target: 3-5 minutes`;
+    };
+
+    const generateAsyncDoc = () => {
+        return `# ${data.title}
+## Async Discussion Document
+
+**Owner:** ${driName}
+**Participants:** ${attendeeNames || '[Add participants]'}
+**Deadline for input:** [Add date]
+**Status:** 🟡 Awaiting Input
+
+---
+
+### 📋 Context
+[Explain the background and why this matters]
+
+### 🎯 Objective
+${data.decisionRequired ? 'We need to make a decision on...' : 'Share information about...'}
+
+### 📝 Key Points
+1. [First point]
+2. [Second point]
+3. [Third point]
+
+${data.decisionRequired ? `### ⚖️ Options to Consider
+| Option | Pros | Cons |
+|--------|------|------|
+| Option A | | |
+| Option B | | |
+| Option C | | |
+
+### 🗳️ Vote
+Please add your name under your preferred option:
+
+**Option A:**
+-
+
+**Option B:**
+-
+
+**Option C:**
+- ` : `### ❓ Questions & Discussion
+*Add your questions or comments below with your name:*
+
+---
+
+`}
+### ✅ Next Steps
+- [ ] All participants review by [date]
+- [ ] ${driName} to make final decision
+- [ ] Communicate outcome to team
+
+---
+*This async doc replaced a ${data.duration || 30}-minute meeting, saving ${savings.potentialHoursSaved.toFixed(1)} hours of team time.*`;
+    };
+
+    const copyReplacement = (type: 'slack' | 'loom' | 'doc') => {
+        const content = type === 'slack' ? generateSlackMessage() : type === 'loom' ? generateLoomScript() : generateAsyncDoc();
+        navigator.clipboard.writeText(content);
+        setReplacementCopied(type);
+        setTimeout(() => setReplacementCopied(null), 2000);
     };
 
     const progressOffset = animationComplete
@@ -399,6 +529,124 @@ export default function ResultsPage() {
                         <p className="text-[10px] text-slate-400 mt-3 font-medium">* Based on avg. $75/hr per attendee</p>
                     </div>
                 </div>
+
+                {/* Meeting Replacement Generator - Only for SKIP/ASYNC_FIRST */}
+                {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST') && (
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
+                        <div className="p-6 sm:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-2xl">
+                                    <Sparkles className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-extrabold text-slate-900">Meeting Replacement Generator</h2>
+                                    <p className="text-sm text-slate-500">Ready-to-use templates to replace this meeting</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                {/* Slack Message */}
+                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                    <button
+                                        onClick={() => setExpandedReplacement(expandedReplacement === 'slack' ? null : 'slack')}
+                                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-[#4A154B] p-2 rounded-xl">
+                                                <MessageSquare className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div className="text-left">
+                                                <div className="font-bold text-slate-900">Slack Message</div>
+                                                <div className="text-xs text-slate-500">Ready-to-post async update</div>
+                                            </div>
+                                        </div>
+                                        {expandedReplacement === 'slack' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                                    </button>
+                                    {expandedReplacement === 'slack' && (
+                                        <div className="border-t border-slate-200 p-4 bg-slate-50">
+                                            <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans bg-white p-4 rounded-xl border border-slate-200 max-h-64 overflow-y-auto">
+                                                {generateSlackMessage()}
+                                            </pre>
+                                            <button
+                                                onClick={() => copyReplacement('slack')}
+                                                className="mt-3 flex items-center gap-2 px-4 py-2 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all"
+                                            >
+                                                {replacementCopied === 'slack' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                {replacementCopied === 'slack' ? 'Copied!' : 'Copy to Clipboard'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Loom Script */}
+                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                    <button
+                                        onClick={() => setExpandedReplacement(expandedReplacement === 'loom' ? null : 'loom')}
+                                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-[#625DF5] p-2 rounded-xl">
+                                                <Video className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div className="text-left">
+                                                <div className="font-bold text-slate-900">Loom Script</div>
+                                                <div className="text-xs text-slate-500">Video recording outline</div>
+                                            </div>
+                                        </div>
+                                        {expandedReplacement === 'loom' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                                    </button>
+                                    {expandedReplacement === 'loom' && (
+                                        <div className="border-t border-slate-200 p-4 bg-slate-50">
+                                            <pre className="text-sm text-slate-700 whitespace-pre-wrap font-mono bg-white p-4 rounded-xl border border-slate-200 max-h-64 overflow-y-auto">
+                                                {generateLoomScript()}
+                                            </pre>
+                                            <button
+                                                onClick={() => copyReplacement('loom')}
+                                                className="mt-3 flex items-center gap-2 px-4 py-2 bg-[#625DF5] text-white rounded-xl font-bold text-sm hover:bg-[#4f4ad4] transition-all"
+                                            >
+                                                {replacementCopied === 'loom' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                {replacementCopied === 'loom' ? 'Copied!' : 'Copy to Clipboard'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Async Doc */}
+                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                    <button
+                                        onClick={() => setExpandedReplacement(expandedReplacement === 'doc' ? null : 'doc')}
+                                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-emerald-500 p-2 rounded-xl">
+                                                <FileText className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div className="text-left">
+                                                <div className="font-bold text-slate-900">Async Document</div>
+                                                <div className="text-xs text-slate-500">Notion/Google Doc template</div>
+                                            </div>
+                                        </div>
+                                        {expandedReplacement === 'doc' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                                    </button>
+                                    {expandedReplacement === 'doc' && (
+                                        <div className="border-t border-slate-200 p-4 bg-slate-50">
+                                            <pre className="text-sm text-slate-700 whitespace-pre-wrap font-mono bg-white p-4 rounded-xl border border-slate-200 max-h-64 overflow-y-auto">
+                                                {generateAsyncDoc()}
+                                            </pre>
+                                            <button
+                                                onClick={() => copyReplacement('doc')}
+                                                className="mt-3 flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl font-bold text-sm hover:bg-emerald-600 transition-all"
+                                            >
+                                                {replacementCopied === 'doc' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                {replacementCopied === 'doc' ? 'Copied!' : 'Copy to Clipboard'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </main>
     );
