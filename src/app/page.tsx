@@ -21,8 +21,8 @@ export default function Home() {
           {/* EOS Mode Toggle */}
           <div className="absolute right-0 top-8 flex flex-col items-end gap-2">
             {!eosMode && (
-              <p className="text-xs text-white/80 font-bold max-w-[180px] text-right leading-tight">
-                Running on Traction EOS? Turn<br />this on for L10 optimization.
+              <p className="text-xs text-white/80 font-bold text-right leading-tight">
+                Running on Traction EOS?<br />Turn this on for L10 optimization.
               </p>
             )}
             <button
