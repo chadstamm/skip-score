@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AssessmentData, MeetingPurpose, MeetingUrgency, RecurrenceFrequency } from '@/lib/types';
-import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks } from 'lucide-react';
+import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks, PenLine } from 'lucide-react';
 import { useEOS } from '@/contexts/EOSContext';
 
 interface Step1Props {
@@ -74,6 +74,22 @@ const TEMPLATES = [
             hasAgenda: false,
         }
     },
+    {
+        id: 'scratch',
+        name: 'From Scratch',
+        icon: PenLine,
+        color: 'bg-slate-500',
+        defaults: {
+            title: '',
+            purpose: undefined,
+            urgency: 'THIS_WEEK' as MeetingUrgency,
+            duration: 30,
+            interactivity: undefined,
+            complexity: undefined,
+            asyncPossible: undefined,
+            hasAgenda: undefined,
+        }
+    },
 ];
 
 const PURPOSES: { value: MeetingPurpose; label: string; description: string }[] = [
@@ -90,6 +106,7 @@ const URGENCY: { value: MeetingUrgency; label: string }[] = [
 ];
 
 const RECURRENCE: { value: RecurrenceFrequency; label: string; multiplier: number }[] = [
+    { value: 'DAILY', label: 'Daily', multiplier: 260 },
     { value: 'WEEKLY', label: 'Weekly', multiplier: 52 },
     { value: 'BIWEEKLY', label: 'Bi-weekly', multiplier: 26 },
     { value: 'MONTHLY', label: 'Monthly', multiplier: 12 },
@@ -166,6 +183,22 @@ const EOS_TEMPLATES = [
             recurrenceFrequency: 'WEEKLY' as RecurrenceFrequency,
         }
     },
+    {
+        id: 'scratch-eos',
+        name: 'From Scratch',
+        icon: PenLine,
+        color: 'bg-neutral-600',
+        defaults: {
+            title: '',
+            purpose: undefined,
+            urgency: 'THIS_WEEK' as MeetingUrgency,
+            duration: 30,
+            interactivity: undefined,
+            complexity: undefined,
+            asyncPossible: undefined,
+            hasAgenda: undefined,
+        }
+    },
 ];
 
 export default function Step1({ data, updateData }: Step1Props) {
@@ -211,7 +244,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                         L10 and IDS meetings are protected. Other meetings may be flagged for the Issues List.
                     </div>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {activeTemplates.map((template) => {
                         const Icon = template.icon;
                         return (
@@ -341,7 +374,7 @@ export default function Step1({ data, updateData }: Step1Props) {
 
                     {data.isRecurring && (
                         <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-3">
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-4 gap-2">
                                 {RECURRENCE.map((r) => (
                                     <button
                                         key={r.value}

@@ -445,33 +445,30 @@ Please add your name under your preferred option:
 
                                         {/* Attendee suggestions for low scores */}
                                         {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST' || data.recommendation === 'SHORTEN') && data.attendees.length > 2 && (
-                                            <div className={`rounded-2xl p-4 border ${
+                                            <div className={`flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
                                                 eosMode
-                                                    ? 'bg-amber-500/10 border-amber-500/20'
-                                                    : 'bg-amber-50 border-amber-100'
+                                                    ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-750'
+                                                    : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
                                             }`}>
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <AlertCircle className={`w-4 h-4 ${eosMode ? 'text-amber-400' : 'text-amber-600'}`} />
-                                                    <span className={`text-sm font-bold ${eosMode ? 'text-amber-400' : 'text-amber-700'}`}>
-                                                        {eosMode ? 'Reduce the Invite List' : 'Consider Reducing Attendees'}
+                                                <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
+                                                <div>
+                                                    <span className={`font-medium ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                                                        {eosMode ? 'Reduce the invite list' : 'Consider reducing attendees'}. With {data.attendees.length} people, mark some as optional:
                                                     </span>
-                                                </div>
-                                                <p className={`text-sm mb-3 ${eosMode ? 'text-amber-300' : 'text-amber-700'}`}>
-                                                    With {data.attendees.length} attendees, you could mark some as optional:
-                                                </p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {data.attendees
-                                                        .filter(a => !a.isDRI && !a.isOptional)
-                                                        .slice(0, 3)
-                                                        .map((attendee, i) => (
-                                                            <span key={i} className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                                                                eosMode
-                                                                    ? 'bg-neutral-800 text-amber-400 border-amber-500/30'
-                                                                    : 'bg-white text-amber-700 border-amber-200'
-                                                            }`}>
-                                                                {attendee.name} → Optional?
-                                                            </span>
-                                                        ))}
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {data.attendees
+                                                            .filter(a => !a.isDRI && !a.isOptional)
+                                                            .slice(0, 3)
+                                                            .map((attendee, i) => (
+                                                                <span key={i} className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                                                                    eosMode
+                                                                        ? 'bg-neutral-700 text-neutral-300 border-neutral-600'
+                                                                        : 'bg-white text-slate-600 border-slate-200'
+                                                                }`}>
+                                                                    {attendee.name} → Optional?
+                                                                </span>
+                                                            ))}
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
@@ -560,11 +557,11 @@ Please add your name under your preferred option:
                                     </div>
                                     <div className="flex-1">
                                         <div className="font-bold text-sm uppercase tracking-wide opacity-90">
-                                            {data.recurrenceFrequency === 'WEEKLY' ? 'Weekly' : data.recurrenceFrequency === 'BIWEEKLY' ? 'Bi-weekly' : 'Monthly'} {eosMode ? 'Rhythm' : 'Recurring Meeting'}
+                                            {data.recurrenceFrequency === 'DAILY' ? 'Daily' : data.recurrenceFrequency === 'WEEKLY' ? 'Weekly' : data.recurrenceFrequency === 'BIWEEKLY' ? 'Bi-weekly' : 'Monthly'} {eosMode ? 'Rhythm' : 'Recurring Meeting'}
                                         </div>
                                         <div className="text-2xl font-black">
                                             {(() => {
-                                                const multiplier = data.recurrenceFrequency === 'WEEKLY' ? 52 : data.recurrenceFrequency === 'BIWEEKLY' ? 26 : 12;
+                                                const multiplier = data.recurrenceFrequency === 'DAILY' ? 260 : data.recurrenceFrequency === 'WEEKLY' ? 52 : data.recurrenceFrequency === 'BIWEEKLY' ? 26 : 12;
                                                 const annualHours = savings.potentialHoursSaved * multiplier;
                                                 const annualSavings = savings.savings * multiplier;
                                                 return `${annualHours.toFixed(0)} hrs & $${annualSavings.toLocaleString()} per year`;

@@ -28,7 +28,12 @@ body {
 
 /* EOS Mode - Dark Theme mimicking Traction branding */
 body.eos-mode {
-  background: linear-gradient(to bottom right, #0a0a0a, #171717, #1f1f1f);
+  background: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #1a1a1a 100%) !important;
+  background-attachment: fixed !important;
+}
+
+body.eos-mode main {
+  background: transparent !important;
 }
 
 /* Custom utility for glassmorphism or cards if needed */

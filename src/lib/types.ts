@@ -2,7 +2,7 @@ export type MeetingPurpose = 'INFO_SHARE' | 'DECIDE' | 'BRAINSTORM' | 'ALIGN';
 export type MeetingUrgency = 'TODAY' | 'THIS_WEEK' | 'FLEXIBLE';
 export type InteractivityLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 export type ComplexityLevel = 'HIGH' | 'MEDIUM' | 'LOW';
-export type RecurrenceFrequency = 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
+export type RecurrenceFrequency = 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
 
 export interface Attendee {
     id: string;
