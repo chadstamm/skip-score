@@ -39,7 +39,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="decisionRequired"
                                 checked={data.decisionRequired === true}
                                 onChange={() => updateData({ decisionRequired: true })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-700">Yes</span>
                         </label>
@@ -49,7 +49,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="decisionRequired"
                                 checked={data.decisionRequired === false}
                                 onChange={() => updateData({ decisionRequired: false })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-700">No</span>
                         </label>
@@ -59,7 +59,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="decisionRequired"
                                 checked={data.decisionRequired === undefined}
                                 onChange={() => updateData({ decisionRequired: undefined })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-400">Unknown</span>
                         </label>
@@ -75,7 +75,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="hasAgenda"
                                 checked={data.hasAgenda === true}
                                 onChange={() => updateData({ hasAgenda: true })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-700">Yes</span>
                         </label>
@@ -85,7 +85,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="hasAgenda"
                                 checked={data.hasAgenda === false}
                                 onChange={() => updateData({ hasAgenda: false })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-700">No</span>
                         </label>
@@ -95,7 +95,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="hasAgenda"
                                 checked={data.hasAgenda === undefined}
                                 onChange={() => updateData({ hasAgenda: undefined })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-400">Unknown</span>
                         </label>
@@ -111,7 +111,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="asyncPossible"
                                 checked={data.asyncPossible === true}
                                 onChange={() => updateData({ asyncPossible: true })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-700">Yes</span>
                         </label>
@@ -121,7 +121,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="asyncPossible"
                                 checked={data.asyncPossible === false}
                                 onChange={() => updateData({ asyncPossible: false })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-700">No</span>
                         </label>
@@ -131,7 +131,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="asyncPossible"
                                 checked={data.asyncPossible === undefined}
                                 onChange={() => updateData({ asyncPossible: undefined })}
-                                className="w-5 h-5 text-score-teal accent-score-teal"
+                                className="w-5 h-5 text-score-teal accent-score-teal appearance-none border-2 border-slate-300 rounded-full checked:bg-score-teal checked:border-score-teal"
                             />
                             <span className="font-medium text-slate-400">Unknown</span>
                         </label>

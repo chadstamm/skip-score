@@ -58,6 +58,7 @@ export default function ResultsPage() {
     const [data, setData] = useState<AssessmentData | null>(null);
     const [activeTab, setActiveTab] = useState<'breakdown' | 'suggestions'>('suggestions');
     const [copied, setCopied] = useState(false);
+    const [slackCopied, setSlackCopied] = useState(false);
     const [displayScore, setDisplayScore] = useState(0);
     const [animationComplete, setAnimationComplete] = useState(false);
     const hasAnimated = useRef(false);
@@ -122,8 +123,10 @@ export default function ResultsPage() {
     };
 
     const shareToSlack = () => {
-        const text = encodeURIComponent(`🎯 SkipScore Results: *${data.title}*\n\nScore: ${data.score}/10\nRecommendation: ${style.label}\n\n${style.description}`);
-        window.open(`https://slack.com/share?text=${text}`, '_blank', 'width=600,height=400');
+        const text = `🎯 *SkipScore Results: ${data.title}*\n\n*Score:* ${data.score}/10\n*Recommendation:* ${style.label}\n\n${style.description}`;
+        navigator.clipboard.writeText(text);
+        setSlackCopied(true);
+        setTimeout(() => setSlackCopied(false), 2000);
     };
 
     const progressOffset = animationComplete
@@ -365,7 +368,8 @@ export default function ResultsPage() {
                                     onClick={shareToSlack}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
                                 >
-                                    <MessageSquare className="w-4 h-4" /> Slack
+                                    {slackCopied ? <CheckCircle2 className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                                    {slackCopied ? 'Copied for Slack!' : 'Copy for Slack'}
                                 </button>
                                 <Link
                                     href="/dashboard"

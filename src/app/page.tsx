@@ -159,7 +159,6 @@ export default function Home() {
               Start Your First Assessment <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
-          <p className="text-white/60 text-sm">Free forever. No signup required.</p>
         </div>
       </div>
     </main>
