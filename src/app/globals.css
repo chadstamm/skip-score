@@ -5,6 +5,12 @@
   --color-skip-coral: #F97316;
   --color-teal-dark: #0f766e;
   --color-teal-darker: #134e4a;
+  /* EOS/Traction Colors */
+  --color-eos-amber: #f59e0b;
+  --color-eos-amber-dark: #d97706;
+  --color-eos-black: #0a0a0a;
+  --color-eos-dark: #171717;
+  --color-eos-gray: #262626;
 }
 
 :root {
@@ -17,6 +23,12 @@ body {
   min-height: 100vh;
   background: linear-gradient(to bottom right, #0d9488, #0f766e, #134e4a);
   background-attachment: fixed;
+  transition: background 0.5s ease-in-out;
+}
+
+/* EOS Mode - Dark Theme mimicking Traction branding */
+body.eos-mode {
+  background: linear-gradient(to bottom right, #0a0a0a, #171717, #1f1f1f);
 }
 
 /* Custom utility for glassmorphism or cards if needed */
@@ -24,4 +36,37 @@ body {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+body.eos-mode .glass-card {
+  background: rgba(38, 38, 38, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* EOS Mode specific overrides - keep orange, mute teal to subtle gray-teal */
+body.eos-mode .text-score-teal {
+  color: #64748b !important; /* Subtle slate for EOS */
+}
+
+body.eos-mode .bg-score-teal {
+  background-color: #334155 !important; /* Dark slate */
+}
+
+body.eos-mode .border-score-teal {
+  border-color: #475569 !important;
+}
+
+/* Keep the orange/coral - it's the SkipScore brand */
+body.eos-mode .text-skip-coral {
+  color: #F97316 !important;
+}
+
+body.eos-mode .bg-skip-coral {
+  background-color: #F97316 !important;
+}
+
+/* EOS card styling */
+body.eos-mode .eos-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
 }
