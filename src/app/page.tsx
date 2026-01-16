@@ -19,17 +19,24 @@ export default function Home() {
             <Logo />
           </div>
           {/* EOS Mode Toggle */}
-          <button
-            onClick={toggleEosMode}
-            className={`absolute right-0 top-8 flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all ${
-              eosMode
-                ? 'bg-amber-500 text-black hover:bg-amber-400'
-                : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
-            }`}
-          >
-            <Target className="w-4 h-4" />
-            {eosMode ? 'EOS Mode ON' : 'EOS Mode'}
-          </button>
+          <div className="absolute right-0 top-8 flex flex-col items-end gap-2">
+            <button
+              onClick={toggleEosMode}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all ${
+                eosMode
+                  ? 'bg-amber-500 text-black hover:bg-amber-400'
+                  : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
+              }`}
+            >
+              <Target className="w-4 h-4" />
+              {eosMode ? 'EOS Mode ON' : 'EOS Mode'}
+            </button>
+            {!eosMode && (
+              <p className="text-xs text-white/60 max-w-[180px] text-right">
+                Running on EOS/Traction? Turn this on for L10-optimized scoring.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Hero Section */}
