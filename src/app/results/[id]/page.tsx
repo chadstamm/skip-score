@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
+import { useEOS } from '@/contexts/EOSContext';
 
 const REC_STYLES: Record<Recommendation, { label: string; color: string; bg: string; text: string; description: string }> = {
     SKIP: {
@@ -63,6 +64,7 @@ const REC_STYLES: Record<Recommendation, { label: string; color: string; bg: str
 export default function ResultsPage() {
     const { id } = useParams();
     const router = useRouter();
+    const { eosMode } = useEOS();
     const [data, setData] = useState<AssessmentData | null>(null);
     const [activeTab, setActiveTab] = useState<'breakdown' | 'suggestions'>('suggestions');
     const [copied, setCopied] = useState(false);
@@ -280,10 +282,14 @@ Please add your name under your preferred option:
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link href="/assess" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-bold">
-                            <ArrowLeft className="w-5 h-5" /> New Assessment
+                        <Link href="/assess" className={`flex items-center gap-2 transition-colors font-bold ${
+                            eosMode ? 'text-amber-500/80 hover:text-amber-400' : 'text-white/80 hover:text-white'
+                        }`}>
+                            <ArrowLeft className="w-5 h-5" /> {eosMode ? 'New Check' : 'New Assessment'}
                         </Link>
-                        <Link href="/dashboard" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-bold">
+                        <Link href="/dashboard" className={`flex items-center gap-2 transition-colors font-bold ${
+                            eosMode ? 'text-amber-500/80 hover:text-amber-400' : 'text-white/80 hover:text-white'
+                        }`}>
                             <LayoutDashboard className="w-5 h-5" /> Dashboard
                         </Link>
                     </div>
@@ -291,21 +297,37 @@ Please add your name under your preferred option:
                 </div>
 
                 {/* Main Result Card */}
-                <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
+                <div className={`rounded-[2.5rem] shadow-2xl overflow-hidden ${
+                    eosMode ? 'bg-neutral-900 border border-neutral-800' : 'bg-white'
+                }`}>
                     <div className="p-6 sm:p-10 space-y-8">
                         {/* Top Section - 50/50 Split */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                             {/* Left: Title + Badge + Reasoning */}
                             <div className="space-y-4">
-                                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                                <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${
+                                    eosMode ? 'text-neutral-100' : 'text-slate-900'
+                                }`}>
                                     {data.title}
                                 </h1>
-                                <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${style.bg} ${style.text} ${animationComplete ? 'animate-in zoom-in duration-300' : 'opacity-0'}`}>
+                                <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${
+                                    eosMode
+                                        ? data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST'
+                                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                            : data.recommendation === 'PROCEED'
+                                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                        : `${style.bg} ${style.text}`
+                                } ${animationComplete ? 'animate-in zoom-in duration-300' : 'opacity-0'}`}>
                                     <AlertCircle className="w-5 h-5" />
-                                    {style.label}
+                                    {eosMode && data.recommendation === 'SKIP' ? 'ADD TO ISSUES' : style.label}
                                 </div>
-                                <p className={`text-base text-slate-600 font-medium leading-relaxed ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-2 duration-500' : 'opacity-0'}`}>
-                                    {data.reasoning || style.description}
+                                <p className={`text-base font-medium leading-relaxed ${
+                                    eosMode ? 'text-neutral-400' : 'text-slate-600'
+                                } ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-2 duration-500' : 'opacity-0'}`}>
+                                    {eosMode && data.recommendation === 'SKIP'
+                                        ? 'This topic belongs on the Issues List, not in a meeting. Add it to your L10.'
+                                        : (data.reasoning || style.description)}
                                 </p>
                             </div>
 
@@ -320,7 +342,7 @@ Please add your name under your preferred option:
                                             stroke="currentColor"
                                             strokeWidth="12"
                                             fill="transparent"
-                                            className="text-slate-100"
+                                            className={eosMode ? 'text-neutral-800' : 'text-slate-100'}
                                         />
                                         <circle
                                             cx="80"
@@ -332,29 +354,39 @@ Please add your name under your preferred option:
                                             strokeDasharray={452}
                                             strokeDashoffset={progressOffset}
                                             strokeLinecap="round"
-                                            className="text-score-teal transition-all duration-100"
+                                            className={`transition-all duration-100 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`}
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-5xl font-black text-slate-900 tabular-nums">{displayScore}</span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center leading-tight">Skip<br />Score</span>
+                                        <span className={`text-5xl font-black tabular-nums ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>{displayScore}</span>
+                                        <span className={`text-[10px] font-bold uppercase tracking-widest text-center leading-tight ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>Skip<br />Score</span>
                                     </div>
                                 </div>
 
                                 {/* Score Guide */}
                                 <div className={`w-full max-w-[280px] space-y-1.5 ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-4 duration-500' : 'opacity-0'}`}>
                                     {[
-                                        { range: '0 - 2.9', label: 'SKIP', rec: 'SKIP' },
-                                        { range: '3 - 4.9', label: 'ASYNC FIRST', rec: 'ASYNC_FIRST' },
-                                        { range: '5 - 6.9', label: 'SHORTEN', rec: 'SHORTEN' },
-                                        { range: '7 - 10', label: 'PROCEED', rec: 'PROCEED' }
+                                        { range: '0 - 2.9', label: 'SKIP', eosLabel: 'ISSUES LIST', rec: 'SKIP' },
+                                        { range: '3 - 4.9', label: 'ASYNC FIRST', eosLabel: 'ASYNC', rec: 'ASYNC_FIRST' },
+                                        { range: '5 - 6.9', label: 'SHORTEN', eosLabel: 'SHORTEN', rec: 'SHORTEN' },
+                                        { range: '7 - 10', label: 'PROCEED', eosLabel: 'PROCEED', rec: 'PROCEED' }
                                     ].map((tier) => {
                                         const isCurrent = data.recommendation === tier.rec;
                                         const tierStyle = REC_STYLES[tier.rec as Recommendation];
                                         return (
-                                            <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${isCurrent ? 'bg-slate-900 text-white shadow-md scale-105' : 'bg-slate-50 text-slate-400'}`}>
+                                            <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
+                                                isCurrent
+                                                    ? eosMode
+                                                        ? 'bg-amber-500 text-black shadow-md scale-105'
+                                                        : 'bg-slate-900 text-white shadow-md scale-105'
+                                                    : eosMode
+                                                        ? 'bg-neutral-800 text-neutral-500'
+                                                        : 'bg-slate-50 text-slate-400'
+                                            }`}>
                                                 <span className="font-mono font-bold">{tier.range}</span>
-                                                <span className={`font-bold ${isCurrent ? 'text-white' : tierStyle.text}`}>{tier.label}</span>
+                                                <span className={`font-bold ${isCurrent ? (eosMode ? 'text-black' : 'text-white') : tierStyle.text}`}>
+                                                    {eosMode ? tier.eosLabel : tier.label}
+                                                </span>
                                             </div>
                                         );
                                     })}
@@ -364,22 +396,32 @@ Please add your name under your preferred option:
 
                         {/* Tabs Section */}
                         <div className="space-y-4">
-                            <div className="flex border-b border-slate-200 overflow-x-auto">
+                            <div className={`flex border-b overflow-x-auto ${eosMode ? 'border-neutral-700' : 'border-slate-200'}`}>
                                 <button
                                     onClick={() => setActiveTab('suggestions')}
-                                    className={`px-5 py-3 font-bold text-sm uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === 'suggestions'
-                                        ? 'text-score-teal border-b-2 border-score-teal'
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
+                                    className={`px-5 py-3 font-bold text-sm uppercase tracking-wider transition-all whitespace-nowrap ${
+                                        activeTab === 'suggestions'
+                                            ? eosMode
+                                                ? 'text-amber-500 border-b-2 border-amber-500'
+                                                : 'text-score-teal border-b-2 border-score-teal'
+                                            : eosMode
+                                                ? 'text-neutral-500 hover:text-neutral-300'
+                                                : 'text-slate-400 hover:text-slate-600'
+                                    }`}
                                 >
-                                    Suggestions
+                                    {eosMode ? 'Action Items' : 'Suggestions'}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('breakdown')}
-                                    className={`px-5 py-3 font-bold text-sm uppercase tracking-wider transition-all whitespace-nowrap ${activeTab === 'breakdown'
-                                        ? 'text-score-teal border-b-2 border-score-teal'
-                                        : 'text-slate-400 hover:text-slate-600'
-                                        }`}
+                                    className={`px-5 py-3 font-bold text-sm uppercase tracking-wider transition-all whitespace-nowrap ${
+                                        activeTab === 'breakdown'
+                                            ? eosMode
+                                                ? 'text-amber-500 border-b-2 border-amber-500'
+                                                : 'text-score-teal border-b-2 border-score-teal'
+                                            : eosMode
+                                                ? 'text-neutral-500 hover:text-neutral-300'
+                                                : 'text-slate-400 hover:text-slate-600'
+                                    }`}
                                 >
                                     Score Breakdown
                                 </button>
@@ -390,21 +432,31 @@ Please add your name under your preferred option:
                                     <div className="animate-in fade-in duration-300 space-y-4">
                                         <div className="space-y-2">
                                             {actionPlan.map((item, i) => (
-                                                <div key={i} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">
-                                                    <CheckCircle2 className="w-5 h-5 text-score-teal flex-shrink-0 mt-0.5" />
-                                                    <span className="font-medium text-slate-700">{item}</span>
+                                                <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
+                                                    eosMode
+                                                        ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-750'
+                                                        : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
+                                                }`}>
+                                                    <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
+                                                    <span className={`font-medium ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>{item}</span>
                                                 </div>
                                             ))}
                                         </div>
 
                                         {/* Attendee suggestions for low scores */}
                                         {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST' || data.recommendation === 'SHORTEN') && data.attendees.length > 2 && (
-                                            <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+                                            <div className={`rounded-2xl p-4 border ${
+                                                eosMode
+                                                    ? 'bg-amber-500/10 border-amber-500/20'
+                                                    : 'bg-amber-50 border-amber-100'
+                                            }`}>
                                                 <div className="flex items-center gap-2 mb-3">
-                                                    <AlertCircle className="w-4 h-4 text-amber-600" />
-                                                    <span className="text-sm font-bold text-amber-700">Consider Reducing Attendees</span>
+                                                    <AlertCircle className={`w-4 h-4 ${eosMode ? 'text-amber-400' : 'text-amber-600'}`} />
+                                                    <span className={`text-sm font-bold ${eosMode ? 'text-amber-400' : 'text-amber-700'}`}>
+                                                        {eosMode ? 'Reduce the Invite List' : 'Consider Reducing Attendees'}
+                                                    </span>
                                                 </div>
-                                                <p className="text-sm text-amber-700 mb-3">
+                                                <p className={`text-sm mb-3 ${eosMode ? 'text-amber-300' : 'text-amber-700'}`}>
                                                     With {data.attendees.length} attendees, you could mark some as optional:
                                                 </p>
                                                 <div className="flex flex-wrap gap-2">
@@ -412,7 +464,11 @@ Please add your name under your preferred option:
                                                         .filter(a => !a.isDRI && !a.isOptional)
                                                         .slice(0, 3)
                                                         .map((attendee, i) => (
-                                                            <span key={i} className="px-3 py-1 bg-white rounded-full text-xs font-medium text-amber-700 border border-amber-200">
+                                                            <span key={i} className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                                                                eosMode
+                                                                    ? 'bg-neutral-800 text-amber-400 border-amber-500/30'
+                                                                    : 'bg-white text-amber-700 border-amber-200'
+                                                            }`}>
                                                                 {attendee.name} → Optional?
                                                             </span>
                                                         ))}
@@ -425,47 +481,59 @@ Please add your name under your preferred option:
                                 {activeTab === 'breakdown' && (
                                     <div className="animate-in fade-in duration-300 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {/* Helping Factors */}
-                                        <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100">
+                                        <div className={`rounded-2xl p-5 border ${
+                                            eosMode
+                                                ? 'bg-emerald-500/10 border-emerald-500/20'
+                                                : 'bg-emerald-50 border-emerald-100'
+                                        }`}>
                                             <div className="flex items-center gap-2 mb-4">
-                                                <TrendingUp className="w-5 h-5 text-emerald-600" />
-                                                <h3 className="font-bold text-emerald-700 text-sm uppercase tracking-wide">Helping Your Score</h3>
+                                                <TrendingUp className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                                <h3 className={`font-bold text-sm uppercase tracking-wide ${eosMode ? 'text-emerald-400' : 'text-emerald-700'}`}>Helping Your Score</h3>
                                             </div>
                                             <div className="space-y-2">
                                                 {scoreBreakdown.helping.length > 0 ? (
                                                     scoreBreakdown.helping.map((factor, i) => (
-                                                        <div key={i} className="flex items-center justify-between p-2.5 bg-white rounded-xl">
+                                                        <div key={i} className={`flex items-center justify-between p-2.5 rounded-xl ${
+                                                            eosMode ? 'bg-neutral-800' : 'bg-white'
+                                                        }`}>
                                                             <div>
-                                                                <div className="font-bold text-slate-700 text-sm">{factor.label}</div>
-                                                                <div className="text-xs text-slate-500">{factor.description}</div>
+                                                                <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>{factor.label}</div>
+                                                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{factor.description}</div>
                                                             </div>
-                                                            <span className="text-emerald-600 font-bold text-sm">+{factor.impact.toFixed(1)}</span>
+                                                            <span className={`font-bold text-sm ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`}>+{factor.impact.toFixed(1)}</span>
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <p className="text-sm text-emerald-600/70 italic">No positive factors</p>
+                                                    <p className={`text-sm italic ${eosMode ? 'text-emerald-400/70' : 'text-emerald-600/70'}`}>No positive factors</p>
                                                 )}
                                             </div>
                                         </div>
 
                                         {/* Hurting Factors */}
-                                        <div className="bg-orange-50 rounded-2xl p-5 border border-orange-100">
+                                        <div className={`rounded-2xl p-5 border ${
+                                            eosMode
+                                                ? 'bg-orange-500/10 border-orange-500/20'
+                                                : 'bg-orange-50 border-orange-100'
+                                        }`}>
                                             <div className="flex items-center gap-2 mb-4">
-                                                <TrendingDown className="w-5 h-5 text-orange-600" />
-                                                <h3 className="font-bold text-orange-700 text-sm uppercase tracking-wide">Hurting Your Score</h3>
+                                                <TrendingDown className={`w-5 h-5 ${eosMode ? 'text-orange-400' : 'text-orange-600'}`} />
+                                                <h3 className={`font-bold text-sm uppercase tracking-wide ${eosMode ? 'text-orange-400' : 'text-orange-700'}`}>Hurting Your Score</h3>
                                             </div>
                                             <div className="space-y-2">
                                                 {scoreBreakdown.hurting.length > 0 ? (
                                                     scoreBreakdown.hurting.map((factor, i) => (
-                                                        <div key={i} className="flex items-center justify-between p-2.5 bg-white rounded-xl">
+                                                        <div key={i} className={`flex items-center justify-between p-2.5 rounded-xl ${
+                                                            eosMode ? 'bg-neutral-800' : 'bg-white'
+                                                        }`}>
                                                             <div>
-                                                                <div className="font-bold text-slate-700 text-sm">{factor.label}</div>
-                                                                <div className="text-xs text-slate-500">{factor.description}</div>
+                                                                <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>{factor.label}</div>
+                                                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{factor.description}</div>
                                                             </div>
-                                                            <span className="text-orange-600 font-bold text-sm">{factor.impact.toFixed(1)}</span>
+                                                            <span className={`font-bold text-sm ${eosMode ? 'text-orange-400' : 'text-orange-600'}`}>{factor.impact.toFixed(1)}</span>
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <p className="text-sm text-orange-600/70 italic">No negative factors</p>
+                                                    <p className={`text-sm italic ${eosMode ? 'text-orange-400/70' : 'text-orange-600/70'}`}>No negative factors</p>
                                                 )}
                                             </div>
                                         </div>
@@ -476,17 +544,23 @@ Please add your name under your preferred option:
                     </div>
 
                     {/* Bottom: Savings Section */}
-                    <div className="bg-slate-50 p-6 sm:p-8 border-t border-slate-100">
+                    <div className={`p-6 sm:p-8 border-t ${
+                        eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-100'
+                    }`}>
                         {/* Annual Impact Alert for Recurring Meetings */}
                         {data.isRecurring && (
-                            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 mb-6 text-white">
+                            <div className={`rounded-2xl p-4 mb-6 text-white ${
+                                eosMode
+                                    ? 'bg-gradient-to-r from-amber-600 to-orange-600'
+                                    : 'bg-gradient-to-r from-orange-500 to-red-500'
+                            }`}>
                                 <div className="flex items-center gap-3">
                                     <div className="bg-white/20 p-2 rounded-xl">
                                         <Repeat className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1">
                                         <div className="font-bold text-sm uppercase tracking-wide opacity-90">
-                                            {data.recurrenceFrequency === 'WEEKLY' ? 'Weekly' : data.recurrenceFrequency === 'BIWEEKLY' ? 'Bi-weekly' : 'Monthly'} Recurring Meeting
+                                            {data.recurrenceFrequency === 'WEEKLY' ? 'Weekly' : data.recurrenceFrequency === 'BIWEEKLY' ? 'Bi-weekly' : 'Monthly'} {eosMode ? 'Rhythm' : 'Recurring Meeting'}
                                         </div>
                                         <div className="text-2xl font-black">
                                             {(() => {
@@ -505,35 +579,39 @@ Please add your name under your preferred option:
                             {/* Savings Stats */}
                             <div className="flex items-center gap-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-teal-100 p-2.5 rounded-xl">
-                                        <Clock className="text-score-teal w-5 h-5" />
+                                    <div className={`p-2.5 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-teal-100'}`}>
+                                        <Clock className={`w-5 h-5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
                                     </div>
                                     <div>
-                                        <div className="text-xl font-black text-slate-900">{savings.potentialHoursSaved.toFixed(1)} hrs</div>
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase">{data.isRecurring ? 'Per Meeting' : 'Reclaimable'}</div>
+                                        <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>{savings.potentialHoursSaved.toFixed(1)} hrs</div>
+                                        <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{data.isRecurring ? 'Per Meeting' : 'Reclaimable'}</div>
                                     </div>
                                 </div>
-                                <div className="w-px h-10 bg-slate-200" />
+                                <div className={`w-px h-10 ${eosMode ? 'bg-neutral-700' : 'bg-slate-200'}`} />
                                 <div className="flex items-center gap-3">
-                                    <div className="bg-orange-100 p-2.5 rounded-xl">
-                                        <Banknote className="text-skip-coral w-5 h-5" />
+                                    <div className={`p-2.5 rounded-xl ${eosMode ? 'bg-orange-500/20' : 'bg-orange-100'}`}>
+                                        <Banknote className={`w-5 h-5 ${eosMode ? 'text-orange-400' : 'text-skip-coral'}`} />
                                     </div>
                                     <div>
-                                        <div className="text-xl font-black text-slate-900">${savings.savings.toLocaleString()}</div>
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase">{data.isRecurring ? 'Per Meeting' : 'Potential Savings'}</div>
+                                        <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>${savings.savings.toLocaleString()}</div>
+                                        <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{data.isRecurring ? 'Per Meeting' : 'Potential Savings'}</div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Actions */}
                             <div className="flex flex-col items-end gap-2">
-                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Share Your Results</span>
+                                <span className={`text-xs font-bold uppercase tracking-wide ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Share Your Results</span>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={copyResults}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
+                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                                            eosMode
+                                                ? 'bg-neutral-700 border border-neutral-600 text-neutral-200 hover:bg-neutral-600'
+                                                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                                        }`}
                                     >
-                                        {copied ? <CheckCircle2 className="w-4 h-4 text-teal-500" /> : <Copy className="w-4 h-4" />}
+                                        {copied ? <CheckCircle2 className={`w-4 h-4 ${eosMode ? 'text-amber-500' : 'text-teal-500'}`} /> : <Copy className="w-4 h-4" />}
                                         {copied ? 'Copied!' : 'Copy'}
                                     </button>
                                     <button
@@ -545,52 +623,76 @@ Please add your name under your preferred option:
                                     </button>
                                     <button
                                         onClick={shareViaEmail}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-skip-coral text-white rounded-xl font-bold text-sm hover:bg-orange-600 transition-all shadow-sm"
+                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                                            eosMode
+                                                ? 'bg-amber-500 text-black hover:bg-amber-400'
+                                                : 'bg-skip-coral text-white hover:bg-orange-600'
+                                        }`}
                                     >
                                         <Mail className="w-4 h-4" /> Email
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <p className="text-[10px] text-slate-400 mt-3 font-medium">* Based on avg. $75/hr per attendee</p>
+                        <p className={`text-[10px] mt-3 font-medium ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>* Based on avg. $75/hr per attendee</p>
                     </div>
                 </div>
 
                 {/* Meeting Replacement Generator - Only for SKIP/ASYNC_FIRST */}
                 {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST') && (
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden">
+                    <div className={`rounded-[2.5rem] shadow-2xl overflow-hidden ${
+                        eosMode ? 'bg-neutral-900 border border-neutral-800' : 'bg-white'
+                    }`}>
                         <div className="p-6 sm:p-8">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-3 rounded-2xl">
+                                <div className={`p-3 rounded-2xl ${
+                                    eosMode
+                                        ? 'bg-gradient-to-br from-amber-500 to-orange-600'
+                                        : 'bg-gradient-to-br from-purple-500 to-indigo-600'
+                                }`}>
                                     <Sparkles className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-extrabold text-slate-900">Meeting Replacement Generator</h2>
-                                    <p className="text-sm text-slate-500">Ready-to-use templates to replace this meeting</p>
+                                    <h2 className={`text-xl font-extrabold ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                                        {eosMode ? 'Async Alternatives' : 'Meeting Replacement Generator'}
+                                    </h2>
+                                    <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
+                                        {eosMode ? 'Use these instead of scheduling a meeting' : 'Ready-to-use templates to replace this meeting'}
+                                    </p>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
                                 {/* Slack Message */}
-                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                <div className={`border rounded-2xl overflow-hidden ${eosMode ? 'border-neutral-700' : 'border-slate-200'}`}>
                                     <button
                                         onClick={() => setExpandedReplacement(expandedReplacement === 'slack' ? null : 'slack')}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                                        className={`w-full flex items-center justify-between p-4 transition-colors ${
+                                            eosMode ? 'hover:bg-neutral-800' : 'hover:bg-slate-50'
+                                        }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="bg-[#4A154B] p-2 rounded-xl">
                                                 <MessageSquare className="w-5 h-5 text-white" />
                                             </div>
                                             <div className="text-left">
-                                                <div className="font-bold text-slate-900">Slack Message</div>
-                                                <div className="text-xs text-slate-500">Ready-to-post async update</div>
+                                                <div className={`font-bold ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>Slack Message</div>
+                                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Ready-to-post async update</div>
                                             </div>
                                         </div>
-                                        {expandedReplacement === 'slack' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                                        {expandedReplacement === 'slack'
+                                            ? <ChevronUp className={`w-5 h-5 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
+                                            : <ChevronDown className={`w-5 h-5 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />}
                                     </button>
                                     {expandedReplacement === 'slack' && (
-                                        <div className="border-t border-slate-200 p-4 bg-slate-50">
-                                            <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans bg-white p-4 rounded-xl border border-slate-200 max-h-64 overflow-y-auto">
+                                        <div className={`border-t p-4 ${
+                                            eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-slate-50'
+                                        }`}>
+                                            <pre className={`text-sm whitespace-pre-wrap font-sans p-4 rounded-xl border max-h-64 overflow-y-auto ${
+                                                eosMode
+                                                    ? 'bg-neutral-900 text-neutral-300 border-neutral-700'
+                                                    : 'bg-white text-slate-700 border-slate-200'
+                                            }`}>
                                                 {generateSlackMessage()}
                                             </pre>
                                             <button
@@ -605,25 +707,35 @@ Please add your name under your preferred option:
                                 </div>
 
                                 {/* Loom Script */}
-                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                <div className={`border rounded-2xl overflow-hidden ${eosMode ? 'border-neutral-700' : 'border-slate-200'}`}>
                                     <button
                                         onClick={() => setExpandedReplacement(expandedReplacement === 'loom' ? null : 'loom')}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                                        className={`w-full flex items-center justify-between p-4 transition-colors ${
+                                            eosMode ? 'hover:bg-neutral-800' : 'hover:bg-slate-50'
+                                        }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="bg-[#625DF5] p-2 rounded-xl">
                                                 <Video className="w-5 h-5 text-white" />
                                             </div>
                                             <div className="text-left">
-                                                <div className="font-bold text-slate-900">Loom Script</div>
-                                                <div className="text-xs text-slate-500">Video recording outline</div>
+                                                <div className={`font-bold ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>Loom Script</div>
+                                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Video recording outline</div>
                                             </div>
                                         </div>
-                                        {expandedReplacement === 'loom' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                                        {expandedReplacement === 'loom'
+                                            ? <ChevronUp className={`w-5 h-5 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
+                                            : <ChevronDown className={`w-5 h-5 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />}
                                     </button>
                                     {expandedReplacement === 'loom' && (
-                                        <div className="border-t border-slate-200 p-4 bg-slate-50">
-                                            <pre className="text-sm text-slate-700 whitespace-pre-wrap font-mono bg-white p-4 rounded-xl border border-slate-200 max-h-64 overflow-y-auto">
+                                        <div className={`border-t p-4 ${
+                                            eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-slate-50'
+                                        }`}>
+                                            <pre className={`text-sm whitespace-pre-wrap font-mono p-4 rounded-xl border max-h-64 overflow-y-auto ${
+                                                eosMode
+                                                    ? 'bg-neutral-900 text-neutral-300 border-neutral-700'
+                                                    : 'bg-white text-slate-700 border-slate-200'
+                                            }`}>
                                                 {generateLoomScript()}
                                             </pre>
                                             <button
@@ -638,25 +750,35 @@ Please add your name under your preferred option:
                                 </div>
 
                                 {/* Async Doc */}
-                                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                                <div className={`border rounded-2xl overflow-hidden ${eosMode ? 'border-neutral-700' : 'border-slate-200'}`}>
                                     <button
                                         onClick={() => setExpandedReplacement(expandedReplacement === 'doc' ? null : 'doc')}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+                                        className={`w-full flex items-center justify-between p-4 transition-colors ${
+                                            eosMode ? 'hover:bg-neutral-800' : 'hover:bg-slate-50'
+                                        }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="bg-emerald-500 p-2 rounded-xl">
                                                 <FileText className="w-5 h-5 text-white" />
                                             </div>
                                             <div className="text-left">
-                                                <div className="font-bold text-slate-900">Async Document</div>
-                                                <div className="text-xs text-slate-500">Notion/Google Doc template</div>
+                                                <div className={`font-bold ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>Async Document</div>
+                                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Notion/Google Doc template</div>
                                             </div>
                                         </div>
-                                        {expandedReplacement === 'doc' ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                                        {expandedReplacement === 'doc'
+                                            ? <ChevronUp className={`w-5 h-5 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
+                                            : <ChevronDown className={`w-5 h-5 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />}
                                     </button>
                                     {expandedReplacement === 'doc' && (
-                                        <div className="border-t border-slate-200 p-4 bg-slate-50">
-                                            <pre className="text-sm text-slate-700 whitespace-pre-wrap font-mono bg-white p-4 rounded-xl border border-slate-200 max-h-64 overflow-y-auto">
+                                        <div className={`border-t p-4 ${
+                                            eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-slate-50'
+                                        }`}>
+                                            <pre className={`text-sm whitespace-pre-wrap font-mono p-4 rounded-xl border max-h-64 overflow-y-auto ${
+                                                eosMode
+                                                    ? 'bg-neutral-900 text-neutral-300 border-neutral-700'
+                                                    : 'bg-white text-slate-700 border-slate-200'
+                                            }`}>
                                                 {generateAsyncDoc()}
                                             </pre>
                                             <button

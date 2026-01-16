@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AssessmentData, MeetingPurpose, MeetingUrgency, RecurrenceFrequency } from '@/lib/types';
 import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks } from 'lucide-react';
+import { useEOS } from '@/contexts/EOSContext';
 
 interface Step1Props {
     data: Partial<AssessmentData>;
@@ -169,12 +170,7 @@ const EOS_TEMPLATES = [
 
 export default function Step1({ data, updateData }: Step1Props) {
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-    const [eosMode, setEosMode] = useState(false);
-
-    useEffect(() => {
-        const eos = localStorage.getItem('skip-score-eos-mode') === 'true';
-        setEosMode(eos);
-    }, []);
+    const { eosMode } = useEOS();
 
     const activeTemplates = eosMode ? EOS_TEMPLATES : TEMPLATES;
 
@@ -189,16 +185,20 @@ export default function Step1({ data, updateData }: Step1Props) {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="space-y-2">
-                <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Meeting Essentials</h2>
-                <p className="text-slate-500">Start with a template or build from scratch.</p>
+                <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                    {eosMode ? 'Meeting Check' : 'Meeting Essentials'}
+                </h2>
+                <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
+                    {eosMode ? 'Is this meeting necessary? Start here.' : 'Start with a template or build from scratch.'}
+                </p>
             </div>
 
             {/* Templates */}
             <div className="space-y-3">
-                <label className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                <label className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
                     {eosMode ? (
                         <>
-                            <Zap className="w-4 h-4 text-purple-500" /> EOS Templates
+                            <Zap className="w-4 h-4 text-amber-500" /> EOS Templates
                         </>
                     ) : (
                         <>
@@ -207,7 +207,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                     )}
                 </label>
                 {eosMode && (
-                    <div className="text-xs text-purple-600 bg-purple-50 px-3 py-2 rounded-lg">
+                    <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg">
                         L10 and IDS meetings are protected. Other meetings may be flagged for the Issues List.
                     </div>
                 )}
@@ -218,15 +218,20 @@ export default function Step1({ data, updateData }: Step1Props) {
                             <button
                                 key={template.id}
                                 onClick={() => applyTemplate(template.id)}
-                                className={`p-3 rounded-xl border-2 text-center transition-all ${selectedTemplate === template.id
-                                    ? eosMode ? 'border-purple-500 bg-purple-50 shadow-sm' : 'border-score-teal bg-teal-50 shadow-sm'
-                                    : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
-                                    }`}
+                                className={`p-3 rounded-xl border-2 text-center transition-all ${
+                                    selectedTemplate === template.id
+                                        ? eosMode
+                                            ? 'border-amber-500 bg-amber-500/10 shadow-sm'
+                                            : 'border-score-teal bg-teal-50 shadow-sm'
+                                        : eosMode
+                                            ? 'border-neutral-700 hover:border-neutral-600 hover:bg-neutral-800'
+                                            : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                }`}
                             >
                                 <div className={`w-10 h-10 ${template.color} rounded-xl flex items-center justify-center mx-auto mb-2`}>
                                     <Icon className="w-5 h-5 text-white" />
                                 </div>
-                                <div className="font-semibold text-slate-800 text-sm">{template.name}</div>
+                                <div className={`font-semibold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{template.name}</div>
                             </button>
                         );
                     })}
@@ -235,11 +240,15 @@ export default function Step1({ data, updateData }: Step1Props) {
 
             <div className="space-y-6">
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Meeting Title</label>
+                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Meeting Title</label>
                     <input
                         type="text"
                         placeholder="e.g. Q4 Strategy Review"
-                        className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-score-teal focus:outline-none transition-all text-lg font-medium"
+                        className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all text-lg font-medium ${
+                            eosMode
+                                ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
+                                : 'border-slate-100 focus:border-score-teal'
+                        }`}
                         value={data.title}
                         onChange={(e) => {
                             setSelectedTemplate(null);
@@ -249,19 +258,24 @@ export default function Step1({ data, updateData }: Step1Props) {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">What's the primary purpose?</label>
+                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>What's the primary purpose?</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {PURPOSES.map((p) => (
                             <button
                                 key={p.value}
                                 onClick={() => updateData({ purpose: p.value })}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${data.purpose === p.value
-                                        ? 'border-score-teal bg-teal-50 shadow-sm'
-                                        : 'border-slate-100 hover:border-slate-200'
-                                    }`}
+                                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                    data.purpose === p.value
+                                        ? eosMode
+                                            ? 'border-amber-500 bg-amber-500/10 shadow-sm'
+                                            : 'border-score-teal bg-teal-50 shadow-sm'
+                                        : eosMode
+                                            ? 'border-neutral-700 hover:border-neutral-600'
+                                            : 'border-slate-100 hover:border-slate-200'
+                                }`}
                             >
-                                <div className="font-bold text-slate-800">{p.label}</div>
-                                <div className="text-xs text-slate-500">{p.description}</div>
+                                <div className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{p.label}</div>
+                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{p.description}</div>
                             </button>
                         ))}
                     </div>
@@ -269,9 +283,13 @@ export default function Step1({ data, updateData }: Step1Props) {
 
                 <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Urgency</label>
+                        <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Urgency</label>
                         <select
-                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-score-teal focus:outline-none bg-white font-medium"
+                            className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
+                                eosMode
+                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
+                                    : 'border-slate-100 bg-white focus:border-score-teal'
+                            }`}
                             value={data.urgency}
                             onChange={(e) => updateData({ urgency: e.target.value as MeetingUrgency })}
                         >
@@ -281,12 +299,16 @@ export default function Step1({ data, updateData }: Step1Props) {
                         </select>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Duration (min)</label>
+                        <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Duration (min)</label>
                         <input
                             type="number"
                             step="15"
                             min="15"
-                            className="w-full p-4 rounded-xl border-2 border-slate-100 focus:border-score-teal focus:outline-none font-medium"
+                            className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
+                                eosMode
+                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
+                                    : 'border-slate-100 focus:border-score-teal'
+                            }`}
                             value={data.duration}
                             onChange={(e) => updateData({ duration: parseInt(e.target.value) })}
                         />
@@ -295,17 +317,23 @@ export default function Step1({ data, updateData }: Step1Props) {
 
                 {/* Recurring Meeting Toggle */}
                 <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 bg-slate-50">
+                    <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${
+                        eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'
+                    }`}>
                         <div className="flex items-center gap-3">
-                            <Repeat className="w-5 h-5 text-slate-500" />
+                            <Repeat className={`w-5 h-5 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`} />
                             <div>
-                                <div className="font-bold text-slate-800">Recurring Meeting</div>
-                                <div className="text-xs text-slate-500">Calculate annual time impact</div>
+                                <div className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>Recurring Meeting</div>
+                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Calculate annual time impact</div>
                             </div>
                         </div>
                         <button
                             onClick={() => updateData({ isRecurring: !data.isRecurring, recurrenceFrequency: data.isRecurring ? undefined : 'WEEKLY' })}
-                            className={`relative w-14 h-8 rounded-full transition-colors ${data.isRecurring ? 'bg-score-teal' : 'bg-slate-300'}`}
+                            className={`relative w-14 h-8 rounded-full transition-colors ${
+                                data.isRecurring
+                                    ? eosMode ? 'bg-amber-500' : 'bg-score-teal'
+                                    : eosMode ? 'bg-neutral-600' : 'bg-slate-300'
+                            }`}
                         >
                             <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${data.isRecurring ? 'translate-x-7' : 'translate-x-1'}`} />
                         </button>
@@ -318,25 +346,34 @@ export default function Step1({ data, updateData }: Step1Props) {
                                     <button
                                         key={r.value}
                                         onClick={() => updateData({ recurrenceFrequency: r.value })}
-                                        className={`p-3 rounded-xl border-2 text-center transition-all ${data.recurrenceFrequency === r.value
-                                            ? 'border-score-teal bg-teal-50'
-                                            : 'border-slate-100 hover:border-slate-200'
-                                            }`}
+                                        className={`p-3 rounded-xl border-2 text-center transition-all ${
+                                            data.recurrenceFrequency === r.value
+                                                ? eosMode
+                                                    ? 'border-amber-500 bg-amber-500/10'
+                                                    : 'border-score-teal bg-teal-50'
+                                                : eosMode
+                                                    ? 'border-neutral-700 hover:border-neutral-600'
+                                                    : 'border-slate-100 hover:border-slate-200'
+                                        }`}
                                     >
-                                        <div className="font-bold text-slate-800 text-sm">{r.label}</div>
-                                        <div className="text-xs text-slate-500">{r.multiplier}x/year</div>
+                                        <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{r.label}</div>
+                                        <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{r.multiplier}x/year</div>
                                     </button>
                                 ))}
                             </div>
 
                             {/* Annual Impact Preview */}
                             {data.duration && data.recurrenceFrequency && (
-                                <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                                <div className={`rounded-xl p-4 ${
+                                    eosMode
+                                        ? 'bg-amber-500/10 border border-amber-500/20'
+                                        : 'bg-orange-50 border border-orange-200'
+                                }`}>
                                     <div className="flex items-start gap-3">
-                                        <AlertTriangle className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                                        <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-orange-500'}`} />
                                         <div>
-                                            <div className="font-bold text-orange-700 text-sm">Annual Time Commitment</div>
-                                            <div className="text-orange-600 mt-1">
+                                            <div className={`font-bold text-sm ${eosMode ? 'text-amber-400' : 'text-orange-700'}`}>Annual Time Commitment</div>
+                                            <div className={`mt-1 ${eosMode ? 'text-amber-300' : 'text-orange-600'}`}>
                                                 {(() => {
                                                     const freq = RECURRENCE.find(r => r.value === data.recurrenceFrequency);
                                                     const annualMinutes = (data.duration || 30) * (freq?.multiplier || 52);
