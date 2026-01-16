@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Logo } from '@/components/Logo';
 import { AssessmentData, Recommendation } from '@/lib/types';
@@ -15,9 +15,11 @@ import {
     Banknote,
     LayoutDashboard,
     TrendingUp,
-    TrendingDown
+    TrendingDown,
+    MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
+import confetti from 'canvas-confetti';
 
 const REC_STYLES: Record<Recommendation, { label: string; color: string; bg: string; text: string; description: string }> = {
     SKIP: {
@@ -56,6 +58,9 @@ export default function ResultsPage() {
     const [data, setData] = useState<AssessmentData | null>(null);
     const [activeTab, setActiveTab] = useState<'breakdown' | 'suggestions'>('suggestions');
     const [copied, setCopied] = useState(false);
+    const [displayScore, setDisplayScore] = useState(0);
+    const [animationComplete, setAnimationComplete] = useState(false);
+    const hasAnimated = useRef(false);
 
     useEffect(() => {
         const history = JSON.parse(localStorage.getItem('skip-score-history') || '[]');
@@ -66,6 +71,41 @@ export default function ResultsPage() {
             router.push('/');
         }
     }, [id, router]);
+
+    // Animated score counting
+    useEffect(() => {
+        if (data && !hasAnimated.current) {
+            hasAnimated.current = true;
+            const targetScore = data.score || 0;
+            const duration = 1500;
+            const steps = 60;
+            const increment = targetScore / steps;
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetScore) {
+                    setDisplayScore(targetScore);
+                    setAnimationComplete(true);
+                    clearInterval(timer);
+
+                    // Trigger confetti for SKIP or ASYNC_FIRST (saving time!)
+                    if (data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST') {
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                            colors: ['#F97316', '#0d9488', '#fbbf24', '#f472b6']
+                        });
+                    }
+                } else {
+                    setDisplayScore(parseFloat(current.toFixed(1)));
+                }
+            }, duration / steps);
+
+            return () => clearInterval(timer);
+        }
+    }, [data]);
 
     if (!data) return null;
 
@@ -80,6 +120,15 @@ export default function ResultsPage() {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
+
+    const shareToSlack = () => {
+        const text = encodeURIComponent(`🎯 SkipScore Results: *${data.title}*\n\nScore: ${data.score}/10\nRecommendation: ${style.label}\n\n${style.description}`);
+        window.open(`https://slack.com/share?text=${text}`, '_blank', 'width=600,height=400');
+    };
+
+    const progressOffset = animationComplete
+        ? 452 - (452 * (data.score || 0)) / 10
+        : 452 - (452 * displayScore) / 10;
 
     return (
         <main className="min-h-screen p-4 sm:p-8 flex flex-col items-center">
@@ -102,11 +151,11 @@ export default function ResultsPage() {
                                 <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
                                     {data.title}
                                 </h1>
-                                <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${style.bg} ${style.text}`}>
+                                <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${style.bg} ${style.text} ${animationComplete ? 'animate-in zoom-in duration-300' : 'opacity-0'}`}>
                                     <AlertCircle className="w-5 h-5" />
                                     {style.label}
                                 </div>
-                                <p className="text-base text-slate-600 font-medium leading-relaxed">
+                                <p className={`text-base text-slate-600 font-medium leading-relaxed ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-2 duration-500' : 'opacity-0'}`}>
                                     {data.reasoning || style.description}
                                 </p>
                             </div>
@@ -132,19 +181,19 @@ export default function ResultsPage() {
                                             strokeWidth="12"
                                             fill="transparent"
                                             strokeDasharray={452}
-                                            strokeDashoffset={452 - (452 * (data.score || 0)) / 10}
+                                            strokeDashoffset={progressOffset}
                                             strokeLinecap="round"
-                                            className="text-score-teal transition-all duration-1000"
+                                            className="text-score-teal transition-all duration-100"
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-5xl font-black text-slate-900">{data.score}</span>
+                                        <span className="text-5xl font-black text-slate-900 tabular-nums">{displayScore}</span>
                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center leading-tight">Skip<br />Score</span>
                                     </div>
                                 </div>
 
                                 {/* Score Guide */}
-                                <div className="w-full max-w-[280px] space-y-1.5">
+                                <div className={`w-full max-w-[280px] space-y-1.5 ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-4 duration-500' : 'opacity-0'}`}>
                                     {[
                                         { range: '0 - 2.9', label: 'SKIP', rec: 'SKIP' },
                                         { range: '3 - 4.9', label: 'ASYNC FIRST', rec: 'ASYNC_FIRST' },
@@ -154,7 +203,7 @@ export default function ResultsPage() {
                                         const isCurrent = data.recommendation === tier.rec;
                                         const tierStyle = REC_STYLES[tier.rec as Recommendation];
                                         return (
-                                            <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${isCurrent ? 'bg-slate-900 text-white shadow-md' : 'bg-slate-50 text-slate-400'}`}>
+                                            <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${isCurrent ? 'bg-slate-900 text-white shadow-md scale-105' : 'bg-slate-50 text-slate-400'}`}>
                                                 <span className="font-mono font-bold">{tier.range}</span>
                                                 <span className={`font-bold ${isCurrent ? 'text-white' : tierStyle.text}`}>{tier.label}</span>
                                             </div>
@@ -279,7 +328,7 @@ export default function ResultsPage() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
                                 <button
                                     onClick={copyResults}
                                     className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
@@ -287,8 +336,11 @@ export default function ResultsPage() {
                                     {copied ? <CheckCircle2 className="w-4 h-4 text-teal-500" /> : <Copy className="w-4 h-4" />}
                                     {copied ? 'Copied!' : 'Copy'}
                                 </button>
-                                <button className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition-all shadow-sm">
-                                    <Share2 className="w-4 h-4 text-slate-600" />
+                                <button
+                                    onClick={shareToSlack}
+                                    className="flex items-center gap-2 px-4 py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
+                                >
+                                    <MessageSquare className="w-4 h-4" /> Slack
                                 </button>
                                 <Link
                                     href="/dashboard"
