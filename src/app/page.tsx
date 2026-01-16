@@ -20,6 +20,11 @@ export default function Home() {
           </div>
           {/* EOS Mode Toggle */}
           <div className="absolute right-0 top-8 flex flex-col items-end gap-2">
+            {!eosMode && (
+              <p className="text-xs text-white/80 font-bold max-w-[180px] text-right leading-tight">
+                Running on EOS/Traction?<br />Turn this on for L10-optimized scoring.
+              </p>
+            )}
             <button
               onClick={toggleEosMode}
               className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all ${
@@ -31,11 +36,6 @@ export default function Home() {
               <Target className="w-4 h-4" />
               {eosMode ? 'EOS Mode ON' : 'EOS Mode'}
             </button>
-            {!eosMode && (
-              <p className="text-xs text-white/60 max-w-[180px] text-right">
-                Running on EOS/Traction? Turn this on for L10-optimized scoring.
-              </p>
-            )}
           </div>
         </div>
 
