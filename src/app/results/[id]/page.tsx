@@ -238,13 +238,38 @@ export default function ResultsPage() {
 
                             <div className="min-h-[180px]">
                                 {activeTab === 'suggestions' && (
-                                    <div className="animate-in fade-in duration-300 space-y-2">
-                                        {actionPlan.map((item, i) => (
-                                            <div key={i} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">
-                                                <CheckCircle2 className="w-5 h-5 text-score-teal flex-shrink-0 mt-0.5" />
-                                                <span className="font-medium text-slate-700">{item}</span>
+                                    <div className="animate-in fade-in duration-300 space-y-4">
+                                        <div className="space-y-2">
+                                            {actionPlan.map((item, i) => (
+                                                <div key={i} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-colors">
+                                                    <CheckCircle2 className="w-5 h-5 text-score-teal flex-shrink-0 mt-0.5" />
+                                                    <span className="font-medium text-slate-700">{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Attendee suggestions for low scores */}
+                                        {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST' || data.recommendation === 'SHORTEN') && data.attendees.length > 2 && (
+                                            <div className="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                                                    <span className="text-sm font-bold text-amber-700">Consider Reducing Attendees</span>
+                                                </div>
+                                                <p className="text-sm text-amber-700 mb-3">
+                                                    With {data.attendees.length} attendees, you could mark some as optional:
+                                                </p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {data.attendees
+                                                        .filter(a => !a.isDRI && !a.isOptional)
+                                                        .slice(0, 3)
+                                                        .map((attendee, i) => (
+                                                            <span key={i} className="px-3 py-1 bg-white rounded-full text-xs font-medium text-amber-700 border border-amber-200">
+                                                                {attendee.name} → Optional?
+                                                            </span>
+                                                        ))}
+                                                </div>
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 )}
 

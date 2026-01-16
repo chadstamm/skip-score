@@ -1,10 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, BarChart3 } from 'lucide-react';
+import Onboarding from '@/components/Onboarding';
 
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center p-6 sm:p-12">
+      <Onboarding onComplete={() => {}} />
       <div className="max-w-5xl w-full space-y-16">
         {/* Header / Logo */}
         <div className="flex justify-center pt-8">
