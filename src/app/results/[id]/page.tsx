@@ -16,7 +16,8 @@ import {
     LayoutDashboard,
     TrendingUp,
     TrendingDown,
-    MessageSquare
+    MessageSquare,
+    Mail
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
@@ -126,7 +127,15 @@ export default function ResultsPage() {
         const text = `🎯 *SkipScore Results: ${data.title}*\n\n*Score:* ${data.score}/10\n*Recommendation:* ${style.label}\n\n${style.description}`;
         navigator.clipboard.writeText(text);
         setSlackCopied(true);
+        // Open Slack app - user can then paste
+        window.open('slack://open', '_self');
         setTimeout(() => setSlackCopied(false), 2000);
+    };
+
+    const shareViaEmail = () => {
+        const subject = encodeURIComponent(`SkipScore Results: ${data.title}`);
+        const body = encodeURIComponent(`SkipScore Results: ${data.title}\n\nScore: ${data.score}/10\nRecommendation: ${style.label}\n\n${style.description}\n\nSuggestions:\n${actionPlan.map((item, i) => `${i + 1}. ${item}`).join('\n')}`);
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
     };
 
     const progressOffset = animationComplete
@@ -138,9 +147,14 @@ export default function ResultsPage() {
             <div className="max-w-4xl w-full space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                    <Link href="/assess" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-bold">
-                        <ArrowLeft className="w-5 h-5" /> New Assessment
-                    </Link>
+                    <div className="flex items-center gap-4">
+                        <Link href="/assess" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-bold">
+                            <ArrowLeft className="w-5 h-5" /> New Assessment
+                        </Link>
+                        <Link href="/dashboard" className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-bold">
+                            <LayoutDashboard className="w-5 h-5" /> Dashboard
+                        </Link>
+                    </div>
                     <Link href="/"><Logo className="scale-75 origin-right cursor-pointer" variant="white" /></Link>
                 </div>
 
@@ -356,27 +370,30 @@ export default function ResultsPage() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={copyResults}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
-                                >
-                                    {copied ? <CheckCircle2 className="w-4 h-4 text-teal-500" /> : <Copy className="w-4 h-4" />}
-                                    {copied ? 'Copied!' : 'Copy'}
-                                </button>
-                                <button
-                                    onClick={shareToSlack}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
-                                >
-                                    {slackCopied ? <CheckCircle2 className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
-                                    {slackCopied ? 'Copied for Slack!' : 'Copy for Slack'}
-                                </button>
-                                <Link
-                                    href="/dashboard"
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-skip-coral text-white rounded-xl font-bold text-sm hover:bg-orange-600 transition-all shadow-lg"
-                                >
-                                    <LayoutDashboard className="w-4 h-4" /> Dashboard
-                                </Link>
+                            <div className="flex flex-col items-end gap-2">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Share Your Results</span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={copyResults}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition-all shadow-sm"
+                                    >
+                                        {copied ? <CheckCircle2 className="w-4 h-4 text-teal-500" /> : <Copy className="w-4 h-4" />}
+                                        {copied ? 'Copied!' : 'Copy'}
+                                    </button>
+                                    <button
+                                        onClick={shareToSlack}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
+                                    >
+                                        {slackCopied ? <CheckCircle2 className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
+                                        {slackCopied ? 'Copied for Slack!' : 'Slack'}
+                                    </button>
+                                    <button
+                                        onClick={shareViaEmail}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-skip-coral text-white rounded-xl font-bold text-sm hover:bg-orange-600 transition-all shadow-sm"
+                                    >
+                                        <Mail className="w-4 h-4" /> Email
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <p className="text-[10px] text-slate-400 mt-3 font-medium">* Based on avg. $75/hr per attendee</p>
