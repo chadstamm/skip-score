@@ -25,6 +25,9 @@ export default function Home() {
           <p className="text-xl sm:text-2xl text-teal-50/90 max-w-2xl mx-auto">
             Score your meetings before you book them. Skip the waste. Reclaim your time.
           </p>
+          <p className="text-sm font-medium text-teal-200/80 uppercase tracking-widest">
+            They capture what was said. We capture whether it should have been said at all.
+          </p>
 
           {/* CTA */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">

@@ -22,7 +22,9 @@ import {
     FileText,
     Sparkles,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Repeat,
+    Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
@@ -475,6 +477,30 @@ Please add your name under your preferred option:
 
                     {/* Bottom: Savings Section */}
                     <div className="bg-slate-50 p-6 sm:p-8 border-t border-slate-100">
+                        {/* Annual Impact Alert for Recurring Meetings */}
+                        {data.isRecurring && (
+                            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-4 mb-6 text-white">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-white/20 p-2 rounded-xl">
+                                        <Repeat className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-sm uppercase tracking-wide opacity-90">
+                                            {data.recurrenceFrequency === 'WEEKLY' ? 'Weekly' : data.recurrenceFrequency === 'BIWEEKLY' ? 'Bi-weekly' : 'Monthly'} Recurring Meeting
+                                        </div>
+                                        <div className="text-2xl font-black">
+                                            {(() => {
+                                                const multiplier = data.recurrenceFrequency === 'WEEKLY' ? 52 : data.recurrenceFrequency === 'BIWEEKLY' ? 26 : 12;
+                                                const annualHours = savings.potentialHoursSaved * multiplier;
+                                                const annualSavings = savings.savings * multiplier;
+                                                return `${annualHours.toFixed(0)} hrs & $${annualSavings.toLocaleString()} per year`;
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                             {/* Savings Stats */}
                             <div className="flex items-center gap-6">
@@ -484,7 +510,7 @@ Please add your name under your preferred option:
                                     </div>
                                     <div>
                                         <div className="text-xl font-black text-slate-900">{savings.potentialHoursSaved.toFixed(1)} hrs</div>
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase">Reclaimable</div>
+                                        <div className="text-[10px] font-bold text-slate-500 uppercase">{data.isRecurring ? 'Per Meeting' : 'Reclaimable'}</div>
                                     </div>
                                 </div>
                                 <div className="w-px h-10 bg-slate-200" />
@@ -494,7 +520,7 @@ Please add your name under your preferred option:
                                     </div>
                                     <div>
                                         <div className="text-xl font-black text-slate-900">${savings.savings.toLocaleString()}</div>
-                                        <div className="text-[10px] font-bold text-slate-500 uppercase">Potential Savings</div>
+                                        <div className="text-[10px] font-bold text-slate-500 uppercase">{data.isRecurring ? 'Per Meeting' : 'Potential Savings'}</div>
                                     </div>
                                 </div>
                             </div>
