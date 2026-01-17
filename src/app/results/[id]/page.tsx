@@ -597,38 +597,53 @@ Please add your name under your preferred option:
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
-                                <span className={`text-xs font-bold uppercase tracking-wide ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Share Your Results</span>
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <button
-                                        onClick={copyResults}
-                                        className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
-                                            eosMode
-                                                ? 'bg-neutral-700 border border-neutral-600 text-neutral-200 hover:bg-neutral-600'
-                                                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
-                                        }`}
-                                    >
-                                        {copied ? <CheckCircle2 className={`w-4 h-4 ${eosMode ? 'text-amber-500' : 'text-teal-500'}`} /> : <Copy className="w-4 h-4" />}
-                                        <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
-                                    </button>
-                                    <button
-                                        onClick={shareToSlack}
-                                        className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
-                                    >
-                                        {slackCopied ? <CheckCircle2 className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
-                                        <span className="hidden sm:inline">{slackCopied ? 'Copied!' : 'Slack'}</span>
-                                    </button>
-                                    <button
-                                        onClick={shareViaEmail}
-                                        className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
-                                            eosMode
-                                                ? 'bg-amber-500 text-black hover:bg-amber-400'
-                                                : 'bg-skip-coral text-white hover:bg-orange-600'
-                                        }`}
-                                    >
-                                        <Mail className="w-4 h-4" /> <span className="hidden sm:inline">Email</span>
-                                    </button>
+                            <div className="flex flex-col gap-4 w-full sm:w-auto">
+                                <div className="flex flex-col items-start sm:items-end gap-2">
+                                    <span className={`text-xs font-bold uppercase tracking-wide ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Share Your Results</span>
+                                    <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
+                                        <button
+                                            onClick={copyResults}
+                                            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                                                eosMode
+                                                    ? 'bg-neutral-700 border border-neutral-600 text-neutral-200 hover:bg-neutral-600'
+                                                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            {copied ? <CheckCircle2 className={`w-5 h-5 sm:w-4 sm:h-4 ${eosMode ? 'text-amber-500' : 'text-teal-500'}`} /> : <Copy className="w-5 h-5 sm:w-4 sm:h-4" />}
+                                            <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
+                                        </button>
+                                        <button
+                                            onClick={shareToSlack}
+                                            className="flex items-center justify-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
+                                        >
+                                            {slackCopied ? <CheckCircle2 className="w-5 h-5 sm:w-4 sm:h-4" /> : <MessageSquare className="w-5 h-5 sm:w-4 sm:h-4" />}
+                                            <span className="hidden sm:inline">{slackCopied ? 'Copied!' : 'Slack'}</span>
+                                        </button>
+                                        <button
+                                            onClick={shareViaEmail}
+                                            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                                                eosMode
+                                                    ? 'bg-amber-500 text-black hover:bg-amber-400'
+                                                    : 'bg-skip-coral text-white hover:bg-orange-600'
+                                            }`}
+                                        >
+                                            <Mail className="w-5 h-5 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Email</span>
+                                        </button>
+                                    </div>
                                 </div>
+
+                                {/* Dashboard Link - Mobile Only */}
+                                <Link
+                                    href="/dashboard"
+                                    className={`flex sm:hidden items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm transition-all ${
+                                        eosMode
+                                            ? 'bg-neutral-700 border border-neutral-600 text-amber-400 hover:bg-neutral-600'
+                                            : 'bg-white border border-slate-200 text-score-teal hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <LayoutDashboard className="w-5 h-5" />
+                                    View Dashboard
+                                </Link>
                             </div>
                         </div>
                         <p className={`text-[10px] mt-3 font-medium ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>* Based on avg. $75/hr per attendee</p>
