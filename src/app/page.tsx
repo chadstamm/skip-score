@@ -68,72 +68,78 @@ export default function Home() {
 
             <div className="space-y-4">
               {/* EOS Mode Toggle */}
-              <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-purple-100'}`}>
-                    <Target className={`w-5 h-5 ${eosMode ? 'text-amber-400' : 'text-purple-600'}`} />
+              <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-amber-500/20' : 'bg-purple-100'}`}>
+                      <Target className={`w-5 h-5 ${eosMode ? 'text-amber-400' : 'text-purple-600'}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
+                      <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Optimized for L10 meetings and EOS terminology</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
-                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Optimized for L10 meetings and EOS terminology</div>
-                  </div>
+                  <button
+                    onClick={toggleEosMode}
+                    className={`relative w-14 h-8 rounded-full transition-colors flex-shrink-0 ${eosMode ? 'bg-amber-500' : 'bg-slate-300'}`}
+                  >
+                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
+                  </button>
                 </div>
-                <button
-                  onClick={toggleEosMode}
-                  className={`relative w-14 h-8 rounded-full transition-colors ${eosMode ? 'bg-amber-500' : 'bg-slate-300'}`}
-                >
-                  <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
-                </button>
               </div>
 
               {/* Hourly Rate Setting */}
-              <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                    <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+              <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                      <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                    </div>
+                    <div>
+                      <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
+                      <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Used for calculating meeting costs</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
-                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Used for calculating meeting costs</div>
+                  <div className="flex items-center gap-2 ml-11 sm:ml-0">
+                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
+                    <input
+                      type="number"
+                      value={hourlyRate}
+                      onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
+                      className={`w-20 p-2 rounded-lg text-center font-bold ${
+                        eosMode
+                          ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
+                          : 'bg-white border border-slate-200 focus:border-teal-500'
+                      } focus:outline-none`}
+                    />
+                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
-                  <input
-                    type="number"
-                    value={hourlyRate}
-                    onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
-                    className={`w-20 p-2 rounded-lg text-center font-bold ${
-                      eosMode
-                        ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
-                        : 'bg-white border border-slate-200 focus:border-teal-500'
-                    } focus:outline-none`}
-                  />
-                  <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
                 </div>
               </div>
 
               {/* Reset Data */}
-              <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${eosMode ? 'bg-red-500/20' : 'bg-red-100'}`}>
-                    <RotateCcw className={`w-5 h-5 ${eosMode ? 'text-red-400' : 'text-red-600'}`} />
+              <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-red-500/20' : 'bg-red-100'}`}>
+                      <RotateCcw className={`w-5 h-5 ${eosMode ? 'text-red-400' : 'text-red-600'}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Reset All Data</div>
+                      <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Clear all assessments and settings</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Reset All Data</div>
-                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Clear all assessments and settings</div>
-                  </div>
+                  <button
+                    onClick={resetAllData}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors flex-shrink-0 ${
+                      eosMode
+                        ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                        : 'bg-red-100 text-red-600 hover:bg-red-200'
+                    }`}
+                  >
+                    Reset
+                  </button>
                 </div>
-                <button
-                  onClick={resetAllData}
-                  className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
-                    eosMode
-                      ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                      : 'bg-red-100 text-red-600 hover:bg-red-200'
-                  }`}
-                >
-                  Reset
-                </button>
               </div>
             </div>
 
@@ -215,8 +221,8 @@ export default function Home() {
               <TrendingDown className={`w-7 h-7 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
             </div>
             <div className="space-y-1">
-              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>40%</h3>
-              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Of meetings could be an email or Slack</p>
+              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>72%</h3>
+              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Of meetings are considered ineffective</p>
               <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>Source: Atlassian Research</p>
             </div>
           </div>
@@ -228,8 +234,8 @@ export default function Home() {
               <Clock className={`w-7 h-7 ${eosMode ? 'text-amber-500' : 'text-blue-600'}`} />
             </div>
             <div className="space-y-1">
-              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>10+ hrs</h3>
-              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>You could reclaim weekly with better habits</p>
+              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>16 hrs</h3>
+              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Spent in meetings weekly by the average worker</p>
               <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>Source: McKinsey & Company</p>
             </div>
           </div>

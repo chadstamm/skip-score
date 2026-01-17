@@ -280,20 +280,20 @@ Please add your name under your preferred option:
         <main className="min-h-screen p-4 sm:p-8 flex flex-col items-center">
             <div className="max-w-4xl w-full space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/assess" className={`flex items-center gap-2 transition-colors font-bold ${
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                        <Link href="/assess" className={`flex items-center gap-1 sm:gap-2 transition-colors font-bold text-sm sm:text-base ${
                             eosMode ? 'text-amber-500/80 hover:text-amber-400' : 'text-white/80 hover:text-white'
                         }`}>
-                            <ArrowLeft className="w-5 h-5" /> {eosMode ? 'New Check' : 'New Assessment'}
+                            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">{eosMode ? 'New Check' : 'New Assessment'}</span><span className="sm:hidden">New</span>
                         </Link>
-                        <Link href="/dashboard" className={`flex items-center gap-2 transition-colors font-bold ${
+                        <Link href="/dashboard" className={`flex items-center gap-1 sm:gap-2 transition-colors font-bold text-sm sm:text-base ${
                             eosMode ? 'text-amber-500/80 hover:text-amber-400' : 'text-white/80 hover:text-white'
                         }`}>
-                            <LayoutDashboard className="w-5 h-5" /> Dashboard
+                            <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Dashboard</span>
                         </Link>
                     </div>
-                    <Link href="/"><Logo className="scale-75 origin-right cursor-pointer" variant="white" /></Link>
+                    <Link href="/"><Logo className="scale-50 sm:scale-75 origin-right cursor-pointer" variant="white" /></Link>
                 </div>
 
                 {/* Main Result Card */}
@@ -597,36 +597,36 @@ Please add your name under your preferred option:
                             </div>
 
                             {/* Actions */}
-                            <div className="flex flex-col items-end gap-2">
+                            <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto">
                                 <span className={`text-xs font-bold uppercase tracking-wide ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Share Your Results</span>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <button
                                         onClick={copyResults}
-                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                                        className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
                                             eosMode
                                                 ? 'bg-neutral-700 border border-neutral-600 text-neutral-200 hover:bg-neutral-600'
                                                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
                                         }`}
                                     >
                                         {copied ? <CheckCircle2 className={`w-4 h-4 ${eosMode ? 'text-amber-500' : 'text-teal-500'}`} /> : <Copy className="w-4 h-4" />}
-                                        {copied ? 'Copied!' : 'Copy'}
+                                        <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
                                     </button>
                                     <button
                                         onClick={shareToSlack}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
+                                        className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-[#4A154B] text-white rounded-xl font-bold text-sm hover:bg-[#3a1039] transition-all shadow-sm"
                                     >
                                         {slackCopied ? <CheckCircle2 className="w-4 h-4" /> : <MessageSquare className="w-4 h-4" />}
-                                        {slackCopied ? 'Copied for Slack!' : 'Slack'}
+                                        <span className="hidden sm:inline">{slackCopied ? 'Copied!' : 'Slack'}</span>
                                     </button>
                                     <button
                                         onClick={shareViaEmail}
-                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                                        className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
                                             eosMode
                                                 ? 'bg-amber-500 text-black hover:bg-amber-400'
                                                 : 'bg-skip-coral text-white hover:bg-orange-600'
                                         }`}
                                     >
-                                        <Mail className="w-4 h-4" /> Email
+                                        <Mail className="w-4 h-4" /> <span className="hidden sm:inline">Email</span>
                                     </button>
                                 </div>
                             </div>
