@@ -301,7 +301,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             <button
                                 key={template.id}
                                 onClick={() => applyTemplate(template.id)}
-                                className={`p-3 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-start ${
+                                className={`h-full p-3 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-start ${
                                     selectedTemplate === template.id
                                         ? eosMode
                                             ? 'border-amber-500 bg-amber-500/10 shadow-sm'
