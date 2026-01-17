@@ -31,6 +31,19 @@ export function EOSProvider({ children }: { children: ReactNode }) {
         }
     }, [eosMode, mounted]);
 
+    // Listen for custom toggle event from other components
+    useEffect(() => {
+        const handleToggle = () => {
+            setEosModeState(prev => {
+                const newValue = !prev;
+                localStorage.setItem('skip-score-eos-mode', String(newValue));
+                return newValue;
+            });
+        };
+        window.addEventListener('toggleEOSMode', handleToggle);
+        return () => window.removeEventListener('toggleEOSMode', handleToggle);
+    }, []);
+
     const toggleEosMode = () => {
         const newValue = !eosMode;
         setEosModeState(newValue);

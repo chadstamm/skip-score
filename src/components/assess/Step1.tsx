@@ -261,6 +261,19 @@ export default function Step1({ data, updateData }: Step1Props) {
                 <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
                     {eosMode ? 'Is this meeting necessary? Start here.' : 'Start with a template or build from scratch.'}
                 </p>
+                <button
+                    onClick={() => {
+                        const event = new CustomEvent('toggleEOSMode');
+                        window.dispatchEvent(event);
+                    }}
+                    className={`text-sm transition-colors ${
+                        eosMode
+                            ? 'text-amber-400 hover:text-amber-300'
+                            : 'text-teal-600 hover:text-teal-700'
+                    }`}
+                >
+                    {eosMode ? 'Switch to standard mode \u2192' : 'Running on Traction/EOS? Enable EOS mode \u2192'}
+                </button>
             </div>
 
             {/* Templates */}
@@ -281,14 +294,14 @@ export default function Step1({ data, updateData }: Step1Props) {
                         L10 and IDS meetings are protected. Other meetings may be flagged for the Issues List.
                     </div>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 items-stretch">
                     {activeTemplates.map((template) => {
                         const Icon = template.icon;
                         return (
                             <button
                                 key={template.id}
                                 onClick={() => applyTemplate(template.id)}
-                                className={`p-3 rounded-xl border-2 text-center transition-all ${
+                                className={`p-3 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-start ${
                                     selectedTemplate === template.id
                                         ? eosMode
                                             ? 'border-amber-500 bg-amber-500/10 shadow-sm'
@@ -298,7 +311,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                                             : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                                 }`}
                             >
-                                <div className={`w-10 h-10 ${template.color} rounded-xl flex items-center justify-center mx-auto mb-2`}>
+                                <div className={`w-10 h-10 ${template.color} rounded-xl flex items-center justify-center mb-2 flex-shrink-0`}>
                                     <Icon className="w-5 h-5 text-white" />
                                 </div>
                                 <div className={`font-semibold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{template.name}</div>
