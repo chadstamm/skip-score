@@ -171,48 +171,52 @@ export default function Dashboard() {
 
                         <div className="space-y-4">
                             {/* EOS Mode Toggle */}
-                            <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-purple-100'}`}>
-                                        <Target className={`w-5 h-5 ${eosMode ? 'text-amber-400' : 'text-purple-600'}`} />
+                            <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-amber-500/20' : 'bg-purple-100'}`}>
+                                            <Target className={`w-5 h-5 ${eosMode ? 'text-amber-400' : 'text-purple-600'}`} />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
+                                            <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Optimized for L10 meetings and EOS terminology</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
-                                        <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Optimized for L10 meetings and EOS terminology</div>
-                                    </div>
+                                    <button
+                                        onClick={toggleEosMode}
+                                        className={`relative w-14 h-8 rounded-full transition-colors flex-shrink-0 ${eosMode ? 'bg-amber-500' : 'bg-slate-300'}`}
+                                    >
+                                        <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={toggleEosMode}
-                                    className={`relative w-14 h-8 rounded-full transition-colors ${eosMode ? 'bg-amber-500' : 'bg-slate-300'}`}
-                                >
-                                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
-                                </button>
                             </div>
 
                             {/* Hourly Rate Setting */}
-                            <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-xl ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                                        <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                            <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                                            <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                        </div>
+                                        <div>
+                                            <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
+                                            <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Used for calculating meeting costs</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
-                                        <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Used for calculating meeting costs</div>
+                                    <div className="flex items-center gap-2 ml-11 sm:ml-0">
+                                        <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
+                                        <input
+                                            type="number"
+                                            value={hourlyRate}
+                                            onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
+                                            className={`w-20 p-2 rounded-lg text-center font-bold ${
+                                                eosMode
+                                                    ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
+                                                    : 'bg-white border border-slate-200 focus:border-teal-500'
+                                            } focus:outline-none`}
+                                        />
+                                        <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
                                     </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
-                                    <input
-                                        type="number"
-                                        value={hourlyRate}
-                                        onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
-                                        className={`w-20 p-2 rounded-lg text-center font-bold ${
-                                            eosMode
-                                                ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
-                                                : 'bg-white border border-slate-200 focus:border-teal-500'
-                                        } focus:outline-none`}
-                                    />
-                                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
                                 </div>
                             </div>
                         </div>
