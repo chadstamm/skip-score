@@ -36,23 +36,10 @@ export default function Home() {
     <main className="min-h-screen flex flex-col items-center p-6 sm:p-12">
       <Onboarding onComplete={() => {}} />
       <div className="max-w-5xl w-full space-y-16">
-        {/* Header / Logo + Settings */}
-        <div className="flex justify-center pt-8 relative">
+        {/* Header / Logo */}
+        <div className="flex justify-center pt-8">
           <div className={`p-4 rounded-2xl shadow-xl ${eosMode ? 'bg-neutral-900' : 'bg-white'}`}>
             <Logo />
-          </div>
-          {/* Settings Button */}
-          <div className="absolute right-0 top-8">
-            <button
-              onClick={() => setShowSettings(!showSettings)}
-              className={`p-3 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105 ${
-                eosMode
-                  ? 'bg-neutral-800 text-neutral-300 border border-neutral-700'
-                  : 'bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20'
-              }`}
-            >
-              <Settings className="w-5 h-5" />
-            </button>
           </div>
         </div>
 
@@ -197,6 +184,19 @@ export default function Home() {
               View Dashboard
             </Link>
           </div>
+
+          {/* Settings Link */}
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className={`inline-flex items-center gap-2 text-sm font-medium transition-colors ${
+              eosMode
+                ? 'text-neutral-400 hover:text-amber-400'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            Settings
+          </button>
         </div>
 
         {/* Problem Stats */}
