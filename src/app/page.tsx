@@ -221,8 +221,8 @@ export default function Home() {
               <TrendingDown className={`w-7 h-7 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
             </div>
             <div className="space-y-1">
-              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>40%</h3>
-              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Of meetings could be an email or Slack</p>
+              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>72%</h3>
+              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Of meetings are considered ineffective</p>
               <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>Source: Atlassian Research</p>
             </div>
           </div>
@@ -234,8 +234,8 @@ export default function Home() {
               <Clock className={`w-7 h-7 ${eosMode ? 'text-amber-500' : 'text-blue-600'}`} />
             </div>
             <div className="space-y-1">
-              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>10+ hrs</h3>
-              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>You could reclaim weekly with better habits</p>
+              <h3 className={`text-4xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>16 hrs</h3>
+              <p className={`font-medium leading-tight ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Spent in meetings weekly by the average worker</p>
               <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>Source: McKinsey & Company</p>
             </div>
           </div>
