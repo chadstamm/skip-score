@@ -1,43 +1,152 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, BarChart3, Target } from 'lucide-react';
+import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, BarChart3, Target, Settings, X, RotateCcw, DollarSign } from 'lucide-react';
 import Onboarding from '@/components/Onboarding';
 import { useEOS } from '@/contexts/EOSContext';
 
 export default function Home() {
   const { eosMode, toggleEosMode } = useEOS();
+  const [showSettings, setShowSettings] = useState(false);
+  const [hourlyRate, setHourlyRate] = useState(75);
+
+  useEffect(() => {
+    const savedRate = localStorage.getItem('skip-score-hourly-rate');
+    if (savedRate) setHourlyRate(parseInt(savedRate));
+  }, []);
+
+  const updateHourlyRate = (rate: number) => {
+    setHourlyRate(rate);
+    localStorage.setItem('skip-score-hourly-rate', rate.toString());
+  };
+
+  const resetAllData = () => {
+    if (confirm('Are you sure you want to reset all data? This will clear all assessments and settings.')) {
+      localStorage.removeItem('skip-score-history');
+      localStorage.removeItem('skip-score-dismissed-feedback');
+      localStorage.removeItem('skip-score-hourly-rate');
+      setHourlyRate(75);
+      alert('All data has been reset.');
+    }
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center p-6 sm:p-12">
       <Onboarding onComplete={() => {}} />
       <div className="max-w-5xl w-full space-y-16">
-        {/* Header / Logo + EOS Toggle */}
+        {/* Header / Logo + Settings */}
         <div className="flex justify-center pt-8 relative">
           <div className={`p-4 rounded-2xl shadow-xl ${eosMode ? 'bg-neutral-900' : 'bg-white'}`}>
             <Logo />
           </div>
-          {/* EOS Mode Toggle */}
-          <div className="absolute right-0 top-8 flex flex-col items-end gap-2">
-            {!eosMode && (
-              <p className="text-xs text-white/80 font-bold text-right leading-tight">
-                Running on Traction EOS?<br />Turn this on for L10 optimization.
-              </p>
-            )}
+          {/* Settings Button */}
+          <div className="absolute right-0 top-8">
             <button
-              onClick={toggleEosMode}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all ${
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-3 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105 ${
                 eosMode
-                  ? 'bg-amber-500 text-black hover:bg-amber-400'
-                  : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
+                  ? 'bg-neutral-800 text-neutral-300 border border-neutral-700'
+                  : 'bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20'
               }`}
             >
-              <Target className="w-4 h-4" />
-              {eosMode ? 'EOS Mode ON' : 'EOS Mode'}
+              <Settings className="w-5 h-5" />
             </button>
           </div>
         </div>
+
+        {/* Settings Panel */}
+        {showSettings && (
+          <div className={`rounded-2xl shadow-xl p-6 animate-in fade-in slide-in-from-top-2 duration-300 -mt-8 ${eosMode ? 'bg-neutral-900 border border-neutral-700' : 'bg-white'}`}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className={`text-xl font-bold ${eosMode ? 'text-white' : 'text-slate-900'}`}>Settings</h3>
+              <button onClick={() => setShowSettings(false)} className={eosMode ? 'text-neutral-400 hover:text-neutral-200' : 'text-slate-400 hover:text-slate-600'}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* EOS Mode Toggle */}
+              <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-purple-100'}`}>
+                    <Target className={`w-5 h-5 ${eosMode ? 'text-amber-400' : 'text-purple-600'}`} />
+                  </div>
+                  <div>
+                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
+                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Optimized for L10 meetings and EOS terminology</div>
+                  </div>
+                </div>
+                <button
+                  onClick={toggleEosMode}
+                  className={`relative w-14 h-8 rounded-full transition-colors ${eosMode ? 'bg-amber-500' : 'bg-slate-300'}`}
+                >
+                  <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {/* Hourly Rate Setting */}
+              <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                    <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                  </div>
+                  <div>
+                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
+                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Used for calculating meeting costs</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
+                  <input
+                    type="number"
+                    value={hourlyRate}
+                    onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
+                    className={`w-20 p-2 rounded-lg text-center font-bold ${
+                      eosMode
+                        ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
+                        : 'bg-white border border-slate-200 focus:border-teal-500'
+                    } focus:outline-none`}
+                  />
+                  <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
+                </div>
+              </div>
+
+              {/* Reset Data */}
+              <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-xl ${eosMode ? 'bg-red-500/20' : 'bg-red-100'}`}>
+                    <RotateCcw className={`w-5 h-5 ${eosMode ? 'text-red-400' : 'text-red-600'}`} />
+                  </div>
+                  <div>
+                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Reset All Data</div>
+                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Clear all assessments and settings</div>
+                  </div>
+                </div>
+                <button
+                  onClick={resetAllData}
+                  className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors ${
+                    eosMode
+                      ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                      : 'bg-red-100 text-red-600 hover:bg-red-200'
+                  }`}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            {eosMode && (
+              <div className="mt-4 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                <div className="text-sm text-amber-300">
+                  <strong>EOS Mode enabled!</strong> L10 meetings will automatically score high.
+                  Non-essential meetings will be flagged for the Issues List.
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Hero Section */}
         <div className="text-center space-y-6 text-white">

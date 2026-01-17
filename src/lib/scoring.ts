@@ -76,8 +76,8 @@ export const calculateScore = (data: AssessmentData): { score: number; recommend
     return { score: parseFloat(score.toFixed(1)), recommendation, reasoning };
 };
 
-export const calculateSavings = (data: AssessmentData, score: number, recommendation: Recommendation) => {
-    const hourlyRate = 75;
+export const calculateSavings = (data: AssessmentData, score: number, recommendation: Recommendation, customHourlyRate?: number) => {
+    const hourlyRate = customHourlyRate || 75;
     const hours = data.duration / 60;
     const totalCost = data.attendees.length * hours * hourlyRate;
 

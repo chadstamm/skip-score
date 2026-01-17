@@ -19,7 +19,8 @@ import {
     MessageCircleQuestion,
     Settings,
     X,
-    Zap
+    Zap,
+    DollarSign
 } from 'lucide-react';
 import Link from 'next/link';
 import PostMeetingFeedback from '@/components/PostMeetingFeedback';
@@ -30,6 +31,7 @@ export default function Dashboard() {
     const [search, setSearch] = useState('');
     const [dismissedFeedback, setDismissedFeedback] = useState<string[]>([]);
     const [showSettings, setShowSettings] = useState(false);
+    const [hourlyRate, setHourlyRate] = useState(75);
     const { eosMode, toggleEosMode } = useEOS();
 
     useEffect(() => {
@@ -37,7 +39,14 @@ export default function Dashboard() {
         setHistory(data);
         const dismissed = JSON.parse(localStorage.getItem('skip-score-dismissed-feedback') || '[]');
         setDismissedFeedback(dismissed);
+        const savedRate = localStorage.getItem('skip-score-hourly-rate');
+        if (savedRate) setHourlyRate(parseInt(savedRate));
     }, []);
+
+    const updateHourlyRate = (rate: number) => {
+        setHourlyRate(rate);
+        localStorage.setItem('skip-score-hourly-rate', rate.toString());
+    };
 
     // Get meetings that need feedback (PROCEED meetings from 24+ hours ago without feedback)
     const needsFeedback = history.filter(h => {
@@ -77,7 +86,7 @@ export default function Dashboard() {
     };
 
     const totals = history.reduce((acc, curr) => {
-        const { savings, potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED');
+        const { savings, potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED', hourlyRate);
         return {
             costSaved: acc.costSaved + savings,
             hoursSaved: acc.hoursSaved + potentialHoursSaved
@@ -89,7 +98,7 @@ export default function Dashboard() {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const thisWeekAssessments = history.filter(h => new Date(h.createdAt) >= oneWeekAgo);
     const thisWeekSavings = thisWeekAssessments.reduce((acc, curr) => {
-        const { savings, potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED');
+        const { savings, potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED', hourlyRate);
         return {
             costSaved: acc.costSaved + savings,
             hoursSaved: acc.hoursSaved + potentialHoursSaved
@@ -160,28 +169,57 @@ export default function Dashboard() {
                             </button>
                         </div>
 
-                        {/* EOS Mode Toggle */}
-                        <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-xl ${eosMode ? 'bg-orange-500/20' : 'bg-purple-100'}`}>
-                                    <Zap className={`w-5 h-5 ${eosMode ? 'text-orange-400' : 'text-purple-600'}`} />
+                        <div className="space-y-4">
+                            {/* EOS Mode Toggle */}
+                            <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-purple-100'}`}>
+                                        <Target className={`w-5 h-5 ${eosMode ? 'text-amber-400' : 'text-purple-600'}`} />
+                                    </div>
+                                    <div>
+                                        <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
+                                        <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Optimized for L10 meetings and EOS terminology</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>EOS / Traction Mode</div>
-                                    <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Dark theme with EOS terminology</div>
+                                <button
+                                    onClick={toggleEosMode}
+                                    className={`relative w-14 h-8 rounded-full transition-colors ${eosMode ? 'bg-amber-500' : 'bg-slate-300'}`}
+                                >
+                                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+
+                            {/* Hourly Rate Setting */}
+                            <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-xl ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                                        <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                                    </div>
+                                    <div>
+                                        <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
+                                        <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Used for calculating meeting costs</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
+                                    <input
+                                        type="number"
+                                        value={hourlyRate}
+                                        onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
+                                        className={`w-20 p-2 rounded-lg text-center font-bold ${
+                                            eosMode
+                                                ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
+                                                : 'bg-white border border-slate-200 focus:border-teal-500'
+                                        } focus:outline-none`}
+                                    />
+                                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
                                 </div>
                             </div>
-                            <button
-                                onClick={toggleEosMode}
-                                className={`relative w-14 h-8 rounded-full transition-colors ${eosMode ? 'bg-orange-500' : 'bg-slate-300'}`}
-                            >
-                                <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${eosMode ? 'translate-x-7' : 'translate-x-1'}`} />
-                            </button>
                         </div>
 
                         {eosMode && (
-                            <div className="mt-4 p-4 bg-orange-500/10 rounded-xl border border-orange-500/20">
-                                <div className="text-sm text-orange-300">
+                            <div className="mt-4 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                                <div className="text-sm text-amber-300">
                                     <strong>EOS Mode enabled!</strong> L10 meetings will automatically score high.
                                     Non-essential meetings will be flagged for the Issues List.
                                 </div>
