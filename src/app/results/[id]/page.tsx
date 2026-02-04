@@ -123,8 +123,8 @@ export default function ResultsPage() {
     if (!data) return null;
 
     const savings = calculateSavings(data, data.score || 0, data.recommendation || 'PROCEED');
-    const actionPlan = calculateActionPlan(data, data.recommendation || 'PROCEED');
-    const scoreBreakdown = calculateScoreBreakdown(data);
+    const actionPlan = calculateActionPlan(data, data.recommendation || 'PROCEED', eosMode);
+    const scoreBreakdown = calculateScoreBreakdown(data, { eosMode });
     const style = REC_STYLES[data.recommendation || 'PROCEED'];
 
     const copyResults = () => {
