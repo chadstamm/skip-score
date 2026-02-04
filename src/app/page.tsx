@@ -37,10 +37,22 @@ export default function Home() {
       <Onboarding onComplete={() => {}} />
       <div className="max-w-5xl w-full space-y-16">
         {/* Header / Logo */}
-        <div className="flex justify-center pt-8">
+        <div className="flex items-center justify-between pt-8">
+          <div className="w-10" /> {/* Spacer for centering */}
           <div className={`p-4 rounded-2xl shadow-xl ${eosMode ? 'bg-neutral-900' : 'bg-white'}`}>
             <Logo />
           </div>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className={`p-3 rounded-xl transition-all hover:scale-110 ${
+              eosMode
+                ? 'bg-neutral-800 text-neutral-400 hover:text-amber-400'
+                : 'bg-white/10 text-white/60 hover:text-white'
+            }`}
+            aria-label="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Settings Panel */}
@@ -185,21 +197,8 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Settings Link */}
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className={`inline-flex items-center gap-2 text-sm font-medium transition-colors ${
-              eosMode
-                ? 'text-neutral-400 hover:text-amber-400'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            Settings
-          </button>
-
-          {/* Traction Mode Callout - Only show when NOT in EOS mode */}
-          {!eosMode && (
+          {/* Mode Toggle Callout */}
+          {!eosMode ? (
             <button
               onClick={toggleEosMode}
               className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
@@ -211,6 +210,16 @@ export default function Home() {
               <span className="text-teal-200 group-hover:text-white transition-colors">
                 Switch to Traction Mode →
               </span>
+            </button>
+          ) : (
+            <button
+              onClick={toggleEosMode}
+              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-neutral-800/50 backdrop-blur-sm border border-neutral-700 hover:bg-neutral-700/50 transition-all duration-300 hover:scale-105"
+            >
+              <div className="flex items-center gap-2">
+                <RotateCcw className="w-5 h-5 text-teal-400" />
+                <span className="font-bold text-neutral-200">Switch to Standard Mode</span>
+              </div>
             </button>
           )}
         </div>
