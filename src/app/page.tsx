@@ -197,6 +197,22 @@ export default function Home() {
             <Settings className="w-4 h-4" />
             Settings
           </button>
+
+          {/* Traction Mode Callout - Only show when NOT in EOS mode */}
+          {!eosMode && (
+            <button
+              onClick={toggleEosMode}
+              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+            >
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-amber-400" />
+                <span className="font-bold text-white">Running on EOS?</span>
+              </div>
+              <span className="text-teal-200 group-hover:text-white transition-colors">
+                Switch to Traction Mode →
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Problem Stats */}

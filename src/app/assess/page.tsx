@@ -42,7 +42,7 @@ export default function AssessPage() {
             attendees: formData.attendees || [],
         } as AssessmentData;
 
-        const { score, recommendation, reasoning } = calculateScore(fullData);
+        const { score, recommendation, reasoning } = calculateScore(fullData, { eosMode });
         fullData.score = score;
         fullData.recommendation = recommendation;
         fullData.reasoning = reasoning;
