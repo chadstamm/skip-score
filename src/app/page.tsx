@@ -130,8 +130,8 @@ export default function Home() {
           </p>
           <p className={`text-sm font-medium uppercase tracking-widest ${eosMode ? 'text-amber-400/80' : 'text-teal-200/80'}`}>
             {eosMode
-              ? 'Score. Prepare. Protect your meeting pulse.'
-              : 'Score. Prepare. Reclaim your time.'}
+              ? 'Prepare. Score. Protect your meeting pulse.'
+              : 'Prepare. Score. Reclaim your time.'}
           </p>
 
           {/* CTA */}
