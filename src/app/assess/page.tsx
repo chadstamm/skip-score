@@ -99,8 +99,8 @@ export default function AssessPage() {
                     }`}>
                         <button
                             onClick={prevStep}
-                            className={`flex items-center gap-2 px-6 py-2 font-semibold transition-all ${
-                                step === 1
+                            className={`flex items-center gap-2 px-6 py-2 font-semibold transition-all cursor-pointer ${
+                                step === 1 || step === 3
                                     ? 'opacity-0 pointer-events-none'
                                     : eosMode
                                         ? 'text-neutral-400 hover:text-neutral-200'

@@ -1075,8 +1075,8 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
                     onClick={downloadPDF}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                         eosMode
-                            ? 'bg-amber-500 text-black hover:bg-amber-400'
-                            : 'bg-skip-coral text-white hover:bg-orange-600'
+                            ? 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
                     }`}
                 >
                     <Download className="w-3.5 h-3.5" />
