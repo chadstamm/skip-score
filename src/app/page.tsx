@@ -201,7 +201,7 @@ export default function Home() {
           {!eosMode ? (
             <button
               onClick={toggleEosMode}
-              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all duration-300 hover:scale-105"
             >
               <div className="flex items-center gap-2">
                 <Target className="w-5 h-5 text-amber-400" />
@@ -214,7 +214,7 @@ export default function Home() {
           ) : (
             <button
               onClick={toggleEosMode}
-              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-neutral-800/50 backdrop-blur-sm border border-neutral-700 hover:bg-neutral-700/50 transition-all duration-300 hover:scale-105"
+              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-black border border-neutral-700 hover:bg-neutral-900 transition-all duration-300 hover:scale-105"
             >
               <div className="flex items-center gap-2">
                 <RotateCcw className="w-5 h-5 text-teal-400" />
