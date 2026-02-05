@@ -52,7 +52,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                     <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
                         {eosMode ? 'Is there a decision to be made (IDS)?' : 'Does this meeting require a decision?'}
                     </label>
-                    <div className="flex gap-6">
+                    <div className="flex flex-wrap gap-4 sm:gap-6">
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input
                                 type="radio"

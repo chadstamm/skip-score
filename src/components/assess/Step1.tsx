@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { AssessmentData, MeetingPurpose, MeetingUrgency, RecurrenceFrequency } from '@/lib/types';
-import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks, PenLine, RotateCcw, Handshake } from 'lucide-react';
+import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks, PenLine, RotateCcw, Handshake, Link2 } from 'lucide-react';
 import { useEOS } from '@/contexts/EOSContext';
+
+function detectMeetingPlatform(url: string): 'zoom' | 'teams' | 'meet' | null {
+    if (!url) return null;
+    const lower = url.toLowerCase();
+    if (lower.includes('zoom.us') || lower.includes('zoom.com')) return 'zoom';
+    if (lower.includes('teams.microsoft.com') || lower.includes('teams.live.com')) return 'teams';
+    if (lower.includes('meet.google.com')) return 'meet';
+    return null;
+}
+
+const PLATFORM_INFO: Record<string, { name: string; color: string; bg: string }> = {
+    zoom: { name: 'Zoom', color: 'text-blue-600', bg: 'bg-blue-500' },
+    teams: { name: 'Teams', color: 'text-indigo-600', bg: 'bg-indigo-500' },
+    meet: { name: 'Google Meet', color: 'text-emerald-600', bg: 'bg-emerald-500' },
+};
 
 interface Step1Props {
     data: Partial<AssessmentData>;
@@ -340,6 +355,40 @@ export default function Step1({ data, updateData }: Step1Props) {
                     />
                 </div>
 
+                {/* Meeting Link */}
+                <div className="space-y-2">
+                    <label className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                        <Link2 className="w-3.5 h-3.5" /> Meeting Link
+                        <span className={`font-normal normal-case tracking-normal ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>(optional)</span>
+                    </label>
+                    <div className="relative">
+                        <input
+                            type="url"
+                            placeholder="Paste your Zoom, Teams, or Meet link"
+                            className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all font-medium ${
+                                eosMode
+                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
+                                    : 'border-slate-100 focus:border-score-teal'
+                            } ${data.meetingPlatform ? 'pr-28' : ''}`}
+                            value={data.meetingLink || ''}
+                            onChange={(e) => {
+                                const link = e.target.value;
+                                const platform = detectMeetingPlatform(link);
+                                updateData({
+                                    meetingLink: link,
+                                    meetingPlatform: platform || undefined,
+                                });
+                            }}
+                        />
+                        {data.meetingPlatform && (
+                            <div className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold text-white ${PLATFORM_INFO[data.meetingPlatform].bg}`}>
+                                <div className="w-2 h-2 rounded-full bg-white/40 hidden sm:block" />
+                                {PLATFORM_INFO[data.meetingPlatform].name}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <div className="space-y-2">
                     <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>What's the primary purpose?</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -364,7 +413,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Urgency</label>
                         <select
