@@ -182,6 +182,29 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
+                            {/* Reset All Data */}
+                            {history.length > 0 && (
+                                <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-red-500/20' : 'bg-red-100'}`}>
+                                                <Trash2 className={`w-5 h-5 ${eosMode ? 'text-red-400' : 'text-red-500'}`} />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Reset All Data</div>
+                                                <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Delete all assessments, templates, and contacts</div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={resetAll}
+                                            className="px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-colors flex-shrink-0"
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
 
                         {eosMode && (
@@ -293,14 +316,6 @@ export default function Dashboard() {
                     <div className={`p-6 sm:p-8 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${eosMode ? 'border-neutral-700' : 'border-slate-100'}`}>
                         <div className="flex items-center gap-4">
                             <h2 className={`text-2xl font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>{eosMode ? 'Meeting History' : 'Past Assessments'}</h2>
-                            {history.length > 0 && (
-                                <button
-                                    onClick={resetAll}
-                                    className={`text-xs transition-colors flex items-center gap-1 ${eosMode ? 'text-neutral-500 hover:text-red-400' : 'text-slate-400 hover:text-red-500'}`}
-                                >
-                                    <RotateCcw className="w-3 h-3" /> Reset
-                                </button>
-                            )}
                         </div>
                         <div className="relative">
                             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
