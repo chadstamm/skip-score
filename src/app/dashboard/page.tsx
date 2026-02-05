@@ -103,6 +103,17 @@ export default function Dashboard() {
         return acc;
     }, {} as Record<string, number>);
 
+    // Average score
+    const avgScore = history.length > 0
+        ? (history.reduce((sum, h) => sum + (h.score || 0), 0) / history.length).toFixed(1)
+        : '0';
+
+    // Skip rate (% of meetings that are SKIP or ASYNC_FIRST)
+    const skippableCount = (recCounts['SKIP'] || 0) + (recCounts['ASYNC_FIRST'] || 0);
+    const skipRate = history.length > 0
+        ? Math.round((skippableCount / history.length) * 100)
+        : 0;
+
     const filteredHistory = history.filter(h =>
         h.title.toLowerCase().includes(search.toLowerCase())
     );
@@ -219,7 +230,7 @@ export default function Dashboard() {
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className={`glass-card p-5 rounded-2xl space-y-1 ${eosMode ? 'bg-neutral-900/90 border border-neutral-700' : ''}`}>
                         <div className={`flex items-center gap-2 mb-1 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
                             <TrendingUp className="w-4 h-4" />
@@ -233,31 +244,20 @@ export default function Dashboard() {
 
                     <div className={`glass-card p-5 rounded-2xl space-y-1 ${eosMode ? 'bg-neutral-900/90 border border-neutral-700' : ''}`}>
                         <div className={`flex items-center gap-2 mb-1 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
-                            <Clock className="w-4 h-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Time Reclaimed</span>
+                            <Target className="w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Avg Score</span>
                         </div>
-                        <div className={`text-3xl font-black ${eosMode ? 'text-white' : 'text-slate-800'}`}>{totals.hoursSaved.toFixed(1)} hrs</div>
-                        <div className={`text-xs font-medium ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>{history.length} {eosMode ? 'meetings' : 'assessments'}</div>
+                        <div className={`text-3xl font-black ${eosMode ? 'text-white' : 'text-slate-800'}`}>{avgScore}<span className={`text-lg font-bold ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}> / 10</span></div>
+                        <div className={`text-xs font-medium ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>Meeting quality</div>
                     </div>
 
                     <div className={`glass-card p-5 rounded-2xl space-y-1 ${eosMode ? 'bg-neutral-900/90 border border-neutral-700' : ''}`}>
                         <div className={`flex items-center gap-2 mb-1 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
-                            <Calendar className="w-4 h-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">This Week</span>
+                            <Zap className="w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Skip Rate</span>
                         </div>
-                        <div className={`text-3xl font-black ${eosMode ? 'text-white' : 'text-slate-800'}`}>{thisWeekSavings.hoursSaved.toFixed(1)} hrs</div>
-                        <div className={`text-xs font-medium flex items-center gap-1 ${eosMode ? 'text-orange-400' : 'text-teal-600'}`}>
-                            <Calendar className="w-3 h-3" /> {thisWeekAssessments.length} meetings scored
-                        </div>
-                    </div>
-
-                    <div className={`p-5 rounded-2xl space-y-1 text-white ${eosMode ? 'bg-neutral-800 border border-neutral-600' : 'glass-card bg-slate-900'}`}>
-                        <div className="flex items-center gap-2 text-slate-400 mb-1">
-                            <Sparkles className="w-4 h-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Plan</span>
-                        </div>
-                        <div className="text-2xl font-bold text-skip-coral">{eosMode ? 'EOS Mode' : 'Freemium'}</div>
-                        <div className="text-xs font-medium text-slate-400">{eosMode ? 'Traction-optimized' : 'Unlimited assessments'}</div>
+                        <div className={`text-3xl font-black ${skipRate > 50 ? (eosMode ? 'text-orange-400' : 'text-skip-coral') : eosMode ? 'text-white' : 'text-slate-800'}`}>{skipRate}%</div>
+                        <div className={`text-xs font-medium ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>{skippableCount} of {history.length} skippable</div>
                     </div>
                 </div>
 
