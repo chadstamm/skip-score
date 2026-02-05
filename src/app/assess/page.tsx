@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { AssessmentData, Attendee, MeetingPurpose, MeetingUrgency, InteractivityLevel, ComplexityLevel } from '@/lib/types';
+import { AssessmentData } from '@/lib/types';
 import { calculateScore } from '@/lib/scoring';
 import Step1 from '@/components/assess/Step1';
 import Step2 from '@/components/assess/Step2';
+import AgendaStep from '@/components/assess/AgendaStep';
 import Step3 from '@/components/assess/Step3';
 import { useEOS } from '@/contexts/EOSContext';
+
+const TOTAL_STEPS = 4;
 
 export default function AssessPage() {
     const router = useRouter();
@@ -30,7 +33,7 @@ export default function AssessPage() {
         setFormData(prev => ({ ...prev, ...data }));
     };
 
-    const nextStep = () => setStep(s => Math.min(s + 1, 3));
+    const nextStep = () => setStep(s => Math.min(s + 1, TOTAL_STEPS));
     const prevStep = () => setStep(s => Math.max(s - 1, 1));
 
     const handleSubmit = () => {
@@ -54,6 +57,9 @@ export default function AssessPage() {
         router.push(`/results/${id}`);
     };
 
+    // Step 3 (agenda) handles its own forward navigation, so hide Continue for that step
+    const showBottomContinue = step !== 3;
+
     return (
         <main className="min-h-screen p-4 sm:p-8 flex flex-col items-center">
             <div className="max-w-2xl w-full space-y-8">
@@ -61,7 +67,7 @@ export default function AssessPage() {
                 <div className="flex items-center justify-between">
                     <Link href="/"><Logo className="scale-75 origin-left cursor-pointer" variant="white" /></Link>
                     <div className="flex items-center gap-2">
-                        {[1, 2, 3].map((s) => (
+                        {[1, 2, 3, 4].map((s) => (
                             <div
                                 key={s}
                                 className={`w-3 h-3 rounded-full transition-colors duration-300 ${
@@ -83,7 +89,8 @@ export default function AssessPage() {
                     <div className="flex-1">
                         {step === 1 && <Step1 data={formData} updateData={updateFormData} onNext={nextStep} />}
                         {step === 2 && <Step2 data={formData} updateData={updateFormData} onNext={nextStep} />}
-                        {step === 3 && <Step3 data={formData} updateData={updateFormData} onSubmit={handleSubmit} />}
+                        {step === 3 && <AgendaStep data={formData} updateData={updateFormData} onNext={nextStep} />}
+                        {step === 4 && <Step3 data={formData} updateData={updateFormData} onSubmit={handleSubmit} />}
                     </div>
 
                     {/* Navigation */}
@@ -102,7 +109,7 @@ export default function AssessPage() {
                         >
                             <ArrowLeft className="w-4 h-4" /> Back
                         </button>
-                        {step < 3 ? (
+                        {step < TOTAL_STEPS && showBottomContinue ? (
                             <button
                                 onClick={nextStep}
                                 disabled={!formData.title}
@@ -114,7 +121,7 @@ export default function AssessPage() {
                             >
                                 Continue <ArrowRight className="w-4 h-4" />
                             </button>
-                        ) : (
+                        ) : step === TOTAL_STEPS ? (
                             <button
                                 onClick={handleSubmit}
                                 disabled={formData.attendees?.length === 0}
@@ -126,6 +133,9 @@ export default function AssessPage() {
                             >
                                 {eosMode ? 'Get Verdict' : 'See Results'} <CheckCircle2 className="w-4 h-4" />
                             </button>
+                        ) : (
+                            // Step 3 (agenda) - forward navigation is handled by the component
+                            <div />
                         )}
                     </div>
                 </div>

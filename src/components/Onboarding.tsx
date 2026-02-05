@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowRight, ArrowLeft, Zap, Target, Clock, DollarSign, CheckCircle2 } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Zap, Target, Clock, CheckCircle2 } from 'lucide-react';
 import { useEOS } from '@/contexts/EOSContext';
 
 interface OnboardingProps {
@@ -13,7 +13,6 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     const [currentStep, setCurrentStep] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
     const [selectedMode, setSelectedMode] = useState<'standard' | 'eos' | null>(null);
-    const [hourlyRate, setHourlyRate] = useState(75);
 
     useEffect(() => {
         const hasSeenOnboarding = localStorage.getItem('skip-score-onboarding-complete');
@@ -23,7 +22,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     }, []);
 
     const handleNext = () => {
-        if (currentStep < 3) {
+        if (currentStep < 2) {
             setCurrentStep(currentStep + 1);
         } else {
             handleComplete();
@@ -37,11 +36,9 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     };
 
     const handleComplete = () => {
-        // Apply settings
         if (selectedMode === 'eos') {
             toggleEosMode();
         }
-        localStorage.setItem('skip-score-hourly-rate', hourlyRate.toString());
         localStorage.setItem('skip-score-onboarding-complete', 'true');
         setIsVisible(false);
         onComplete();
@@ -69,7 +66,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         </div>
                         <div className="p-6">
                             <div className="flex justify-center gap-2 mb-6">
-                                {[0, 1, 2, 3].map((i) => (
+                                {[0, 1, 2].map((i) => (
                                     <div
                                         key={i}
                                         className={`h-2 rounded-full transition-all ${i === currentStep ? 'bg-teal-500 w-6' : 'bg-slate-200 w-2'}`}
@@ -152,7 +149,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         </div>
                         <div className="px-6 pb-6">
                             <div className="flex justify-center gap-2 mb-6">
-                                {[0, 1, 2, 3].map((i) => (
+                                {[0, 1, 2].map((i) => (
                                     <div
                                         key={i}
                                         className={`h-2 rounded-full transition-all ${i === currentStep ? 'bg-teal-500 w-6' : 'bg-slate-200 w-2'}`}
@@ -185,81 +182,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             case 2:
                 return (
                     <>
-                        <div className="p-8">
-                            <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                    <DollarSign className="w-8 h-8 text-white" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-slate-900 mb-2">Set Your Hourly Rate</h2>
-                                <p className="text-slate-600">We&apos;ll calculate the true cost of your meetings based on attendee time.</p>
-                            </div>
-
-                            <div className="bg-slate-50 rounded-2xl p-6">
-                                <div className="flex items-center justify-center gap-4">
-                                    <span className="text-2xl font-bold text-slate-400">$</span>
-                                    <input
-                                        type="number"
-                                        value={hourlyRate}
-                                        onChange={(e) => setHourlyRate(parseInt(e.target.value) || 75)}
-                                        className="w-32 text-center text-4xl font-black text-slate-900 bg-white border-2 border-slate-200 rounded-xl p-3 focus:border-teal-500 focus:outline-none"
-                                    />
-                                    <span className="text-xl font-bold text-slate-400">/hr</span>
-                                </div>
-                                <p className="text-center text-sm text-slate-500 mt-4">Average hourly cost per meeting attendee</p>
-
-                                <div className="flex justify-center gap-2 mt-4">
-                                    {[50, 75, 100, 150].map((rate) => (
-                                        <button
-                                            key={rate}
-                                            onClick={() => setHourlyRate(rate)}
-                                            className={`px-3 py-1 rounded-lg text-sm font-bold transition-colors ${
-                                                hourlyRate === rate
-                                                    ? 'bg-teal-500 text-white'
-                                                    : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'
-                                            }`}
-                                        >
-                                            ${rate}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="px-6 pb-6">
-                            <div className="flex justify-center gap-2 mb-6">
-                                {[0, 1, 2, 3].map((i) => (
-                                    <div
-                                        key={i}
-                                        className={`h-2 rounded-full transition-all ${i === currentStep ? 'bg-teal-500 w-6' : 'bg-slate-200 w-2'}`}
-                                    />
-                                ))}
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <button
-                                    onClick={handleBack}
-                                    className="text-slate-400 hover:text-slate-600 font-medium transition-colors flex items-center gap-1"
-                                >
-                                    <ArrowLeft className="w-4 h-4" /> Back
-                                </button>
-                                <button
-                                    onClick={handleNext}
-                                    className="bg-teal-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-teal-600 transition-colors"
-                                >
-                                    Continue <ArrowRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </>
-                );
-
-            case 3:
-                return (
-                    <>
                         <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-8 text-white text-center">
                             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <Clock className="w-8 h-8" />
                             </div>
                             <h2 className="text-2xl font-bold mb-2">You&apos;re All Set!</h2>
-                            <p className="text-white/90">Start scoring your meetings. Track your savings over time on the dashboard.</p>
+                            <p className="text-white/90">Start scoring your meetings. Track your time savings over time on the dashboard.</p>
                         </div>
                         <div className="p-6">
                             <div className="bg-slate-50 rounded-2xl p-4 mb-6">
@@ -271,14 +199,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                                             {selectedMode === 'eos' ? 'Traction/EOS' : 'Standard'}
                                         </span>
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-600">Hourly Rate</span>
-                                        <span className="font-bold text-slate-900">${hourlyRate}/hr</span>
-                                    </div>
                                 </div>
                             </div>
                             <div className="flex justify-center gap-2 mb-6">
-                                {[0, 1, 2, 3].map((i) => (
+                                {[0, 1, 2].map((i) => (
                                     <div
                                         key={i}
                                         className={`h-2 rounded-full transition-all ${i === currentStep ? 'bg-orange-500 w-6' : 'bg-slate-200 w-2'}`}

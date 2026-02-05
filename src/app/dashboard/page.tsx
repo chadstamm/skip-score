@@ -11,7 +11,6 @@ import {
     ChevronRight,
     TrendingUp,
     Clock,
-    Banknote,
     Sparkles,
     RotateCcw,
     Calendar,
@@ -20,7 +19,7 @@ import {
     Settings,
     X,
     Zap,
-    DollarSign
+    Heart
 } from 'lucide-react';
 import Link from 'next/link';
 import PostMeetingFeedback from '@/components/PostMeetingFeedback';
@@ -31,7 +30,6 @@ export default function Dashboard() {
     const [search, setSearch] = useState('');
     const [dismissedFeedback, setDismissedFeedback] = useState<string[]>([]);
     const [showSettings, setShowSettings] = useState(false);
-    const [hourlyRate, setHourlyRate] = useState(75);
     const { eosMode, toggleEosMode } = useEOS();
 
     useEffect(() => {
@@ -39,14 +37,7 @@ export default function Dashboard() {
         setHistory(data);
         const dismissed = JSON.parse(localStorage.getItem('skip-score-dismissed-feedback') || '[]');
         setDismissedFeedback(dismissed);
-        const savedRate = localStorage.getItem('skip-score-hourly-rate');
-        if (savedRate) setHourlyRate(parseInt(savedRate));
     }, []);
-
-    const updateHourlyRate = (rate: number) => {
-        setHourlyRate(rate);
-        localStorage.setItem('skip-score-hourly-rate', rate.toString());
-    };
 
     // Get meetings that need feedback (PROCEED meetings from 24+ hours ago without feedback)
     const needsFeedback = history.filter(h => {
@@ -82,28 +73,28 @@ export default function Dashboard() {
         if (confirm('Are you sure you want to reset all assessments? This cannot be undone.')) {
             setHistory([]);
             localStorage.setItem('skip-score-history', JSON.stringify([]));
+            localStorage.removeItem('skip-score-agenda-templates');
+            localStorage.removeItem('skip-score-contacts');
         }
     };
 
     const totals = history.reduce((acc, curr) => {
-        const { savings, potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED', hourlyRate);
+        const { potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED');
         return {
-            costSaved: acc.costSaved + savings,
             hoursSaved: acc.hoursSaved + potentialHoursSaved
         };
-    }, { costSaved: 0, hoursSaved: 0 });
+    }, { hoursSaved: 0 });
 
     // Calculate this week's stats
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const thisWeekAssessments = history.filter(h => new Date(h.createdAt) >= oneWeekAgo);
     const thisWeekSavings = thisWeekAssessments.reduce((acc, curr) => {
-        const { savings, potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED', hourlyRate);
+        const { potentialHoursSaved } = calculateSavings(curr, curr.score || 0, curr.recommendation || 'PROCEED');
         return {
-            costSaved: acc.costSaved + savings,
             hoursSaved: acc.hoursSaved + potentialHoursSaved
         };
-    }, { costSaved: 0, hoursSaved: 0 });
+    }, { hoursSaved: 0 });
 
     // Recommendation breakdown
     const recCounts = history.reduce((acc, curr) => {
@@ -191,34 +182,6 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {/* Hourly Rate Setting */}
-                            <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                                            <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                                        </div>
-                                        <div>
-                                            <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
-                                            <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Used for calculating meeting costs</div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 ml-11 sm:ml-0">
-                                        <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
-                                        <input
-                                            type="number"
-                                            value={hourlyRate}
-                                            onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
-                                            className={`w-20 p-2 rounded-lg text-center font-bold ${
-                                                eosMode
-                                                    ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
-                                                    : 'bg-white border border-slate-200 focus:border-teal-500'
-                                            } focus:outline-none`}
-                                        />
-                                        <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {eosMode && (
@@ -236,10 +199,10 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className={`glass-card p-5 rounded-2xl space-y-1 ${eosMode ? 'bg-neutral-900/90 border border-neutral-700' : ''}`}>
                         <div className={`flex items-center gap-2 mb-1 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
-                            <Banknote className="w-4 h-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Total Savings</span>
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Meetings Scored</span>
                         </div>
-                        <div className={`text-3xl font-black ${eosMode ? 'text-white' : 'text-slate-800'}`}>${totals.costSaved.toLocaleString()}</div>
+                        <div className={`text-3xl font-black ${eosMode ? 'text-white' : 'text-slate-800'}`}>{history.length}</div>
                         <div className={`text-xs font-medium flex items-center gap-1 ${eosMode ? 'text-orange-400' : 'text-teal-600'}`}>
                             <TrendingUp className="w-3 h-3" /> All time
                         </div>
@@ -406,6 +369,28 @@ export default function Dashboard() {
                                 ))}
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Donate Banner */}
+                <div className={`mt-8 p-4 rounded-2xl border text-center ${
+                    eosMode ? 'bg-neutral-900/50 border-neutral-800' : 'bg-white/5 backdrop-blur-sm border-white/10'
+                }`}>
+                    <div className="flex items-center justify-center gap-2">
+                        <Heart className={`w-4 h-4 ${eosMode ? 'text-amber-500/60' : 'text-white/30'}`} />
+                        <span className={`text-sm ${eosMode ? 'text-neutral-500' : 'text-white/40'}`}>
+                            Find this helpful?{' '}
+                            <a
+                                href="https://buymeacoffee.com/chadn"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`font-medium underline underline-offset-2 transition-colors ${
+                                    eosMode ? 'text-amber-400/70 hover:text-amber-400' : 'text-white/50 hover:text-white/80'
+                                }`}
+                            >
+                                Donate to help keep the lights on
+                            </a>
+                        </span>
                     </div>
                 </div>
             </div>

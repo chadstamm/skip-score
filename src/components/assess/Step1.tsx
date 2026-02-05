@@ -11,6 +11,22 @@ interface Step1Props {
 
 const TEMPLATES = [
     {
+        id: 'scratch',
+        name: 'From Scratch',
+        icon: PenLine,
+        color: 'bg-slate-500',
+        defaults: {
+            title: '',
+            purpose: undefined,
+            urgency: 'THIS_WEEK' as MeetingUrgency,
+            duration: 30,
+            interactivity: undefined,
+            complexity: undefined,
+            asyncPossible: undefined,
+            hasAgenda: undefined,
+        }
+    },
+    {
         id: 'standup',
         name: 'Daily Standup',
         icon: Coffee,
@@ -92,22 +108,6 @@ const TEMPLATES = [
             recurrenceFrequency: 'BIWEEKLY' as RecurrenceFrequency,
         }
     },
-    {
-        id: 'scratch',
-        name: 'From Scratch',
-        icon: PenLine,
-        color: 'bg-slate-500',
-        defaults: {
-            title: '',
-            purpose: undefined,
-            urgency: 'THIS_WEEK' as MeetingUrgency,
-            duration: 30,
-            interactivity: undefined,
-            complexity: undefined,
-            asyncPossible: undefined,
-            hasAgenda: undefined,
-        }
-    },
 ];
 
 const PURPOSES: { value: MeetingPurpose; label: string; description: string }[] = [
@@ -133,6 +133,22 @@ const RECURRENCE: { value: RecurrenceFrequency; label: string; multiplier: numbe
 
 // EOS-specific templates
 const EOS_TEMPLATES = [
+    {
+        id: 'scratch-eos',
+        name: 'From Scratch',
+        icon: PenLine,
+        color: 'bg-neutral-600',
+        defaults: {
+            title: '',
+            purpose: undefined,
+            urgency: 'THIS_WEEK' as MeetingUrgency,
+            duration: 30,
+            interactivity: undefined,
+            complexity: undefined,
+            asyncPossible: undefined,
+            hasAgenda: undefined,
+        }
+    },
     {
         id: 'l10',
         name: 'L10 Meeting',
@@ -220,22 +236,6 @@ const EOS_TEMPLATES = [
             hasAgenda: true,
         }
     },
-    {
-        id: 'scratch-eos',
-        name: 'From Scratch',
-        icon: PenLine,
-        color: 'bg-neutral-600',
-        defaults: {
-            title: '',
-            purpose: undefined,
-            urgency: 'THIS_WEEK' as MeetingUrgency,
-            duration: 30,
-            interactivity: undefined,
-            complexity: undefined,
-            asyncPossible: undefined,
-            hasAgenda: undefined,
-        }
-    },
 ];
 
 export default function Step1({ data, updateData }: Step1Props) {
@@ -266,7 +266,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                         const event = new CustomEvent('toggleEOSMode');
                         window.dispatchEvent(event);
                     }}
-                    className={`text-sm transition-colors ${
+                    className={`text-sm transition-colors cursor-pointer ${
                         eosMode
                             ? 'text-amber-400 hover:text-amber-300'
                             : 'text-teal-600 hover:text-teal-700'
@@ -301,7 +301,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             <button
                                 key={template.id}
                                 onClick={() => applyTemplate(template.id)}
-                                className={`h-full p-3 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-start ${
+                                className={`h-full p-3 rounded-xl border-2 text-center transition-all flex flex-col items-center justify-start cursor-pointer ${
                                     selectedTemplate === template.id
                                         ? eosMode
                                             ? 'border-amber-500 bg-amber-500/10 shadow-sm'
@@ -347,7 +347,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             <button
                                 key={p.value}
                                 onClick={() => updateData({ purpose: p.value })}
-                                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
                                     data.purpose === p.value
                                         ? eosMode
                                             ? 'border-amber-500 bg-amber-500/10 shadow-sm'
@@ -412,7 +412,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                         </div>
                         <button
                             onClick={() => updateData({ isRecurring: !data.isRecurring, recurrenceFrequency: data.isRecurring ? undefined : 'WEEKLY' })}
-                            className={`relative w-14 h-8 rounded-full transition-colors ${
+                            className={`relative w-14 h-8 rounded-full transition-colors cursor-pointer ${
                                 data.isRecurring
                                     ? eosMode ? 'bg-amber-500' : 'bg-score-teal'
                                     : eosMode ? 'bg-neutral-600' : 'bg-slate-300'
@@ -429,7 +429,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                                     <button
                                         key={r.value}
                                         onClick={() => updateData({ recurrenceFrequency: r.value })}
-                                        className={`p-3 rounded-xl border-2 text-center transition-all ${
+                                        className={`p-3 rounded-xl border-2 text-center transition-all cursor-pointer ${
                                             data.recurrenceFrequency === r.value
                                                 ? eosMode
                                                     ? 'border-amber-500 bg-amber-500/10'

@@ -12,7 +12,6 @@ import {
     CheckCircle2,
     AlertCircle,
     Clock,
-    Banknote,
     LayoutDashboard,
     TrendingUp,
     TrendingDown,
@@ -563,8 +562,7 @@ Please add your name under your preferred option:
                                             {(() => {
                                                 const multiplier = data.recurrenceFrequency === 'DAILY' ? 260 : data.recurrenceFrequency === 'WEEKLY' ? 52 : data.recurrenceFrequency === 'BIWEEKLY' ? 26 : 12;
                                                 const annualHours = savings.potentialHoursSaved * multiplier;
-                                                const annualSavings = savings.savings * multiplier;
-                                                return `${annualHours.toFixed(0)} hrs & $${annualSavings.toLocaleString()} per year`;
+                                                return `${annualHours.toFixed(0)} hours reclaimable per year`;
                                             })()}
                                         </div>
                                     </div>
@@ -573,26 +571,14 @@ Please add your name under your preferred option:
                         )}
 
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                            {/* Savings Stats */}
-                            <div className="flex items-center gap-6">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2.5 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-teal-100'}`}>
-                                        <Clock className={`w-5 h-5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
-                                    </div>
-                                    <div>
-                                        <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>{savings.potentialHoursSaved.toFixed(1)} hrs</div>
-                                        <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{data.isRecurring ? 'Per Meeting' : 'Reclaimable'}</div>
-                                    </div>
+                            {/* Time Savings */}
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2.5 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-teal-100'}`}>
+                                    <Clock className={`w-5 h-5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
                                 </div>
-                                <div className={`w-px h-10 ${eosMode ? 'bg-neutral-700' : 'bg-slate-200'}`} />
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2.5 rounded-xl ${eosMode ? 'bg-orange-500/20' : 'bg-orange-100'}`}>
-                                        <Banknote className={`w-5 h-5 ${eosMode ? 'text-orange-400' : 'text-skip-coral'}`} />
-                                    </div>
-                                    <div>
-                                        <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>${savings.savings.toLocaleString()}</div>
-                                        <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{data.isRecurring ? 'Per Meeting' : 'Potential Savings'}</div>
-                                    </div>
+                                <div>
+                                    <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>{savings.potentialHoursSaved.toFixed(1)} hrs</div>
+                                    <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{data.isRecurring ? 'Per Meeting' : 'Reclaimable Time'}</div>
                                 </div>
                             </div>
 
@@ -647,7 +633,7 @@ Please add your name under your preferred option:
                                 </Link>
                             </div>
                         </div>
-                        <p className={`text-[10px] mt-3 font-medium ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>* Based on avg. $75/hr per attendee</p>
+                        <p className={`text-[10px] mt-3 font-medium ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>* Based on {data.attendees.length} attendees x {data.duration} min meeting</p>
                     </div>
                 </div>
 

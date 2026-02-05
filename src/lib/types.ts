@@ -12,6 +12,13 @@ export interface Attendee {
     isOptional: boolean;
 }
 
+export interface AgendaItem {
+    id: string;
+    title: string;
+    duration: number; // in minutes
+    notes?: string;
+}
+
 export interface AssessmentData {
     id: string;
     createdAt: string;
@@ -25,6 +32,7 @@ export interface AssessmentData {
     asyncPossible: boolean;
     hasAgenda: boolean;
     attendees: Attendee[];
+    agendaItems?: AgendaItem[];
     isRecurring?: boolean;
     recurrenceFrequency?: RecurrenceFrequency;
     score?: number;

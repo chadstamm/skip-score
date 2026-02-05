@@ -3,31 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, BarChart3, Target, Settings, X, RotateCcw, DollarSign } from 'lucide-react';
+import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, FileText, Target, Settings, X, RotateCcw } from 'lucide-react';
 import Onboarding from '@/components/Onboarding';
 import { useEOS } from '@/contexts/EOSContext';
 
 export default function Home() {
   const { eosMode, toggleEosMode } = useEOS();
   const [showSettings, setShowSettings] = useState(false);
-  const [hourlyRate, setHourlyRate] = useState(75);
-
-  useEffect(() => {
-    const savedRate = localStorage.getItem('skip-score-hourly-rate');
-    if (savedRate) setHourlyRate(parseInt(savedRate));
-  }, []);
-
-  const updateHourlyRate = (rate: number) => {
-    setHourlyRate(rate);
-    localStorage.setItem('skip-score-hourly-rate', rate.toString());
-  };
+  const [showAbout, setShowAbout] = useState(false);
 
   const resetAllData = () => {
     if (confirm('Are you sure you want to reset all data? This will clear all assessments and settings.')) {
       localStorage.removeItem('skip-score-history');
       localStorage.removeItem('skip-score-dismissed-feedback');
-      localStorage.removeItem('skip-score-hourly-rate');
-      setHourlyRate(75);
+      localStorage.removeItem('skip-score-agenda-templates');
+      localStorage.removeItem('skip-score-contacts');
       alert('All data has been reset.');
     }
   };
@@ -87,35 +77,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Hourly Rate Setting */}
-              <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl flex-shrink-0 ${eosMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
-                      <DollarSign className={`w-5 h-5 ${eosMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
-                    </div>
-                    <div>
-                      <div className={`font-bold ${eosMode ? 'text-white' : 'text-slate-800'}`}>Default Hourly Rate</div>
-                      <div className={`text-xs ${eosMode ? 'text-neutral-400' : 'text-slate-500'} hidden sm:block`}>Used for calculating meeting costs</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 ml-11 sm:ml-0">
-                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>$</span>
-                    <input
-                      type="number"
-                      value={hourlyRate}
-                      onChange={(e) => updateHourlyRate(parseInt(e.target.value) || 75)}
-                      className={`w-20 p-2 rounded-lg text-center font-bold ${
-                        eosMode
-                          ? 'bg-neutral-700 text-white border border-neutral-600 focus:border-amber-500'
-                          : 'bg-white border border-slate-200 focus:border-teal-500'
-                      } focus:outline-none`}
-                    />
-                    <span className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>/hr</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Reset Data */}
               <div className={`p-4 rounded-xl border-2 ${eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'}`}>
                 <div className="flex items-center justify-between gap-4">
@@ -169,8 +130,8 @@ export default function Home() {
           </p>
           <p className={`text-sm font-medium uppercase tracking-widest ${eosMode ? 'text-amber-400/80' : 'text-teal-200/80'}`}>
             {eosMode
-              ? 'Built for teams running on Traction. Optimized for the EOS meeting pulse.'
-              : 'Notetakers capture what was said. We capture whether it should have been said at all.'}
+              ? 'Score meetings. Build agendas. Protect your meeting pulse.'
+              : 'Score meetings. Build agendas. Reclaim your time.'}
           </p>
 
           {/* CTA */}
@@ -275,7 +236,7 @@ export default function Home() {
                 eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-teal-500 to-teal-600'
               }`}>1</div>
               <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Describe Your Meeting</h3>
-              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Enter the basics: purpose, attendees, duration, and agenda status.</p>
+              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Enter the basics: purpose, attendees, and duration. Build an agenda or bring your own.</p>
             </div>
             <div className="text-center space-y-4">
               <div className="bg-gradient-to-br from-orange-500 to-orange-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-2xl shadow-lg">2</div>
@@ -317,11 +278,11 @@ export default function Home() {
           <div className={`rounded-2xl p-6 border ${eosMode ? 'bg-neutral-900/50 border-neutral-800' : 'bg-white/10 backdrop-blur-sm border-white/20'}`}>
             <div className="flex items-start gap-4">
               <div className={`p-3 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-blue-500/20'}`}>
-                <BarChart3 className={`w-6 h-6 ${eosMode ? 'text-amber-400' : 'text-blue-300'}`} />
+                <FileText className={`w-6 h-6 ${eosMode ? 'text-amber-400' : 'text-blue-300'}`} />
               </div>
               <div>
-                <h3 className={`font-bold text-lg mb-1 ${eosMode ? 'text-neutral-100' : 'text-white'}`}>Track Your Savings</h3>
-                <p className={eosMode ? 'text-neutral-400' : 'text-white/70'}>See how much time and money you're reclaiming over time.</p>
+                <h3 className={`font-bold text-lg mb-1 ${eosMode ? 'text-neutral-100' : 'text-white'}`}>Built-in Agenda Builder</h3>
+                <p className={eosMode ? 'text-neutral-400' : 'text-white/70'}>Create structured agendas with time blocks. Export as PDF, copy, or email.</p>
               </div>
             </div>
           </div>
@@ -352,7 +313,131 @@ export default function Home() {
             </span>
           </Link>
         </div>
+
+        {/* Footer */}
+        <footer className="border-t border-white/10 pt-6 pb-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <a
+              href="https://buymeacoffee.com/chadn"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              Donate
+            </a>
+            <span className={`text-sm ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
+              &copy; {new Date().getFullYear()} SkipScore
+            </span>
+            <button
+              onClick={() => setShowAbout(true)}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              About
+            </button>
+          </div>
+          <div className="text-center">
+            <span className={`text-xs ${eosMode ? 'text-neutral-700' : 'text-white/20'}`}>
+              Powered by{' '}
+              <a
+                href="https://tmcdigitalmedia.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
+              >
+                TMC Digital Media
+              </a>
+              {' '}&middot;{' '}
+              <a
+                href="https://chadstamm.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
+              >
+                Chad Stamm
+              </a>
+            </span>
+          </div>
+        </footer>
       </div>
+
+      {/* About Modal */}
+      {showAbout && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowAbout(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className={`relative max-w-lg w-full rounded-3xl shadow-2xl p-8 sm:p-10 animate-in fade-in zoom-in-95 duration-300 ${
+              eosMode ? 'bg-neutral-900 border border-neutral-700' : 'bg-white'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowAbout(false)}
+              className={`absolute top-4 right-4 p-2 rounded-xl transition-colors cursor-pointer ${
+                eosMode ? 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-5">
+              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                eosMode ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-100 text-score-teal'
+              }`}>
+                About SkipScore
+              </div>
+
+              <h3 className={`text-2xl font-extrabold leading-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                Because your time is worth protecting.
+              </h3>
+
+              <div className={`space-y-4 text-sm leading-relaxed ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>
+                <p>
+                  We&apos;ve all sat through it. That meeting that should have been an email. The one where half the room is checked out, scrolling through their phones, wondering why they&apos;re there. The agenda-less hour that spirals into nothing. The recurring invite nobody questions.
+                </p>
+                <p>
+                  Meetings aren&apos;t inherently bad&mdash;but too many of them are. They fracture focus, drain morale, and steal time from the work that actually moves the needle.
+                </p>
+                <p className={`font-medium ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>
+                  SkipScore was born from that frustration.
+                </p>
+                <p>
+                  Before you send that invite, before you accept that meeting, ask: <em>does this deserve everyone&apos;s time?</em>
+                </p>
+                <p>
+                  Score your meetings. Build better agendas. Protect what matters most&mdash;your team&apos;s time, energy, and momentum.
+                </p>
+              </div>
+
+              <div className={`pt-4 border-t ${eosMode ? 'border-neutral-800' : 'border-slate-100'}`}>
+                <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>
+                  Built by{' '}
+                  <a
+                    href="https://chadstamm.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`font-medium hover:underline ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}
+                  >
+                    Chad Stamm
+                  </a>
+                  {' '}&middot;{' '}
+                  <a
+                    href="https://tmcdigitalmedia.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`font-medium hover:underline ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}
+                  >
+                    TMC Digital Media
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
