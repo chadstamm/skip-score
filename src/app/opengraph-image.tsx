@@ -61,7 +61,7 @@ export default async function Image() {
                         textTransform: 'uppercase',
                     }}
                 >
-                    Score. Prepare. Reclaim Your Time.
+                    Prepare. Score. Reclaim Your Time.
                 </div>
             </div>
         ),
