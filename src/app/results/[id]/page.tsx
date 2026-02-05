@@ -73,9 +73,13 @@ export default function ResultsPage() {
     const [expandedReplacement, setExpandedReplacement] = useState<'slack' | 'loom' | 'doc' | null>(null);
     const [replacementCopied, setReplacementCopied] = useState<string | null>(null);
     const [animationComplete, setAnimationComplete] = useState(false);
+    const [hourlyRate, setHourlyRate] = useState(75);
     const hasAnimated = useRef(false);
 
     useEffect(() => {
+        const savedRate = localStorage.getItem('skip-score-hourly-rate');
+        if (savedRate) setHourlyRate(parseInt(savedRate));
+
         const history = JSON.parse(localStorage.getItem('skip-score-history') || '[]');
         const assessment = history.find((h: AssessmentData) => h.id === id);
         if (assessment) {
@@ -122,7 +126,7 @@ export default function ResultsPage() {
 
     if (!data) return null;
 
-    const savings = calculateSavings(data, data.score || 0, data.recommendation || 'PROCEED');
+    const savings = calculateSavings(data, data.score || 0, data.recommendation || 'PROCEED', hourlyRate);
     const actionPlan = calculateActionPlan(data, data.recommendation || 'PROCEED', eosMode);
     const scoreBreakdown = calculateScoreBreakdown(data, { eosMode });
     const style = REC_STYLES[data.recommendation || 'PROCEED'];
@@ -647,7 +651,7 @@ Please add your name under your preferred option:
                                 </Link>
                             </div>
                         </div>
-                        <p className={`text-[10px] mt-3 font-medium ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>* Based on avg. $75/hr per attendee</p>
+                        <p className={`text-[10px] mt-3 font-medium ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>* Based on ${`$${hourlyRate}`}/hr per attendee</p>
                     </div>
                 </div>
 
