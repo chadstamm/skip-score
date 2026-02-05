@@ -304,11 +304,27 @@ Please add your name under your preferred option:
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                             {/* Left: Title + Badge + Reasoning */}
                             <div className="space-y-4">
-                                <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${
-                                    eosMode ? 'text-neutral-100' : 'text-slate-900'
-                                }`}>
-                                    {data.title}
-                                </h1>
+                                <div>
+                                    <h1 className={`text-3xl sm:text-4xl font-extrabold leading-tight ${
+                                        eosMode ? 'text-neutral-100' : 'text-slate-900'
+                                    }`}>
+                                        {data.title}
+                                    </h1>
+                                    {data.meetingPlatform && (
+                                        <div className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-lg text-xs font-bold ${
+                                            eosMode
+                                                ? 'bg-neutral-800 text-neutral-300 border border-neutral-700'
+                                                : data.meetingPlatform === 'zoom'
+                                                    ? 'bg-blue-50 text-blue-600'
+                                                    : data.meetingPlatform === 'teams'
+                                                        ? 'bg-indigo-50 text-indigo-600'
+                                                        : 'bg-emerald-50 text-emerald-600'
+                                        }`}>
+                                            <Video className="w-3 h-3" />
+                                            {data.meetingPlatform === 'zoom' ? 'Zoom' : data.meetingPlatform === 'teams' ? 'Teams' : 'Google Meet'}
+                                        </div>
+                                    )}
+                                </div>
                                 <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${
                                     eosMode
                                         ? data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST'
@@ -332,7 +348,7 @@ Please add your name under your preferred option:
 
                             {/* Right: Score Circle + Guide */}
                             <div className="flex flex-col items-center gap-4">
-                                <div className="relative w-40 h-40 flex items-center justify-center">
+                                <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center">
                                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
                                         <circle
                                             cx="80"
@@ -790,6 +806,60 @@ Please add your name under your preferred option:
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* AI Notetaker Recommendation - for meetings that should happen */}
+                {(data.recommendation === 'PROCEED' || data.recommendation === 'SHORTEN') && (
+                    <div className={`rounded-[2.5rem] shadow-2xl overflow-hidden ${
+                        eosMode ? 'bg-neutral-900 border border-neutral-800' : 'bg-white'
+                    }`}>
+                        <div className="p-6 sm:p-8">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className={`p-3 rounded-2xl ${
+                                    eosMode
+                                        ? 'bg-gradient-to-br from-blue-500 to-cyan-600'
+                                        : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                                }`}>
+                                    <Video className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className={`text-xl font-extrabold ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                                        Record & Capture
+                                    </h2>
+                                    <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
+                                        Use an AI notetaker to capture action items and decisions automatically
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                {[
+                                    { name: 'Fathom', desc: 'Free unlimited recording', color: 'bg-violet-500', url: 'https://fathom.video' },
+                                    { name: 'Fireflies', desc: 'AI transcripts & search', color: 'bg-orange-500', url: 'https://fireflies.ai' },
+                                    { name: 'Otter.ai', desc: 'Real-time collaboration', color: 'bg-blue-500', url: 'https://otter.ai' },
+                                ].map((tool) => (
+                                    <a
+                                        key={tool.name}
+                                        href={tool.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`flex items-center gap-3 p-4 rounded-2xl border transition-all hover:scale-[1.02] cursor-pointer ${
+                                            eosMode
+                                                ? 'border-neutral-700 hover:border-neutral-600 bg-neutral-800'
+                                                : 'border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white'
+                                        }`}
+                                    >
+                                        <div className={`w-10 h-10 ${tool.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                                            <Video className="w-5 h-5 text-white" />
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{tool.name}</div>
+                                            <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{tool.desc}</div>
+                                        </div>
+                                    </a>
+                                ))}
                             </div>
                         </div>
                     </div>

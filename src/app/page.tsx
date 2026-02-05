@@ -116,7 +116,7 @@ export default function Home() {
 
         {/* Hero Section */}
         <div className="text-center space-y-6 text-white">
-          <h1 className={`text-5xl sm:text-7xl font-extrabold tracking-tight leading-tight ${eosMode ? 'text-amber-500' : ''}`}>
+          <h1 className={`text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight ${eosMode ? 'text-amber-500' : ''}`}>
             {eosMode ? (
               <>Protect Your<br />L10 Pulse</>
             ) : (
@@ -230,7 +230,7 @@ export default function Home() {
         {/* How It Works */}
         <div className={`rounded-[2.5rem] p-8 sm:p-12 shadow-2xl ${eosMode ? 'bg-neutral-900 border border-neutral-800' : 'bg-white'}`}>
           <h2 className={`text-3xl font-extrabold text-center mb-10 ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>How It Works</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center space-y-4">
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-xl shadow-lg ${
                 eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-teal-500 to-teal-600'
@@ -259,6 +259,26 @@ export default function Home() {
               <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Take Action</h3>
               <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Skip it, shorten it, or run it better with tailored suggestions.</p>
             </div>
+          </div>
+        </div>
+
+        {/* Works With */}
+        <div className="text-center space-y-4">
+          <p className={`text-sm font-bold uppercase tracking-widest ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
+            Works with your meeting tools
+          </p>
+          <div className="flex items-center justify-center gap-6 sm:gap-10">
+            {[
+              { name: 'Zoom', color: eosMode ? 'text-neutral-400' : 'text-white/60' },
+              { name: 'Microsoft Teams', color: eosMode ? 'text-neutral-400' : 'text-white/60' },
+              { name: 'Google Meet', color: eosMode ? 'text-neutral-400' : 'text-white/60' },
+            ].map((platform) => (
+              <div key={platform.name} className={`flex items-center gap-2 text-sm sm:text-base font-bold ${platform.color}`}>
+                <div className={`w-2 h-2 rounded-full ${eosMode ? 'bg-amber-500/50' : 'bg-white/30'}`} />
+                <span className="hidden sm:inline">{platform.name}</span>
+                <span className="sm:hidden">{platform.name === 'Microsoft Teams' ? 'Teams' : platform.name === 'Google Meet' ? 'Meet' : platform.name}</span>
+              </div>
+            ))}
           </div>
         </div>
 

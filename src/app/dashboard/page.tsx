@@ -273,7 +273,7 @@ export default function Dashboard() {
                                 />
                             ))}
                         </div>
-                        <div className="flex items-center justify-between mt-3">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
                             {Object.entries(recCounts).map(([rec, count]) => (
                                 <div key={rec} className="flex items-center gap-2">
                                     <div className={`w-3 h-3 rounded-full ${recColors[rec]}`} />

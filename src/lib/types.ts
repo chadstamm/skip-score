@@ -35,6 +35,8 @@ export interface AssessmentData {
     agendaItems?: AgendaItem[];
     isRecurring?: boolean;
     recurrenceFrequency?: RecurrenceFrequency;
+    meetingLink?: string;
+    meetingPlatform?: 'zoom' | 'teams' | 'meet';
     score?: number;
     recommendation?: Recommendation;
     reasoning?: string;
