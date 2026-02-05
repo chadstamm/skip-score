@@ -23,8 +23,7 @@ import {
     ChevronDown,
     ChevronUp,
     Repeat,
-    Calendar,
-    Linkedin
+    Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
@@ -147,11 +146,6 @@ export default function ResultsPage() {
         const subject = encodeURIComponent(`SkipScore Results: ${data.title}`);
         const body = encodeURIComponent(`SkipScore Results: ${data.title}\n\nScore: ${data.score}/10\nRecommendation: ${style.label}\n\n${style.description}\n\nSuggestions:\n${actionPlan.map((item, i) => `${i + 1}. ${item}`).join('\n')}`);
         window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    };
-
-    const shareToLinkedIn = () => {
-        const text = encodeURIComponent(`I just scored my meeting "${data.title}" with SkipScore and got: ${style.label} (${data.score}/10).\n\n${style.description}\n\nStop wasting time in bad meetings. Try it free at skipscore.app`);
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://skipscore.app')}&summary=${text}`, '_blank', 'width=600,height=500');
     };
 
     // Meeting Replacement Generators
@@ -608,7 +602,7 @@ Please add your name under your preferred option:
                             <div className="flex flex-col gap-4 w-full sm:w-auto">
                                 <div className="flex flex-col items-start sm:items-end gap-2">
                                     <span className={`text-xs font-bold uppercase tracking-wide ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Share Your Results</span>
-                                    <div className="grid grid-cols-4 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
+                                    <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
                                         <button
                                             onClick={copyResults}
                                             className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm ${
@@ -626,13 +620,6 @@ Please add your name under your preferred option:
                                         >
                                             {slackCopied ? <CheckCircle2 className="w-5 h-5 sm:w-4 sm:h-4" /> : <MessageSquare className="w-5 h-5 sm:w-4 sm:h-4" />}
                                             <span className="text-xs sm:text-sm">{slackCopied ? 'Copied!' : 'Slack'}</span>
-                                        </button>
-                                        <button
-                                            onClick={shareToLinkedIn}
-                                            className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-3 sm:py-2.5 bg-[#0A66C2] text-white rounded-xl font-bold text-sm hover:bg-[#004182] transition-all shadow-sm"
-                                        >
-                                            <Linkedin className="w-5 h-5 sm:w-4 sm:h-4" />
-                                            <span className="text-xs sm:text-sm">LinkedIn</span>
                                         </button>
                                         <button
                                             onClick={shareViaEmail}
