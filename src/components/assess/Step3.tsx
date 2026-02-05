@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AssessmentData, Attendee } from '@/lib/types';
-import { UserPlus, Trash2, ShieldCheck, UserCircle } from 'lucide-react';
+import { UserPlus, Trash2, UserCircle, Users, X } from 'lucide-react';
 import { useEOS } from '@/contexts/EOSContext';
 
 interface Step3Props {
@@ -9,21 +9,72 @@ interface Step3Props {
     onSubmit: () => void;
 }
 
+interface SavedContact {
+    name: string;
+    role: string;
+}
+
+const CONTACTS_KEY = 'skip-score-contacts';
+
 export default function Step3({ data, updateData }: Step3Props) {
     const [newName, setNewName] = useState('');
     const [newRole, setNewRole] = useState('');
+    const [savedContacts, setSavedContacts] = useState<SavedContact[]>([]);
     const { eosMode } = useEOS();
+
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem(CONTACTS_KEY);
+            if (stored) {
+                setSavedContacts(JSON.parse(stored));
+            }
+        } catch {
+            // ignore parse errors
+        }
+    }, []);
+
+    const saveContact = (name: string, role: string) => {
+        let stored: SavedContact[] = [];
+        try {
+            stored = JSON.parse(localStorage.getItem(CONTACTS_KEY) || '[]');
+        } catch {
+            stored = [];
+        }
+        const existingIdx = stored.findIndex(c => c.name.toLowerCase() === name.toLowerCase());
+        if (existingIdx >= 0) {
+            stored[existingIdx].role = role;
+        } else {
+            stored.push({ name, role });
+        }
+        stored.sort((a, b) => a.name.localeCompare(b.name));
+        localStorage.setItem(CONTACTS_KEY, JSON.stringify(stored));
+        setSavedContacts(stored);
+    };
+
+    const removeSavedContact = (name: string) => {
+        let stored: SavedContact[] = [];
+        try {
+            stored = JSON.parse(localStorage.getItem(CONTACTS_KEY) || '[]');
+        } catch {
+            stored = [];
+        }
+        stored = stored.filter(c => c.name.toLowerCase() !== name.toLowerCase());
+        localStorage.setItem(CONTACTS_KEY, JSON.stringify(stored));
+        setSavedContacts(stored);
+    };
 
     const addAttendee = () => {
         if (!newName) return;
+        const role = newRole || 'Participant';
         const newAttendee: Attendee = {
             id: crypto.randomUUID(),
             name: newName,
-            role: newRole || 'Participant',
-            isDRI: data.attendees?.length === 0, // First one is DRI by default
+            role,
+            isDRI: data.attendees?.length === 0,
             isOptional: false,
         };
         updateData({ attendees: [...(data.attendees || []), newAttendee] });
+        saveContact(newName, role);
         setNewName('');
         setNewRole('');
     };
@@ -32,12 +83,25 @@ export default function Step3({ data, updateData }: Step3Props) {
         updateData({ attendees: data.attendees?.filter(a => a.id !== id) });
     };
 
-    const toggleStatus = (id: string, field: 'isDRI' | 'isOptional') => {
-        updateData({
-            attendees: data.attendees?.map(a =>
-                a.id === id ? { ...a, [field]: !a[field] } : a
-            )
-        });
+    const isContactInMeeting = (contact: SavedContact) => {
+        return (data.attendees || []).some(a => a.name.toLowerCase() === contact.name.toLowerCase());
+    };
+
+    const toggleSavedContact = (contact: SavedContact) => {
+        const current = data.attendees || [];
+        const existing = current.find(a => a.name.toLowerCase() === contact.name.toLowerCase());
+        if (existing) {
+            updateData({ attendees: current.filter(a => a.id !== existing.id) });
+        } else {
+            const newAttendee: Attendee = {
+                id: crypto.randomUUID(),
+                name: contact.name,
+                role: contact.role,
+                isDRI: current.length === 0,
+                isOptional: false,
+            };
+            updateData({ attendees: [...current, newAttendee] });
+        }
     };
 
     return (
@@ -54,42 +118,114 @@ export default function Step3({ data, updateData }: Step3Props) {
             </div>
 
             <div className="space-y-6">
+                {/* Saved Contacts Quick-Select */}
+                {savedContacts.length > 0 && (
+                    <div className="space-y-3">
+                        <label className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                            <Users className={`w-4 h-4 ${eosMode ? 'text-amber-500' : 'text-slate-500'}`} />
+                            Your Team
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                            {savedContacts.map((contact) => {
+                                const inMeeting = isContactInMeeting(contact);
+                                return (
+                                    <div key={contact.name} className="group relative">
+                                        <button
+                                            onClick={() => toggleSavedContact(contact)}
+                                            className={`px-3 py-2 rounded-xl border-2 text-sm font-medium transition-all cursor-pointer flex items-center gap-2 ${
+                                                inMeeting
+                                                    ? eosMode
+                                                        ? 'border-amber-500 bg-amber-500/10 text-amber-400'
+                                                        : 'border-score-teal bg-teal-50 text-score-teal'
+                                                    : eosMode
+                                                        ? 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-neutral-200'
+                                                        : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                                            }`}
+                                        >
+                                            <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center text-xs transition-all ${
+                                                inMeeting
+                                                    ? eosMode
+                                                        ? 'border-amber-500 bg-amber-500 text-black'
+                                                        : 'border-score-teal bg-score-teal text-white'
+                                                    : eosMode
+                                                        ? 'border-neutral-600'
+                                                        : 'border-slate-300'
+                                            }`}>
+                                                {inMeeting && '✓'}
+                                            </span>
+                                            {contact.name}
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeSavedContact(contact.name);
+                                                // Also remove from current meeting if present
+                                                if (inMeeting) {
+                                                    const existing = (data.attendees || []).find(a => a.name.toLowerCase() === contact.name.toLowerCase());
+                                                    if (existing) {
+                                                        updateData({ attendees: data.attendees?.filter(a => a.id !== existing.id) });
+                                                    }
+                                                }
+                                            }}
+                                            className={`absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${
+                                                eosMode
+                                                    ? 'bg-neutral-700 text-neutral-400 hover:bg-red-500/30 hover:text-red-400'
+                                                    : 'bg-slate-200 text-slate-500 hover:bg-red-100 hover:text-red-500'
+                                            }`}
+                                            title="Remove from saved contacts"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
                 {/* Add Attendee Form */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        className={`flex-1 p-3 rounded-xl border-2 focus:outline-none ${
-                            eosMode
-                                ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                : 'border-slate-100 focus:border-score-teal'
-                        }`}
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && addAttendee()}
-                    />
-                    <input
-                        type="text"
-                        placeholder="Job Title (optional)"
-                        className={`sm:w-1/3 p-3 rounded-xl border-2 focus:outline-none ${
-                            eosMode
-                                ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                : 'border-slate-100 focus:border-score-teal'
-                        }`}
-                        value={newRole}
-                        onChange={(e) => setNewRole(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && addAttendee()}
-                    />
-                    <button
-                        onClick={addAttendee}
-                        className={`p-3 rounded-xl transition-all flex items-center justify-center gap-2 font-bold cursor-pointer ${
-                            eosMode
-                                ? 'bg-amber-500 text-black hover:bg-amber-400'
-                                : 'bg-slate-900 text-white hover:bg-slate-800'
-                        }`}
-                    >
-                        <UserPlus className="w-5 h-5" />
-                    </button>
+                <div className="space-y-2">
+                    {savedContacts.length > 0 && (
+                        <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                            Add Someone New
+                        </label>
+                    )}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                            type="text"
+                            placeholder="Name"
+                            className={`flex-1 p-3 rounded-xl border-2 focus:outline-none ${
+                                eosMode
+                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
+                                    : 'border-slate-100 focus:border-score-teal'
+                            }`}
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && addAttendee()}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Job Title (optional)"
+                            className={`sm:w-1/3 p-3 rounded-xl border-2 focus:outline-none ${
+                                eosMode
+                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
+                                    : 'border-slate-100 focus:border-score-teal'
+                            }`}
+                            value={newRole}
+                            onChange={(e) => setNewRole(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && addAttendee()}
+                        />
+                        <button
+                            onClick={addAttendee}
+                            className={`p-3 rounded-xl transition-all flex items-center justify-center gap-2 font-bold cursor-pointer ${
+                                eosMode
+                                    ? 'bg-amber-500 text-black hover:bg-amber-400'
+                                    : 'bg-slate-900 text-white hover:bg-slate-800'
+                            }`}
+                        >
+                            <UserPlus className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Attendee List */}
@@ -99,7 +235,11 @@ export default function Step3({ data, updateData }: Step3Props) {
                             eosMode ? 'border-neutral-700' : 'border-slate-100'
                         }`}>
                             <UserCircle className={`w-12 h-12 mx-auto mb-2 ${eosMode ? 'text-neutral-600' : 'text-slate-200'}`} />
-                            <p className={eosMode ? 'text-neutral-500' : 'text-slate-400'}>No attendees added yet.</p>
+                            <p className={eosMode ? 'text-neutral-500' : 'text-slate-400'}>
+                                {savedContacts.length > 0
+                                    ? 'Select team members above or add someone new.'
+                                    : 'No attendees added yet.'}
+                            </p>
                         </div>
                     ) : (
                         data.attendees?.map((attendee) => (
