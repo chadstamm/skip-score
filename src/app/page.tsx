@@ -348,6 +348,14 @@ export default function Home() {
         {/* Footer */}
         <footer className="border-t border-white/10 pt-6 pb-4 space-y-3">
           <div className="flex items-center justify-between">
+            <button
+              onClick={() => setShowAbout(true)}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              About
+            </button>
             <a
               href="https://buymeacoffee.com/chadn"
               target="_blank"
@@ -371,14 +379,6 @@ export default function Home() {
             <span className={`text-sm ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
               &copy; {new Date().getFullYear()} SkipScore
             </span>
-            <button
-              onClick={() => setShowAbout(true)}
-              className={`text-sm font-medium transition-colors cursor-pointer ${
-                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
-              }`}
-            >
-              About
-            </button>
           </div>
           <div className="text-center">
             <span className={`text-xs ${eosMode ? 'text-neutral-700' : 'text-white/20'}`}>
