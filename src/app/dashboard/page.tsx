@@ -18,7 +18,8 @@ import {
     MessageCircleQuestion,
     Settings,
     X,
-    Zap
+    Zap,
+    Heart
 } from 'lucide-react';
 import Link from 'next/link';
 import PostMeetingFeedback from '@/components/PostMeetingFeedback';
@@ -72,6 +73,8 @@ export default function Dashboard() {
         if (confirm('Are you sure you want to reset all assessments? This cannot be undone.')) {
             setHistory([]);
             localStorage.setItem('skip-score-history', JSON.stringify([]));
+            localStorage.removeItem('skip-score-agenda-templates');
+            localStorage.removeItem('skip-score-contacts');
         }
     };
 
@@ -366,6 +369,28 @@ export default function Dashboard() {
                                 ))}
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Donate Banner */}
+                <div className={`mt-8 p-4 rounded-2xl border text-center ${
+                    eosMode ? 'bg-neutral-900/50 border-neutral-800' : 'bg-white/5 backdrop-blur-sm border-white/10'
+                }`}>
+                    <div className="flex items-center justify-center gap-2">
+                        <Heart className={`w-4 h-4 ${eosMode ? 'text-amber-500/60' : 'text-white/30'}`} />
+                        <span className={`text-sm ${eosMode ? 'text-neutral-500' : 'text-white/40'}`}>
+                            Find this helpful?{' '}
+                            <a
+                                href="https://buymeacoffee.com/chadn"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`font-medium underline underline-offset-2 transition-colors ${
+                                    eosMode ? 'text-amber-400/70 hover:text-amber-400' : 'text-white/50 hover:text-white/80'
+                                }`}
+                            >
+                                Donate to help keep the lights on
+                            </a>
+                        </span>
                     </div>
                 </div>
             </div>
