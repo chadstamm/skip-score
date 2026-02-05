@@ -11,6 +11,22 @@ interface Step1Props {
 
 const TEMPLATES = [
     {
+        id: 'scratch',
+        name: 'From Scratch',
+        icon: PenLine,
+        color: 'bg-slate-500',
+        defaults: {
+            title: '',
+            purpose: undefined,
+            urgency: 'THIS_WEEK' as MeetingUrgency,
+            duration: 30,
+            interactivity: undefined,
+            complexity: undefined,
+            asyncPossible: undefined,
+            hasAgenda: undefined,
+        }
+    },
+    {
         id: 'standup',
         name: 'Daily Standup',
         icon: Coffee,
@@ -92,22 +108,6 @@ const TEMPLATES = [
             recurrenceFrequency: 'BIWEEKLY' as RecurrenceFrequency,
         }
     },
-    {
-        id: 'scratch',
-        name: 'From Scratch',
-        icon: PenLine,
-        color: 'bg-slate-500',
-        defaults: {
-            title: '',
-            purpose: undefined,
-            urgency: 'THIS_WEEK' as MeetingUrgency,
-            duration: 30,
-            interactivity: undefined,
-            complexity: undefined,
-            asyncPossible: undefined,
-            hasAgenda: undefined,
-        }
-    },
 ];
 
 const PURPOSES: { value: MeetingPurpose; label: string; description: string }[] = [
@@ -133,6 +133,22 @@ const RECURRENCE: { value: RecurrenceFrequency; label: string; multiplier: numbe
 
 // EOS-specific templates
 const EOS_TEMPLATES = [
+    {
+        id: 'scratch-eos',
+        name: 'From Scratch',
+        icon: PenLine,
+        color: 'bg-neutral-600',
+        defaults: {
+            title: '',
+            purpose: undefined,
+            urgency: 'THIS_WEEK' as MeetingUrgency,
+            duration: 30,
+            interactivity: undefined,
+            complexity: undefined,
+            asyncPossible: undefined,
+            hasAgenda: undefined,
+        }
+    },
     {
         id: 'l10',
         name: 'L10 Meeting',
@@ -218,22 +234,6 @@ const EOS_TEMPLATES = [
             complexity: 'MEDIUM' as const,
             asyncPossible: false,
             hasAgenda: true,
-        }
-    },
-    {
-        id: 'scratch-eos',
-        name: 'From Scratch',
-        icon: PenLine,
-        color: 'bg-neutral-600',
-        defaults: {
-            title: '',
-            purpose: undefined,
-            urgency: 'THIS_WEEK' as MeetingUrgency,
-            duration: 30,
-            interactivity: undefined,
-            complexity: undefined,
-            asyncPossible: undefined,
-            hasAgenda: undefined,
         }
     },
 ];
