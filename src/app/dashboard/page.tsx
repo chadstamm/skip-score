@@ -19,7 +19,8 @@ import {
     Settings,
     X,
     Zap,
-    Heart
+    Heart,
+    Linkedin
 } from 'lucide-react';
 import Link from 'next/link';
 import PostMeetingFeedback from '@/components/PostMeetingFeedback';
@@ -30,6 +31,7 @@ export default function Dashboard() {
     const [search, setSearch] = useState('');
     const [dismissedFeedback, setDismissedFeedback] = useState<string[]>([]);
     const [showSettings, setShowSettings] = useState(false);
+    const [showAbout, setShowAbout] = useState(false);
     const { eosMode, toggleEosMode } = useEOS();
 
     useEffect(() => {
@@ -389,28 +391,140 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Donate Banner */}
-                <div className={`mt-8 p-4 rounded-2xl border text-center ${
-                    eosMode ? 'bg-neutral-900/50 border-neutral-800' : 'bg-white/5 backdrop-blur-sm border-white/10'
-                }`}>
-                    <div className="flex items-center justify-center gap-2">
-                        <Heart className={`w-4 h-4 ${eosMode ? 'text-amber-500/60' : 'text-white/30'}`} />
-                        <span className={`text-sm ${eosMode ? 'text-neutral-500' : 'text-white/40'}`}>
-                            Find this helpful?{' '}
+                {/* Footer */}
+                <footer className="mt-12 pt-8 border-t border-white/10 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <button
+                            onClick={() => setShowAbout(true)}
+                            className={`text-sm font-medium transition-colors cursor-pointer ${
+                                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+                            }`}
+                        >
+                            About
+                        </button>
+                        <a
+                            href="https://buymeacoffee.com/chadn"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`text-sm font-medium transition-colors cursor-pointer ${
+                                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+                            }`}
+                        >
+                            Donate
+                        </a>
+                        <a
+                            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://skipscore.app')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+                            }`}
+                        >
+                            <Linkedin className="w-3.5 h-3.5" /> Share
+                        </a>
+                        <span className={`text-sm ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
+                            &copy; {new Date().getFullYear()} SkipScore
+                        </span>
+                    </div>
+                    <div className="text-center">
+                        <span className={`text-xs ${eosMode ? 'text-neutral-700' : 'text-white/20'}`}>
+                            Powered by{' '}
                             <a
-                                href="https://buymeacoffee.com/chadn"
+                                href="https://chadstamm.com/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`font-medium underline underline-offset-2 transition-colors ${
-                                    eosMode ? 'text-amber-400/70 hover:text-amber-400' : 'text-white/50 hover:text-white/80'
-                                }`}
+                                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
                             >
-                                Donate to help keep the lights on
+                                Chad Stamm
+                            </a>
+                            {' '}&middot;{' '}
+                            <a
+                                href="https://tmcdigitalmedia.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
+                            >
+                                TMC Digital Media
                             </a>
                         </span>
                     </div>
-                </div>
+                </footer>
             </div>
+
+            {/* About Modal */}
+            {showAbout && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowAbout(false)}>
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                    <div
+                        className={`relative max-w-lg w-full rounded-3xl shadow-2xl p-8 sm:p-10 animate-in fade-in zoom-in-95 duration-300 ${
+                            eosMode ? 'bg-neutral-900 border border-neutral-700' : 'bg-white'
+                        }`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setShowAbout(false)}
+                            className={`absolute top-4 right-4 p-2 rounded-xl transition-colors cursor-pointer ${
+                                eosMode ? 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                            }`}
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="space-y-5">
+                            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                eosMode ? 'bg-amber-500/20 text-amber-400' : 'bg-teal-100 text-score-teal'
+                            }`}>
+                                About SkipScore
+                            </div>
+
+                            <h3 className={`text-2xl font-extrabold leading-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                                Because your time is worth protecting.
+                            </h3>
+
+                            <div className={`space-y-4 text-sm leading-relaxed ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>
+                                <p>
+                                    We&apos;ve all sat through it. That meeting that should have been an email. The one where half the room is checked out, scrolling through their phones, wondering why they&apos;re there. The agenda-less hour that spirals into nothing. The recurring invite nobody questions.
+                                </p>
+                                <p>
+                                    Meetings aren&apos;t inherently bad&mdash;but too many of them are. They fracture focus, drain morale, and steal time from the work that actually moves the needle.
+                                </p>
+                                <p className={`font-medium ${eosMode ? 'text-amber-400' : 'text-skip-coral'}`}>
+                                    SkipScore was born from that frustration.
+                                </p>
+                                <p>
+                                    Before you send that invite, before you accept that meeting, ask: <em>does this deserve everyone&apos;s time?</em>
+                                </p>
+                                <p>
+                                    Score your meetings. Build better agendas. Protect what matters most&mdash;your team&apos;s time, energy, and momentum.
+                                </p>
+                            </div>
+
+                            <div className={`pt-4 border-t ${eosMode ? 'border-neutral-800' : 'border-slate-100'}`}>
+                                <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>
+                                    Built by{' '}
+                                    <a
+                                        href="https://chadstamm.com/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`font-medium hover:underline ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}
+                                    >
+                                        Chad Stamm
+                                    </a>
+                                    {' '}&middot;{' '}
+                                    <a
+                                        href="https://tmcdigitalmedia.com/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`font-medium hover:underline ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}
+                                    >
+                                        TMC Digital Media
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
