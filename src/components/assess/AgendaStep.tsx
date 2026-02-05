@@ -113,7 +113,7 @@ function detectEOSType(title: string): string {
 
 export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps) {
     const { eosMode } = useEOS();
-    const [mode, setMode] = useState<'choose' | 'templates' | 'past' | 'build'>('choose');
+    const [mode, setMode] = useState<'choose' | 'templates' | 'past' | 'build' | 'detail' | 'review'>('choose');
     const [items, setItems] = useState<AgendaItem[]>([]);
     const [copied, setCopied] = useState(false);
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -218,7 +218,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
         const initial: AgendaItem[] = suggestedSections.map(s => ({
             id: crypto.randomUUID(),
             title: s.title,
-            duration: s.duration,
+            duration: 0,
         }));
         setItems(initial);
         const checks: Record<string, boolean> = {};
@@ -640,166 +640,359 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
     }
 
     // ========== BUILD MODE ==========
-    return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="space-y-2">
-                <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
-                    {eosMode ? 'Customize Your Agenda' : 'Your Meeting Agenda'}
-                </h2>
-                <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
-                    Toggle sections on/off and adjust times. Click a section to add notes.
-                </p>
-            </div>
+    if (mode === 'build') {
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="space-y-2">
+                    <button
+                        onClick={() => setMode('choose')}
+                        className={`flex items-center gap-1 text-sm font-bold transition-colors cursor-pointer ${
+                            eosMode ? 'text-neutral-400 hover:text-neutral-200' : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back
+                    </button>
+                    <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                        {eosMode ? 'Customize Your Agenda' : 'Structure Your Agenda'}
+                    </h2>
+                    <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
+                        Add or remove sections, then allocate your {meetingDuration} minutes.
+                    </p>
+                </div>
 
-            {/* Time Bar */}
-            <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                    <div className={`flex items-center gap-2 text-sm font-bold ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
-                        <Clock className="w-4 h-4" />
-                        {totalAllocated} / {meetingDuration} min allocated
+                {/* Allocate Your Time Callout */}
+                {totalAllocated === 0 && (
+                    <div className={`p-4 rounded-xl border-2 border-dashed flex items-center gap-3 ${
+                        eosMode
+                            ? 'border-amber-500/40 bg-amber-500/5'
+                            : 'border-score-teal/40 bg-teal-50/50'
+                    }`}>
+                        <Clock className={`w-6 h-6 flex-shrink-0 ${eosMode ? 'text-amber-400' : 'text-score-teal'}`} />
+                        <div>
+                            <div className={`font-bold text-sm ${eosMode ? 'text-amber-400' : 'text-score-teal'}`}>
+                                Allocate your {meetingDuration} minutes
+                            </div>
+                            <div className={`text-xs mt-0.5 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
+                                Set the time for each section below. They all start at 0 &mdash; distribute your time as you see fit.
+                            </div>
+                        </div>
                     </div>
+                )}
+
+                {/* Time Bar */}
+                {totalAllocated > 0 && (
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <div className={`flex items-center gap-2 text-sm font-bold ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                                <Clock className="w-4 h-4" />
+                                {totalAllocated} / {meetingDuration} min allocated
+                            </div>
+                            {timeRemaining !== 0 && (
+                                <span className={`text-xs font-bold ${
+                                    timeRemaining > 0
+                                        ? eosMode ? 'text-amber-400' : 'text-blue-500'
+                                        : 'text-red-500'
+                                }`}>
+                                    {timeRemaining > 0 ? `${timeRemaining} min remaining` : `${Math.abs(timeRemaining)} min over`}
+                                </span>
+                            )}
+                        </div>
+                        <div className={`h-2 rounded-full overflow-hidden ${eosMode ? 'bg-neutral-700' : 'bg-slate-100'}`}>
+                            <div
+                                className={`h-full rounded-full transition-all ${
+                                    totalAllocated > meetingDuration
+                                        ? 'bg-red-500'
+                                        : totalAllocated === meetingDuration
+                                            ? eosMode ? 'bg-amber-500' : 'bg-score-teal'
+                                            : eosMode ? 'bg-amber-500/60' : 'bg-teal-300'
+                                }`}
+                                style={{ width: `${Math.min(100, (totalAllocated / meetingDuration) * 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Agenda Items */}
+                <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1 scrollbar-hide">
+                    {items.map((item) => {
+                        const isChecked = sectionChecks[item.id] !== false;
+                        return (
+                            <div key={item.id} className={`rounded-xl border-2 transition-all ${
+                                isChecked
+                                    ? eosMode
+                                        ? 'border-neutral-700 bg-neutral-800'
+                                        : 'border-slate-100 bg-white'
+                                    : eosMode
+                                        ? 'border-neutral-800 bg-neutral-800/30 opacity-50'
+                                        : 'border-slate-100 bg-slate-50/50 opacity-50'
+                            }`}>
+                                <div className="flex items-center gap-2 p-3">
+                                    {/* Checkbox */}
+                                    <button
+                                        onClick={() => toggleSection(item.id)}
+                                        className="cursor-pointer flex-shrink-0"
+                                    >
+                                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center text-xs transition-all ${
+                                            isChecked
+                                                ? eosMode
+                                                    ? 'border-amber-500 bg-amber-500 text-black'
+                                                    : 'border-score-teal bg-score-teal text-white'
+                                                : eosMode
+                                                    ? 'border-neutral-600'
+                                                    : 'border-slate-300'
+                                        }`}>
+                                            {isChecked && '✓'}
+                                        </div>
+                                    </button>
+
+                                    {/* Drag handle */}
+                                    <GripVertical className={`w-4 h-4 flex-shrink-0 ${eosMode ? 'text-neutral-600' : 'text-slate-300'}`} />
+
+                                    {/* Title */}
+                                    <input
+                                        type="text"
+                                        value={item.title}
+                                        onChange={(e) => updateItem(item.id, 'title', e.target.value)}
+                                        className={`flex-1 font-medium bg-transparent focus:outline-none min-w-0 ${
+                                            eosMode ? 'text-neutral-200' : 'text-slate-800'
+                                        }`}
+                                    />
+
+                                    {/* Duration */}
+                                    <div className="flex items-center gap-1 flex-shrink-0">
+                                        <input
+                                            type="number"
+                                            value={item.duration}
+                                            onChange={(e) => updateItem(item.id, 'duration', Math.max(0, parseInt(e.target.value) || 0))}
+                                            className={`w-12 text-center text-sm font-bold rounded-lg p-1 ${
+                                                eosMode
+                                                    ? 'bg-neutral-700 text-amber-400 border border-neutral-600'
+                                                    : 'bg-slate-50 text-score-teal border border-slate-200'
+                                            } focus:outline-none`}
+                                            min="0"
+                                        />
+                                        <span className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>min</span>
+                                    </div>
+
+                                    {/* Remove */}
+                                    <button
+                                        onClick={() => removeItem(item.id)}
+                                        className={`p-1 rounded-lg cursor-pointer ${
+                                            eosMode
+                                                ? 'text-neutral-600 hover:text-red-400'
+                                                : 'text-slate-300 hover:text-red-500'
+                                        }`}
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {/* Add Section */}
+                    <button
+                        onClick={addItem}
+                        className={`w-full p-3 rounded-xl border-2 border-dashed text-center transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                            eosMode
+                                ? 'border-neutral-700 text-neutral-500 hover:border-neutral-600 hover:text-neutral-400'
+                                : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-500'
+                        }`}
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span className="font-medium text-sm">Add Section</span>
+                    </button>
+                </div>
+
+                {/* Next: Add Details */}
+                <button
+                    onClick={() => {
+                        // Expand all sections for detail mode
+                        const expanded: Record<string, boolean> = {};
+                        activeItems.forEach(item => { expanded[item.id] = true; });
+                        setExpandedSections(expanded);
+                        setMode('detail');
+                    }}
+                    disabled={activeItems.length === 0}
+                    className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50 ${
+                        eosMode
+                            ? 'bg-amber-500 text-black hover:bg-amber-400'
+                            : 'bg-skip-coral text-white hover:bg-orange-600'
+                    }`}
+                >
+                    Next: Add Details <ArrowRight className="w-4 h-4" />
+                </button>
+            </div>
+        );
+    }
+
+    // ========== DETAIL MODE ==========
+    if (mode === 'detail') {
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="space-y-2">
+                    <button
+                        onClick={() => setMode('build')}
+                        className={`flex items-center gap-1 text-sm font-bold transition-colors cursor-pointer ${
+                            eosMode ? 'text-neutral-400 hover:text-neutral-200' : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back to Structure
+                    </button>
+                    <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                        Add Details
+                    </h2>
+                    <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
+                        Add talking points, notes, or context to each section of your agenda.
+                    </p>
+                </div>
+
+                {/* Time summary */}
+                <div className={`flex items-center gap-2 text-sm font-bold ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                    <Clock className="w-4 h-4" />
+                    {totalAllocated} / {meetingDuration} min allocated
                     {timeRemaining !== 0 && (
-                        <span className={`text-xs font-bold ${
+                        <span className={`text-xs font-bold ml-auto ${
                             timeRemaining > 0
                                 ? eosMode ? 'text-amber-400' : 'text-blue-500'
                                 : 'text-red-500'
                         }`}>
-                            {timeRemaining > 0 ? `${timeRemaining} min unallocated` : `${Math.abs(timeRemaining)} min over`}
+                            {timeRemaining > 0 ? `${timeRemaining} min remaining` : `${Math.abs(timeRemaining)} min over`}
                         </span>
                     )}
                 </div>
-                <div className={`h-2 rounded-full overflow-hidden ${eosMode ? 'bg-neutral-700' : 'bg-slate-100'}`}>
-                    <div
-                        className={`h-full rounded-full transition-all ${
-                            totalAllocated > meetingDuration
-                                ? 'bg-red-500'
-                                : totalAllocated === meetingDuration
-                                    ? eosMode ? 'bg-amber-500' : 'bg-score-teal'
-                                    : eosMode ? 'bg-amber-500/60' : 'bg-teal-300'
-                        }`}
-                        style={{ width: `${Math.min(100, (totalAllocated / meetingDuration) * 100)}%` }}
-                    />
+
+                {/* Section detail cards */}
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide">
+                    {activeItems.map((item, index) => (
+                        <div key={item.id} className={`rounded-xl border-2 overflow-hidden ${
+                            eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-white'
+                        }`}>
+                            <div className={`flex items-center gap-3 p-3 ${
+                                eosMode ? 'bg-neutral-800' : 'bg-slate-50/50'
+                            }`}>
+                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
+                                    eosMode
+                                        ? 'bg-amber-500/20 text-amber-400'
+                                        : 'bg-teal-100 text-score-teal'
+                                }`}>
+                                    {index + 1}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className={`font-bold truncate ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>
+                                        {item.title}
+                                    </div>
+                                </div>
+                                <span className={`text-xs font-bold flex-shrink-0 ${eosMode ? 'text-amber-400' : 'text-score-teal'}`}>
+                                    {item.duration} min
+                                </span>
+                            </div>
+                            <div className={`px-3 pb-3 pt-2 border-t ${eosMode ? 'border-neutral-700' : 'border-slate-100'}`}>
+                                <textarea
+                                    placeholder="Add talking points, notes, or context..."
+                                    value={item.notes || ''}
+                                    onChange={(e) => updateItem(item.id, 'notes', e.target.value)}
+                                    rows={3}
+                                    className={`w-full p-2 text-sm rounded-lg border focus:outline-none resize-none ${
+                                        eosMode
+                                            ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-600 focus:border-amber-500'
+                                            : 'bg-slate-50 border-slate-200 text-slate-700 placeholder-slate-400 focus:border-score-teal'
+                                    }`}
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Next: Review & Export */}
+                <button
+                    onClick={() => setMode('review')}
+                    className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        eosMode
+                            ? 'bg-amber-500 text-black hover:bg-amber-400'
+                            : 'bg-skip-coral text-white hover:bg-orange-600'
+                    }`}
+                >
+                    Next: Review & Export <ArrowRight className="w-4 h-4" />
+                </button>
+            </div>
+        );
+    }
+
+    // ========== REVIEW MODE ==========
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="space-y-2">
+                <button
+                    onClick={() => setMode('detail')}
+                    className={`flex items-center gap-1 text-sm font-bold transition-colors cursor-pointer ${
+                        eosMode ? 'text-neutral-400 hover:text-neutral-200' : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                >
+                    <ArrowLeft className="w-4 h-4" /> Back to Details
+                </button>
+                <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                    Your Agenda
+                </h2>
+                <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
+                    Review your finished agenda. Export it or save as a template for next time.
+                </p>
+            </div>
+
+            {/* Meeting info header */}
+            <div className={`p-4 rounded-xl border-2 ${
+                eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-white'
+            }`}>
+                <div className={`font-bold text-lg ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                    {data.title || 'Meeting'}
+                </div>
+                <div className={`text-sm mt-1 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
+                    {meetingDuration} min &middot; {activeItems.length} sections &middot; {totalAllocated} min allocated
                 </div>
             </div>
 
-            {/* Agenda Items */}
-            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1 scrollbar-hide">
-                {items.map((item) => {
-                    const isChecked = sectionChecks[item.id] !== false;
-                    const isExpanded = expandedSections[item.id];
-                    return (
-                        <div key={item.id} className={`rounded-xl border-2 transition-all ${
-                            isChecked
-                                ? eosMode
-                                    ? 'border-neutral-700 bg-neutral-800'
-                                    : 'border-slate-100 bg-white'
-                                : eosMode
-                                    ? 'border-neutral-800 bg-neutral-800/30 opacity-50'
-                                    : 'border-slate-100 bg-slate-50/50 opacity-50'
-                        }`}>
-                            <div className="flex items-center gap-2 p-3">
-                                {/* Checkbox */}
-                                <button
-                                    onClick={() => toggleSection(item.id)}
-                                    className="cursor-pointer flex-shrink-0"
-                                >
-                                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center text-xs transition-all ${
-                                        isChecked
-                                            ? eosMode
-                                                ? 'border-amber-500 bg-amber-500 text-black'
-                                                : 'border-score-teal bg-score-teal text-white'
-                                            : eosMode
-                                                ? 'border-neutral-600'
-                                                : 'border-slate-300'
+            {/* Agenda preview */}
+            <div className="space-y-1 max-h-[280px] overflow-y-auto pr-1 scrollbar-hide">
+                {(() => {
+                    let runningTime = 0;
+                    return activeItems.map((item, index) => {
+                        const startTime = runningTime;
+                        runningTime += item.duration;
+                        return (
+                            <div key={item.id} className={`p-3 rounded-xl ${
+                                eosMode ? 'bg-neutral-800' : 'bg-slate-50'
+                            }`}>
+                                <div className="flex items-center gap-3">
+                                    <div className={`text-xs font-mono font-bold flex-shrink-0 w-16 ${
+                                        eosMode ? 'text-amber-400/70' : 'text-score-teal/70'
                                     }`}>
-                                        {isChecked && '✓'}
+                                        {startTime}-{runningTime} min
                                     </div>
-                                </button>
-
-                                {/* Drag handle */}
-                                <GripVertical className={`w-4 h-4 flex-shrink-0 ${eosMode ? 'text-neutral-600' : 'text-slate-300'}`} />
-
-                                {/* Title */}
-                                <input
-                                    type="text"
-                                    value={item.title}
-                                    onChange={(e) => updateItem(item.id, 'title', e.target.value)}
-                                    className={`flex-1 font-medium bg-transparent focus:outline-none min-w-0 ${
-                                        eosMode ? 'text-neutral-200' : 'text-slate-800'
-                                    }`}
-                                />
-
-                                {/* Duration */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                    <input
-                                        type="number"
-                                        value={item.duration}
-                                        onChange={(e) => updateItem(item.id, 'duration', Math.max(1, parseInt(e.target.value) || 1))}
-                                        className={`w-12 text-center text-sm font-bold rounded-lg p-1 ${
-                                            eosMode
-                                                ? 'bg-neutral-700 text-amber-400 border border-neutral-600'
-                                                : 'bg-slate-50 text-score-teal border border-slate-200'
-                                        } focus:outline-none`}
-                                        min="1"
-                                    />
-                                    <span className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>min</span>
-                                </div>
-
-                                {/* Expand / Notes toggle */}
-                                <button
-                                    onClick={() => toggleExpanded(item.id)}
-                                    className={`p-1 rounded-lg cursor-pointer ${
-                                        eosMode ? 'text-neutral-500 hover:text-neutral-300' : 'text-slate-400 hover:text-slate-600'
-                                    }`}
-                                >
-                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                </button>
-
-                                {/* Remove */}
-                                <button
-                                    onClick={() => removeItem(item.id)}
-                                    className={`p-1 rounded-lg cursor-pointer ${
+                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                                         eosMode
-                                            ? 'text-neutral-600 hover:text-red-400'
-                                            : 'text-slate-300 hover:text-red-500'
-                                    }`}
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            </div>
-
-                            {/* Notes (expanded) */}
-                            {isExpanded && (
-                                <div className={`px-3 pb-3 pt-0 border-t ${eosMode ? 'border-neutral-700' : 'border-slate-100'}`}>
-                                    <textarea
-                                        placeholder="Add notes for this section..."
-                                        value={item.notes || ''}
-                                        onChange={(e) => updateItem(item.id, 'notes', e.target.value)}
-                                        rows={2}
-                                        className={`w-full mt-2 p-2 text-sm rounded-lg border focus:outline-none resize-none ${
-                                            eosMode
-                                                ? 'bg-neutral-900 border-neutral-700 text-neutral-300 placeholder-neutral-600 focus:border-amber-500'
-                                                : 'bg-slate-50 border-slate-200 text-slate-700 placeholder-slate-400 focus:border-score-teal'
-                                        }`}
-                                    />
+                                            ? 'bg-amber-500/20 text-amber-400'
+                                            : 'bg-teal-100 text-score-teal'
+                                    }`}>
+                                        {index + 1}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>
+                                            {item.title}
+                                        </div>
+                                        {item.notes && (
+                                            <div className={`text-xs mt-0.5 line-clamp-2 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>
+                                                {item.notes}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className={`text-xs font-bold flex-shrink-0 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>
+                                        {item.duration} min
+                                    </span>
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
-
-                {/* Add Section */}
-                <button
-                    onClick={addItem}
-                    className={`w-full p-3 rounded-xl border-2 border-dashed text-center transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                        eosMode
-                            ? 'border-neutral-700 text-neutral-500 hover:border-neutral-600 hover:text-neutral-400'
-                            : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-500'
-                    }`}
-                >
-                    <Plus className="w-4 h-4" />
-                    <span className="font-medium text-sm">Add Section</span>
-                </button>
+                            </div>
+                        );
+                    });
+                })()}
             </div>
 
             {/* Save as Template */}
