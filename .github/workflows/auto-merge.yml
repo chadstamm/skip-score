@@ -10,31 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
 
-      - name: Create and merge PR
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Merge branch into main and push
         run: |
-          # Check if PR already exists for this branch
-          EXISTING_PR=$(gh pr list --head "${{ github.ref_name }}" --json number --jq '.[0].number' 2>/dev/null)
-
-          if [ -z "$EXISTING_PR" ] || [ "$EXISTING_PR" = "null" ]; then
-            # Create PR
-            PR_NUMBER=$(gh pr create \
-              --title "Auto-deploy: $(git log -1 --pretty=%s)" \
-              --body "Auto-merged from branch \`${{ github.ref_name }}\`" \
-              --head "${{ github.ref_name }}" \
-              --base main \
-              | grep -o '[0-9]*$')
-          else
-            PR_NUMBER=$EXISTING_PR
-          fi
-
-          # Wait a moment for PR to be ready
-          sleep 2
-
-          # Merge the PR
-          gh pr merge "$PR_NUMBER" --merge --delete-branch=false
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git merge origin/${{ github.ref_name }} --no-edit
+          git push origin main
