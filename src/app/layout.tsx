@@ -21,9 +21,6 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <footer className="py-8 text-center text-slate-400 text-sm font-medium">
-          &copy; {new Date().getFullYear()} SkipScore. All rights reserved.
-        </footer>
       </body>
     </html>
   );
