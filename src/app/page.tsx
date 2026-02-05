@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, BarChart3, Target, Settings, X, RotateCcw } from 'lucide-react';
+import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, FileText, Target, Settings, X, RotateCcw } from 'lucide-react';
 import Onboarding from '@/components/Onboarding';
 import { useEOS } from '@/contexts/EOSContext';
 
@@ -127,8 +127,8 @@ export default function Home() {
           </p>
           <p className={`text-sm font-medium uppercase tracking-widest ${eosMode ? 'text-amber-400/80' : 'text-teal-200/80'}`}>
             {eosMode
-              ? 'Built for teams running on Traction. Optimized for the EOS meeting pulse.'
-              : 'Notetakers capture what was said. We capture whether it should have been said at all.'}
+              ? 'Score meetings. Build agendas. Protect your meeting pulse.'
+              : 'Score meetings. Build agendas. Reclaim your time.'}
           </p>
 
           {/* CTA */}
@@ -233,7 +233,7 @@ export default function Home() {
                 eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-teal-500 to-teal-600'
               }`}>1</div>
               <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Describe Your Meeting</h3>
-              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Enter the basics: purpose, attendees, duration, and agenda status.</p>
+              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Enter the basics: purpose, attendees, and duration. Build an agenda or bring your own.</p>
             </div>
             <div className="text-center space-y-4">
               <div className="bg-gradient-to-br from-orange-500 to-orange-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-2xl shadow-lg">2</div>
@@ -275,11 +275,11 @@ export default function Home() {
           <div className={`rounded-2xl p-6 border ${eosMode ? 'bg-neutral-900/50 border-neutral-800' : 'bg-white/10 backdrop-blur-sm border-white/20'}`}>
             <div className="flex items-start gap-4">
               <div className={`p-3 rounded-xl ${eosMode ? 'bg-amber-500/20' : 'bg-blue-500/20'}`}>
-                <BarChart3 className={`w-6 h-6 ${eosMode ? 'text-amber-400' : 'text-blue-300'}`} />
+                <FileText className={`w-6 h-6 ${eosMode ? 'text-amber-400' : 'text-blue-300'}`} />
               </div>
               <div>
-                <h3 className={`font-bold text-lg mb-1 ${eosMode ? 'text-neutral-100' : 'text-white'}`}>Track Your Savings</h3>
-                <p className={eosMode ? 'text-neutral-400' : 'text-white/70'}>See how much time and money you're reclaiming over time.</p>
+                <h3 className={`font-bold text-lg mb-1 ${eosMode ? 'text-neutral-100' : 'text-white'}`}>Built-in Agenda Builder</h3>
+                <p className={eosMode ? 'text-neutral-400' : 'text-white/70'}>Create structured agendas with time blocks. Export as PDF, copy, or email.</p>
               </div>
             </div>
           </div>

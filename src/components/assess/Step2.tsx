@@ -87,42 +87,6 @@ export default function Step2({ data, updateData }: Step2Props) {
                 </div>
 
                 <div className="space-y-4">
-                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Is there a clear agenda?</label>
-                    <div className="flex gap-6">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="hasAgenda"
-                                checked={data.hasAgenda === true}
-                                onChange={() => updateData({ hasAgenda: true })}
-                                className={radioClasses}
-                            />
-                            <span className={`font-medium ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>Yes</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="hasAgenda"
-                                checked={data.hasAgenda === false}
-                                onChange={() => updateData({ hasAgenda: false })}
-                                className={radioClasses}
-                            />
-                            <span className={`font-medium ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>No</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="hasAgenda"
-                                checked={data.hasAgenda === undefined}
-                                onChange={() => updateData({ hasAgenda: undefined })}
-                                className={radioClasses}
-                            />
-                            <span className={`font-medium ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>Unknown</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div className="space-y-4">
                     <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
                         {eosMode ? 'Could this be an email, Slack, or To-Do?' : 'Could this be handled asynchronously?'}
                     </label>
