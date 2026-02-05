@@ -49,6 +49,20 @@ export default async function Image() {
                 >
                     Should You Have This Meeting?
                 </div>
+
+                {/* Sub-tagline */}
+                <div
+                    style={{
+                        fontSize: '24px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.45)',
+                        marginTop: '28px',
+                        letterSpacing: '0.15em',
+                        textTransform: 'uppercase',
+                    }}
+                >
+                    Score. Prepare. Reclaim Your Time.
+                </div>
             </div>
         ),
         {
