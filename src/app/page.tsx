@@ -432,7 +432,7 @@ export default function Home() {
                 <p>
                   Meetings aren&apos;t inherently bad&mdash;but too many of them are. They fracture focus, drain morale, and steal time from the work that actually moves the needle.
                 </p>
-                <p className={`font-medium ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>
+                <p className={`font-medium ${eosMode ? 'text-amber-400' : 'text-skip-coral'}`}>
                   SkipScore was born from that frustration.
                 </p>
                 <p>
