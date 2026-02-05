@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SkipScore | Meeting Assessment Tool",
-  description: "Stop wasting time. Score your meeting before you book it.",
+  description: "Score your meetings before you book them. Build better agendas. Reclaim your time.",
 };
 
 export default function RootLayout({
