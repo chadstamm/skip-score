@@ -126,12 +126,12 @@ export default function Home() {
           <p className={`text-xl sm:text-2xl max-w-2xl mx-auto ${eosMode ? 'text-neutral-300' : 'text-teal-50/90'}`}>
             {eosMode
               ? 'Keep your weekly meeting pulse sacred. Check if that extra meeting belongs on the calendar—or in a quick IDS.'
-              : 'Score your meetings before you book them. Determine if they\'re truly needed. Reclaim your time.'}
+              : 'Score your meetings before you book them. Build better agendas. Decide if they\'re truly worth everyone\'s time.'}
           </p>
           <p className={`text-sm font-medium uppercase tracking-widest ${eosMode ? 'text-amber-400/80' : 'text-teal-200/80'}`}>
             {eosMode
-              ? 'Score meetings. Build agendas. Protect your meeting pulse.'
-              : 'Score meetings. Build agendas. Reclaim your time.'}
+              ? 'Score. Prepare. Protect your meeting pulse.'
+              : 'Score. Prepare. Reclaim your time.'}
           </p>
 
           {/* CTA */}
@@ -230,23 +230,34 @@ export default function Home() {
         {/* How It Works */}
         <div className={`rounded-[2.5rem] p-8 sm:p-12 shadow-2xl ${eosMode ? 'bg-neutral-900 border border-neutral-800' : 'bg-white'}`}>
           <h2 className={`text-3xl font-extrabold text-center mb-10 ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center space-y-4">
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-2xl shadow-lg ${
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-xl shadow-lg ${
                 eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-teal-500 to-teal-600'
               }`}>1</div>
-              <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Describe Your Meeting</h3>
-              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Enter the basics: purpose, attendees, and duration. Build an agenda or bring your own.</p>
+              <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Describe It</h3>
+              <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Enter the basics: purpose, duration, and attendees.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="bg-gradient-to-br from-orange-500 to-orange-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-2xl shadow-lg">2</div>
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-xl shadow-lg ${
+                eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-orange-500 to-orange-600'
+              }`}>2</div>
+              <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Build an Agenda</h3>
+              <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Create a structured agenda, use a template, or skip if you have one.</p>
+            </div>
+            <div className="text-center space-y-4">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-xl shadow-lg ${
+                eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-blue-500 to-blue-600'
+              }`}>3</div>
               <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Get Your Score</h3>
-              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Our algorithm analyzes 10+ factors to calculate your meeting's value.</p>
+              <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Our algorithm analyzes 10+ factors to rate your meeting.</p>
             </div>
             <div className="text-center space-y-4">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-2xl shadow-lg">3</div>
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto text-white font-black text-xl shadow-lg ${
+                eosMode ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-purple-500 to-purple-600'
+              }`}>4</div>
               <h3 className={`font-bold text-lg ${eosMode ? 'text-neutral-200' : 'text-slate-900'}`}>Take Action</h3>
-              <p className={eosMode ? 'text-neutral-400' : 'text-slate-600'}>Skip it, shorten it, or run it better with tailored suggestions.</p>
+              <p className={`text-sm ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}>Skip it, shorten it, or run it better with tailored suggestions.</p>
             </div>
           </div>
         </div>
