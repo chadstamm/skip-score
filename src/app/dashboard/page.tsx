@@ -217,13 +217,15 @@ export default function Dashboard() {
                         <div className={`text-xs font-medium ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>{history.length} {eosMode ? 'meetings' : 'assessments'}</div>
                     </div>
 
-                    <div className={`p-5 rounded-2xl space-y-1 text-white ${eosMode ? 'bg-gradient-to-br from-orange-600 to-orange-700' : 'glass-card bg-gradient-to-br from-teal-500 to-teal-600'}`}>
-                        <div className={`flex items-center gap-2 mb-1 ${eosMode ? 'text-orange-100' : 'text-teal-100'}`}>
+                    <div className={`glass-card p-5 rounded-2xl space-y-1 ${eosMode ? 'bg-neutral-900/90 border border-neutral-700' : ''}`}>
+                        <div className={`flex items-center gap-2 mb-1 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
                             <Calendar className="w-4 h-4" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">This Week</span>
                         </div>
-                        <div className="text-3xl font-black">{thisWeekSavings.hoursSaved.toFixed(1)} hrs</div>
-                        <div className={`text-xs font-medium ${eosMode ? 'text-orange-100' : 'text-teal-100'}`}>{thisWeekAssessments.length} meetings scored</div>
+                        <div className={`text-3xl font-black ${eosMode ? 'text-white' : 'text-slate-800'}`}>{thisWeekSavings.hoursSaved.toFixed(1)} hrs</div>
+                        <div className={`text-xs font-medium flex items-center gap-1 ${eosMode ? 'text-orange-400' : 'text-teal-600'}`}>
+                            <Calendar className="w-3 h-3" /> {thisWeekAssessments.length} meetings scored
+                        </div>
                     </div>
 
                     <div className={`p-5 rounded-2xl space-y-1 text-white ${eosMode ? 'bg-neutral-800 border border-neutral-600' : 'glass-card bg-slate-900'}`}>

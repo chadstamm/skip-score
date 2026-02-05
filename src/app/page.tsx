@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, FileText, Target, Settings, X, RotateCcw } from 'lucide-react';
+import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, FileText, Target, Settings, X, RotateCcw, Linkedin } from 'lucide-react';
 import Onboarding from '@/components/Onboarding';
 import { useEOS } from '@/contexts/EOSContext';
 
@@ -357,6 +357,16 @@ export default function Home() {
               }`}
             >
               Donate
+            </a>
+            <a
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://skipscore.app')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
+              }`}
+            >
+              <Linkedin className="w-3.5 h-3.5" /> Share
             </a>
             <span className={`text-sm ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
               &copy; {new Date().getFullYear()} SkipScore
