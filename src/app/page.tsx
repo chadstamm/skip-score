@@ -354,21 +354,21 @@ export default function Home() {
             <span className={`text-xs ${eosMode ? 'text-neutral-700' : 'text-white/20'}`}>
               Powered by{' '}
               <a
-                href="https://tmcdigitalmedia.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
-              >
-                TMC Digital Media
-              </a>
-              {' '}&middot;{' '}
-              <a
                 href="https://chadstamm.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
               >
                 Chad Stamm
+              </a>
+              {' '}&middot;{' '}
+              <a
+                href="https://tmcdigitalmedia.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
+              >
+                TMC Digital Media
               </a>
             </span>
           </div>
