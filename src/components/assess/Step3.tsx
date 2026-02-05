@@ -82,7 +82,7 @@ export default function Step3({ data, updateData }: Step3Props) {
                     />
                     <button
                         onClick={addAttendee}
-                        className={`p-3 rounded-xl transition-all flex items-center justify-center gap-2 font-bold ${
+                        className={`p-3 rounded-xl transition-all flex items-center justify-center gap-2 font-bold cursor-pointer ${
                             eosMode
                                 ? 'bg-amber-500 text-black hover:bg-amber-400'
                                 : 'bg-slate-900 text-white hover:bg-slate-800'
@@ -148,7 +148,7 @@ export default function Step3({ data, updateData }: Step3Props) {
                                         onClick={() => removeAttendee(attendee.id)}
                                         title="Remove attendee"
                                         aria-label="Remove attendee"
-                                        className={`p-2 rounded-lg transition-all ${
+                                        className={`p-2 rounded-lg transition-all cursor-pointer ${
                                             eosMode
                                                 ? 'text-neutral-500 hover:bg-red-500/20 hover:text-red-400'
                                                 : 'text-slate-400 hover:bg-red-100 hover:text-red-600'

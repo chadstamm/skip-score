@@ -15,7 +15,7 @@ export default function Step2({ data, updateData }: Step2Props) {
     const Toggle = ({ value, label, onToggle }: { value: boolean; label: string; onToggle: (v: boolean) => void }) => (
         <button
             onClick={() => onToggle(!value)}
-            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all w-full ${
+            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all w-full cursor-pointer ${
                 value
                     ? eosMode ? 'border-amber-500 bg-amber-500/10' : 'border-score-teal bg-teal-50'
                     : eosMode ? 'border-neutral-700' : 'border-slate-100'
@@ -167,7 +167,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                             <button
                                 key={level}
                                 onClick={() => updateData({ interactivity: level })}
-                                className={`flex-1 py-3 rounded-lg font-bold transition-all ${
+                                className={`flex-1 py-3 rounded-lg font-bold transition-all cursor-pointer ${
                                     data.interactivity === level
                                         ? eosMode
                                             ? 'bg-neutral-700 shadow-sm text-amber-500'
@@ -190,7 +190,7 @@ export default function Step2({ data, updateData }: Step2Props) {
                             <button
                                 key={level}
                                 onClick={() => updateData({ complexity: level })}
-                                className={`flex-1 py-3 rounded-lg font-bold transition-all ${
+                                className={`flex-1 py-3 rounded-lg font-bold transition-all cursor-pointer ${
                                     data.complexity === level
                                         ? eosMode
                                             ? 'bg-neutral-700 shadow-sm text-amber-500'
