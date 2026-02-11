@@ -110,10 +110,12 @@ export default function Dashboard() {
         ? (history.reduce((sum, h) => sum + (h.score || 0), 0) / history.length).toFixed(1)
         : '0';
 
-    // Skip rate (% of meetings that are SKIP or ASYNC_FIRST)
-    const skippableCount = (recCounts['SKIP'] || 0) + (recCounts['ASYNC_FIRST'] || 0);
-    const skipRate = history.length > 0
-        ? Math.round((skippableCount / history.length) * 100)
+    // Skip rate (% of meetings that are SKIP or ASYNC_FIRST) — excludes protected EOS meetings
+    const nonProtectedHistory = history.filter(h => !h.isProtectedEOS);
+    const nonProtectedSkippable = nonProtectedHistory.filter(h => h.recommendation === 'SKIP' || h.recommendation === 'ASYNC_FIRST').length;
+    const skippableCount = nonProtectedSkippable;
+    const skipRate = nonProtectedHistory.length > 0
+        ? Math.round((skippableCount / nonProtectedHistory.length) * 100)
         : 0;
 
     const filteredHistory = history.filter(h =>
@@ -228,6 +230,10 @@ export default function Dashboard() {
                                 </div>
                             </div>
                         )}
+
+                        <p className={`mt-4 text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>
+                            Your data is stored locally on this device and won&apos;t transfer to other devices or browsers.
+                        </p>
                     </div>
                 )}
 
@@ -259,9 +265,13 @@ export default function Dashboard() {
                             <span className="text-[10px] font-bold uppercase tracking-widest">Skip Rate</span>
                         </div>
                         <div className={`text-3xl font-black ${skipRate > 50 ? (eosMode ? 'text-orange-400' : 'text-skip-coral') : eosMode ? 'text-white' : 'text-slate-800'}`}>{skipRate}%</div>
-                        <div className={`text-xs font-medium ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>{skippableCount} of {history.length} skippable</div>
+                        <div className={`text-xs font-medium ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>{skippableCount} of {nonProtectedHistory.length} skippable</div>
                     </div>
                 </div>
+
+                <p className={`text-xs text-center ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
+                    All data is stored locally on this device.
+                </p>
 
                 {/* Post-Meeting Feedback Section */}
                 {needsFeedback.length > 0 && (
@@ -351,15 +361,19 @@ export default function Dashboard() {
                                         className={`flex items-center gap-4 p-4 rounded-2xl transition-all border group ${eosMode ? 'hover:bg-neutral-800 border-transparent hover:border-neutral-600' : 'hover:bg-slate-50 border-transparent hover:border-slate-100'}`}
                                     >
                                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
-                                            eosMode
-                                                ? item.recommendation === 'SKIP' ? 'bg-orange-500/20 text-orange-400' :
-                                                  item.recommendation === 'ASYNC_FIRST' ? 'bg-slate-500/20 text-slate-300' :
-                                                  item.recommendation === 'SHORTEN' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400'
-                                                : item.recommendation === 'SKIP' ? 'bg-orange-100 text-orange-600' :
-                                                  item.recommendation === 'ASYNC_FIRST' ? 'bg-teal-100 text-teal-600' :
-                                                  item.recommendation === 'SHORTEN' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'
+                                            item.isProtectedEOS
+                                                ? item.readinessLevel === 'FULLY_PREPARED' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                  item.readinessLevel === 'ALMOST_READY' ? 'bg-blue-500/20 text-blue-400' :
+                                                  item.readinessLevel === 'NEEDS_WORK' ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'
+                                                : eosMode
+                                                    ? item.recommendation === 'SKIP' ? 'bg-orange-500/20 text-orange-400' :
+                                                      item.recommendation === 'ASYNC_FIRST' ? 'bg-slate-500/20 text-slate-300' :
+                                                      item.recommendation === 'SHORTEN' ? 'bg-blue-500/20 text-blue-400' : 'bg-emerald-500/20 text-emerald-400'
+                                                    : item.recommendation === 'SKIP' ? 'bg-orange-100 text-orange-600' :
+                                                      item.recommendation === 'ASYNC_FIRST' ? 'bg-teal-100 text-teal-600' :
+                                                      item.recommendation === 'SHORTEN' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'
                                             }`}>
-                                            {item.score}
+                                            {item.isProtectedEOS ? item.readinessScore : item.score}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
@@ -370,7 +384,11 @@ export default function Dashboard() {
                                                 <span>{item.attendees.length} people</span>
                                                 <span>•</span>
                                                 <span className={`font-bold ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
-                                                    {eosMode && item.recommendation === 'SKIP' ? 'ISSUES LIST' : item.recommendation?.replace('_', ' ')}
+                                                    {item.isProtectedEOS && item.readinessLevel
+                                                        ? item.readinessLevel.replace('_', ' ')
+                                                        : eosMode && item.recommendation === 'SKIP'
+                                                            ? 'ISSUES LIST'
+                                                            : item.recommendation?.replace('_', ' ')}
                                                 </span>
                                             </div>
                                         </div>

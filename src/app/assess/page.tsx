@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Logo } from '@/components/Logo';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { AssessmentData } from '@/lib/types';
-import { calculateScore } from '@/lib/scoring';
+import { calculateScore, detectProtectedType, calculatePreparednessScore } from '@/lib/scoring';
 import Step1 from '@/components/assess/Step1';
 import Step2 from '@/components/assess/Step2';
 import AgendaStep from '@/components/assess/AgendaStep';
@@ -49,6 +49,20 @@ export default function AssessPage() {
         fullData.score = score;
         fullData.recommendation = recommendation;
         fullData.reasoning = reasoning;
+
+        // EOS Preparedness: check if this is a protected meeting type
+        if (eosMode) {
+            const protectedType = detectProtectedType(fullData.title);
+            if (protectedType) {
+                const prep = calculatePreparednessScore(fullData, protectedType);
+                fullData.isProtectedEOS = true;
+                fullData.protectedType = protectedType;
+                fullData.readinessScore = prep.score;
+                fullData.readinessLevel = prep.level;
+                fullData.readinessTips = prep.tips;
+                fullData.readinessStrengths = prep.strengths;
+            }
+        }
 
         // Save to localStorage
         const pastAssessments = JSON.parse(localStorage.getItem('skip-score-history') || '[]');

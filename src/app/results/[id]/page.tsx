@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Logo } from '@/components/Logo';
-import { AssessmentData, Recommendation } from '@/lib/types';
+import { AssessmentData, Recommendation, ReadinessLevel } from '@/lib/types';
 import { calculateSavings, calculateActionPlan, calculateScoreBreakdown } from '@/lib/scoring';
 import {
     ArrowLeft,
@@ -60,6 +60,13 @@ const REC_STYLES: Record<Recommendation, { label: string; color: string; bg: str
     }
 };
 
+const READINESS_STYLES: Record<ReadinessLevel, { label: string; color: string; bg: string; text: string }> = {
+    NOT_READY: { label: 'NOT READY', color: '#ef4444', bg: 'bg-red-500/20', text: 'text-red-400' },
+    NEEDS_WORK: { label: 'NEEDS WORK', color: '#f59e0b', bg: 'bg-amber-500/20', text: 'text-amber-400' },
+    ALMOST_READY: { label: 'ALMOST READY', color: '#3b82f6', bg: 'bg-blue-500/20', text: 'text-blue-400' },
+    FULLY_PREPARED: { label: 'FULLY PREPARED', color: '#10b981', bg: 'bg-emerald-500/20', text: 'text-emerald-400' },
+};
+
 export default function ResultsPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -88,7 +95,7 @@ export default function ResultsPage() {
     useEffect(() => {
         if (data && !hasAnimated.current) {
             hasAnimated.current = true;
-            const targetScore = data.score || 0;
+            const targetScore = data.isProtectedEOS ? (data.readinessScore || 0) : (data.score || 0);
             const duration = 1500;
             const steps = 60;
             const increment = targetScore / steps;
@@ -101,8 +108,17 @@ export default function ResultsPage() {
                     setAnimationComplete(true);
                     clearInterval(timer);
 
-                    // Trigger confetti for SKIP or ASYNC_FIRST (saving time!)
-                    if (data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST') {
+                    // Trigger confetti
+                    if (data.isProtectedEOS && data.readinessLevel === 'FULLY_PREPARED') {
+                        // Protected EOS: celebrate being fully prepared
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 },
+                            colors: ['#10b981', '#3b82f6', '#fbbf24', '#8b5cf6']
+                        });
+                    } else if (!data.isProtectedEOS && (data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST')) {
+                        // Standard: celebrate saving time
                         confetti({
                             particleCount: 100,
                             spread: 70,
@@ -271,8 +287,9 @@ Please add your name under your preferred option:
         setTimeout(() => setReplacementCopied(null), 2000);
     };
 
+    const displayedFinalScore = data.isProtectedEOS ? (data.readinessScore || 0) : (data.score || 0);
     const progressOffset = animationComplete
-        ? 452 - (452 * (data.score || 0)) / 10
+        ? 452 - (452 * displayedFinalScore) / 10
         : 452 - (452 * displayScore) / 10;
 
     return (
@@ -325,25 +342,51 @@ Please add your name under your preferred option:
                                         </div>
                                     )}
                                 </div>
-                                <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${
-                                    eosMode
-                                        ? data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST'
-                                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                                            : data.recommendation === 'PROCEED'
-                                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                        : `${style.bg} ${style.text}`
-                                } ${animationComplete ? 'animate-in zoom-in duration-300' : 'opacity-0'}`}>
-                                    <AlertCircle className="w-5 h-5" />
-                                    {eosMode && data.recommendation === 'SKIP' ? 'ADD TO ISSUES' : style.label}
-                                </div>
-                                <p className={`text-base font-medium leading-relaxed ${
-                                    eosMode ? 'text-neutral-400' : 'text-slate-600'
-                                } ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-2 duration-500' : 'opacity-0'}`}>
-                                    {eosMode && data.recommendation === 'SKIP'
-                                        ? 'This topic belongs on the Issues List, not in a meeting. Add it to your L10.'
-                                        : (data.reasoning || style.description)}
-                                </p>
+                                {data.isProtectedEOS && data.readinessLevel ? (
+                                    <>
+                                        <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${
+                                            READINESS_STYLES[data.readinessLevel].bg
+                                        } ${READINESS_STYLES[data.readinessLevel].text} border border-current/30 ${
+                                            animationComplete ? 'animate-in zoom-in duration-300' : 'opacity-0'
+                                        }`}>
+                                            <AlertCircle className="w-5 h-5" />
+                                            {READINESS_STYLES[data.readinessLevel].label}
+                                        </div>
+                                        <p className={`text-base font-medium leading-relaxed text-neutral-400 ${
+                                            animationComplete ? 'animate-in fade-in slide-in-from-bottom-2 duration-500' : 'opacity-0'
+                                        }`}>
+                                            {data.readinessLevel === 'FULLY_PREPARED'
+                                                ? `Your ${data.protectedType} is locked and loaded. Run it by the book.`
+                                                : data.readinessLevel === 'ALMOST_READY'
+                                                    ? `Close! A few tweaks and your ${data.protectedType} will be dialed in.`
+                                                    : data.readinessLevel === 'NEEDS_WORK'
+                                                        ? `Your ${data.protectedType} has gaps. Address the items below before meeting.`
+                                                        : `This ${data.protectedType} isn't set up right. Fix the basics before you run it.`}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className={`inline-flex items-center gap-2 px-5 py-2 rounded-full font-bold ${
+                                            eosMode
+                                                ? data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST'
+                                                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                                    : data.recommendation === 'PROCEED'
+                                                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                                        : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                                : `${style.bg} ${style.text}`
+                                        } ${animationComplete ? 'animate-in zoom-in duration-300' : 'opacity-0'}`}>
+                                            <AlertCircle className="w-5 h-5" />
+                                            {eosMode && data.recommendation === 'SKIP' ? 'ADD TO ISSUES' : style.label}
+                                        </div>
+                                        <p className={`text-base font-medium leading-relaxed ${
+                                            eosMode ? 'text-neutral-400' : 'text-slate-600'
+                                        } ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-2 duration-500' : 'opacity-0'}`}>
+                                            {eosMode && data.recommendation === 'SKIP'
+                                                ? 'This topic belongs on the Issues List, not in a meeting. Add it to your L10.'
+                                                : (data.reasoning || style.description)}
+                                        </p>
+                                    </>
+                                )}
                             </div>
 
                             {/* Right: Score Circle + Guide */}
@@ -374,37 +417,63 @@ Please add your name under your preferred option:
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                         <span className={`text-5xl font-black tabular-nums ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>{displayScore}</span>
-                                        <span className={`text-[10px] font-bold uppercase tracking-widest text-center leading-tight ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>Skip<br />Score</span>
+                                        <span className={`text-[10px] font-bold uppercase tracking-widest text-center leading-tight ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>{data.isProtectedEOS ? 'Readiness' : 'Skip'}<br />Score</span>
                                     </div>
                                 </div>
 
                                 {/* Score Guide */}
                                 <div className={`w-full max-w-[280px] space-y-1.5 ${animationComplete ? 'animate-in fade-in slide-in-from-bottom-4 duration-500' : 'opacity-0'}`}>
-                                    {[
-                                        { range: '0 - 2.9', label: 'SKIP', eosLabel: 'ISSUES LIST', rec: 'SKIP' },
-                                        { range: '3 - 4.9', label: 'ASYNC FIRST', eosLabel: 'ASYNC', rec: 'ASYNC_FIRST' },
-                                        { range: '5 - 6.9', label: 'SHORTEN', eosLabel: 'SHORTEN', rec: 'SHORTEN' },
-                                        { range: '7 - 10', label: 'PROCEED', eosLabel: 'PROCEED', rec: 'PROCEED' }
-                                    ].map((tier) => {
-                                        const isCurrent = data.recommendation === tier.rec;
-                                        const tierStyle = REC_STYLES[tier.rec as Recommendation];
-                                        return (
-                                            <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
-                                                isCurrent
-                                                    ? eosMode
+                                    {data.isProtectedEOS ? (
+                                        // Readiness tiers for protected EOS meetings
+                                        [
+                                            { range: '0 - 2.9', label: 'NOT READY', level: 'NOT_READY' as ReadinessLevel },
+                                            { range: '3 - 4.9', label: 'NEEDS WORK', level: 'NEEDS_WORK' as ReadinessLevel },
+                                            { range: '5 - 7.4', label: 'ALMOST READY', level: 'ALMOST_READY' as ReadinessLevel },
+                                            { range: '7.5 - 10', label: 'FULLY PREPARED', level: 'FULLY_PREPARED' as ReadinessLevel }
+                                        ].map((tier) => {
+                                            const isCurrent = data.readinessLevel === tier.level;
+                                            const rStyle = READINESS_STYLES[tier.level];
+                                            return (
+                                                <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
+                                                    isCurrent
                                                         ? 'bg-amber-500 text-black shadow-md scale-105'
-                                                        : 'bg-slate-900 text-white shadow-md scale-105'
-                                                    : eosMode
-                                                        ? 'bg-neutral-800 text-neutral-500'
-                                                        : 'bg-slate-50 text-slate-400'
-                                            }`}>
-                                                <span className="font-mono font-bold">{tier.range}</span>
-                                                <span className={`font-bold ${isCurrent ? (eosMode ? 'text-black' : 'text-white') : tierStyle.text}`}>
-                                                    {eosMode ? tier.eosLabel : tier.label}
-                                                </span>
-                                            </div>
-                                        );
-                                    })}
+                                                        : 'bg-neutral-800 text-neutral-500'
+                                                }`}>
+                                                    <span className="font-mono font-bold">{tier.range}</span>
+                                                    <span className={`font-bold ${isCurrent ? 'text-black' : rStyle.text}`}>
+                                                        {tier.label}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        // Standard skip score tiers
+                                        [
+                                            { range: '0 - 2.9', label: 'SKIP', eosLabel: 'ISSUES LIST', rec: 'SKIP' },
+                                            { range: '3 - 4.9', label: 'ASYNC FIRST', eosLabel: 'ASYNC', rec: 'ASYNC_FIRST' },
+                                            { range: '5 - 6.9', label: 'SHORTEN', eosLabel: 'SHORTEN', rec: 'SHORTEN' },
+                                            { range: '7 - 10', label: 'PROCEED', eosLabel: 'PROCEED', rec: 'PROCEED' }
+                                        ].map((tier) => {
+                                            const isCurrent = data.recommendation === tier.rec;
+                                            const tierStyle = REC_STYLES[tier.rec as Recommendation];
+                                            return (
+                                                <div key={tier.label} className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
+                                                    isCurrent
+                                                        ? eosMode
+                                                            ? 'bg-amber-500 text-black shadow-md scale-105'
+                                                            : 'bg-slate-900 text-white shadow-md scale-105'
+                                                        : eosMode
+                                                            ? 'bg-neutral-800 text-neutral-500'
+                                                            : 'bg-slate-50 text-slate-400'
+                                                }`}>
+                                                    <span className="font-mono font-bold">{tier.range}</span>
+                                                    <span className={`font-bold ${isCurrent ? (eosMode ? 'text-black' : 'text-white') : tierStyle.text}`}>
+                                                        {eosMode ? tier.eosLabel : tier.label}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -424,7 +493,7 @@ Please add your name under your preferred option:
                                                 : 'text-slate-400 hover:text-slate-600'
                                     }`}
                                 >
-                                    {eosMode ? 'Action Items' : 'Suggestions'}
+                                    {data.isProtectedEOS ? 'Readiness Check' : eosMode ? 'Action Items' : 'Suggestions'}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('breakdown')}
@@ -445,47 +514,89 @@ Please add your name under your preferred option:
                             <div className="min-h-[180px]">
                                 {activeTab === 'suggestions' && (
                                     <div className="animate-in fade-in duration-300 space-y-4">
-                                        <div className="space-y-2">
-                                            {actionPlan.map((item, i) => (
-                                                <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
-                                                    eosMode
-                                                        ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-750'
-                                                        : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
-                                                }`}>
-                                                    <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
-                                                    <span className={`font-medium ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>{item}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Attendee suggestions for low scores */}
-                                        {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST' || data.recommendation === 'SHORTEN') && data.attendees.length > 2 && (
-                                            <div className={`flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
-                                                eosMode
-                                                    ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-750'
-                                                    : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
-                                            }`}>
-                                                <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
-                                                <div>
-                                                    <span className={`font-medium ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
-                                                        {eosMode ? 'Reduce the invite list' : 'Consider reducing attendees'}. With {data.attendees.length} people, mark some as optional:
-                                                    </span>
-                                                    <div className="flex flex-wrap gap-2 mt-2">
-                                                        {data.attendees
-                                                            .filter(a => !a.isDRI && !a.isOptional)
-                                                            .slice(0, 3)
-                                                            .map((attendee, i) => (
-                                                                <span key={i} className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                                                                    eosMode
-                                                                        ? 'bg-neutral-700 text-neutral-300 border-neutral-600'
-                                                                        : 'bg-white text-slate-600 border-slate-200'
-                                                                }`}>
-                                                                    {attendee.name} → Optional?
-                                                                </span>
+                                        {data.isProtectedEOS ? (
+                                            // Readiness check: strengths and tips
+                                            <>
+                                                {data.readinessStrengths && data.readinessStrengths.length > 0 && (
+                                                    <div>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-2">
+                                                            <TrendingUp className="w-4 h-4" /> What&apos;s Good
+                                                        </h4>
+                                                        <div className="space-y-2">
+                                                            {data.readinessStrengths.map((item, i) => (
+                                                                <div key={i} className="flex items-start gap-3 p-4 rounded-2xl border bg-emerald-500/10 border-emerald-500/20">
+                                                                    <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-400" />
+                                                                    <span className="font-medium text-neutral-300">{item}</span>
+                                                                </div>
                                                             ))}
+                                                        </div>
                                                     </div>
+                                                )}
+                                                {data.readinessTips && data.readinessTips.length > 0 && (
+                                                    <div>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">
+                                                            <TrendingDown className="w-4 h-4" /> What&apos;s Missing
+                                                        </h4>
+                                                        <div className="space-y-2">
+                                                            {data.readinessTips.map((item, i) => (
+                                                                <div key={i} className="flex items-start gap-3 p-4 rounded-2xl border bg-amber-500/10 border-amber-500/20">
+                                                                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-400" />
+                                                                    <span className="font-medium text-neutral-300">{item}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {(!data.readinessTips || data.readinessTips.length === 0) && (!data.readinessStrengths || data.readinessStrengths.length === 0) && (
+                                                    <p className="text-neutral-500 italic">No readiness data available.</p>
+                                                )}
+                                            </>
+                                        ) : (
+                                            // Standard action plan
+                                            <>
+                                                <div className="space-y-2">
+                                                    {actionPlan.map((item, i) => (
+                                                        <div key={i} className={`flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
+                                                            eosMode
+                                                                ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-750'
+                                                                : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
+                                                        }`}>
+                                                            <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
+                                                            <span className={`font-medium ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>{item}</span>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            </div>
+
+                                                {/* Attendee suggestions for low scores */}
+                                                {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST' || data.recommendation === 'SHORTEN') && data.attendees.length > 2 && (
+                                                    <div className={`flex items-start gap-3 p-4 rounded-2xl border transition-colors ${
+                                                        eosMode
+                                                            ? 'bg-neutral-800 border-neutral-700 hover:bg-neutral-750'
+                                                            : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
+                                                    }`}>
+                                                        <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
+                                                        <div>
+                                                            <span className={`font-medium ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                                                                {eosMode ? 'Reduce the invite list' : 'Consider reducing attendees'}. With {data.attendees.length} people, mark some as optional:
+                                                            </span>
+                                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                                {data.attendees
+                                                                    .filter(a => !a.isDRI && !a.isOptional)
+                                                                    .slice(0, 3)
+                                                                    .map((attendee, i) => (
+                                                                        <span key={i} className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                                                                            eosMode
+                                                                                ? 'bg-neutral-700 text-neutral-300 border-neutral-600'
+                                                                                : 'bg-white text-slate-600 border-slate-200'
+                                                                        }`}>
+                                                                            {attendee.name} → Optional?
+                                                                        </span>
+                                                                    ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 )}
@@ -653,8 +764,8 @@ Please add your name under your preferred option:
                     </div>
                 </div>
 
-                {/* Meeting Replacement Generator - Only for SKIP/ASYNC_FIRST */}
-                {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST') && (
+                {/* Meeting Replacement Generator - Only for SKIP/ASYNC_FIRST, never for protected EOS meetings */}
+                {(data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST') && !data.isProtectedEOS && (
                     <div className={`rounded-[2.5rem] shadow-2xl overflow-hidden ${
                         eosMode ? 'bg-neutral-900 border border-neutral-800' : 'bg-white'
                     }`}>
@@ -840,9 +951,63 @@ Please add your name under your preferred option:
                                     - Fireflies: Sign up at fireflies.ai/affiliates → 10-30% recurring 12mo
                                     - Otter.ai: Search "Otter.ai affiliate" on Impact.com → 15-60% per conversion */}
                                 {[
-                                    { name: 'Fathom', desc: 'Free unlimited recording', color: 'bg-violet-500', url: 'https://fathom.video' },
-                                    { name: 'Fireflies', desc: 'AI transcripts & search', color: 'bg-orange-500', url: 'https://fireflies.ai' },
-                                    { name: 'Otter.ai', desc: 'Real-time collaboration', color: 'bg-blue-500', url: 'https://otter.ai' },
+                                    {
+                                        name: 'Fathom',
+                                        desc: 'Free unlimited recording. Auto-captures action items and highlights from Zoom, Teams, and Meet.',
+                                        url: 'https://fathom.video',
+                                        logo: (
+                                            <svg viewBox="0 0 150 150" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M113.08,85.46L26.9,38.39c-7.96-4.64-10.61-13.92-5.96-21.88,4.64-7.29,14.58-9.94,22.54-5.96l86.18,47.07c7.96,4.64,10.61,13.92,5.97,21.88-3.98,7.96-14.58,10.61-22.54,5.97h0Z" fill="#00BEFF"/>
+                                                <path d="M73.31,113.96l-45.74-25.19c-7.96-4.64-10.61-13.92-5.97-21.88,4.64-7.29,14.58-9.94,22.54-5.96l45.74,25.19c7.95,4.64,10.6,13.92,5.96,21.88-4.64,7.29-14.58,9.94-22.54,5.96h0Z" fill="#00BEFF"/>
+                                                <path d="M19.34,124.73v-49.06c0-9.28,7.29-16.57,16.57-16.57s16.57,7.29,16.57,16.57v49.06c0,9.28-7.29,16.57-16.57,16.57s-16.57-7.29-16.57-16.57h0Z" fill="#00BEFF" opacity="0.5"/>
+                                            </svg>
+                                        ),
+                                        logoBg: 'bg-[#0a1628]',
+                                    },
+                                    {
+                                        name: 'Fireflies',
+                                        desc: 'AI-powered transcripts, searchable meeting history, and smart summaries across all platforms.',
+                                        url: 'https://fireflies.ai/?fpr=chad10',
+                                        logo: (
+                                            <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <defs>
+                                                    <linearGradient id="ff-g1" x1="25.73" y1="26.42" x2="-18.49" y2="-20.04" gradientUnits="userSpaceOnUse">
+                                                        <stop stopColor="#E82A73"/><stop offset="0.3" stopColor="#C5388F"/><stop offset="0.54" stopColor="#9B4AB0"/><stop offset="0.818" stopColor="#6262DE"/><stop offset="0.994" stopColor="#3B73FF"/>
+                                                    </linearGradient>
+                                                    <linearGradient id="ff-g2" x1="25.88" y1="26.28" x2="-18.34" y2="-20.19" gradientUnits="userSpaceOnUse">
+                                                        <stop stopColor="#FF3C82"/><stop offset="0.274" stopColor="#DC4598"/><stop offset="0.492" stopColor="#B251B2"/><stop offset="0.745" stopColor="#7961D7"/><stop offset="0.994" stopColor="#3B73FF"/>
+                                                    </linearGradient>
+                                                    <linearGradient id="ff-g3" x1="33.23" y1="19.29" x2="18.25" y2="-35.01" gradientUnits="userSpaceOnUse">
+                                                        <stop stopColor="#E82A73"/><stop offset="0.3" stopColor="#C5388F"/><stop offset="0.54" stopColor="#9B4AB0"/><stop offset="0.818" stopColor="#6262DE"/><stop offset="0.994" stopColor="#3B73FF"/>
+                                                    </linearGradient>
+                                                    <linearGradient id="ff-g4" x1="18.48" y1="33.32" x2="-35.16" y2="16.98" gradientUnits="userSpaceOnUse">
+                                                        <stop stopColor="#E82A73"/><stop offset="0.3" stopColor="#C5388F"/><stop offset="0.54" stopColor="#9B4AB0"/><stop offset="0.818" stopColor="#6262DE"/><stop offset="0.994" stopColor="#3B73FF"/>
+                                                    </linearGradient>
+                                                </defs>
+                                                <path d="M10.52 0H0V10.44H10.52V0Z" fill="url(#ff-g1)"/>
+                                                <path d="M22.98 12.61H12.46V23.05H22.98V12.61Z" fill="url(#ff-g2)"/>
+                                                <path d="M22.98 0H12.46V10.44H32V8.95C32 6.58 31.05 4.3 29.36 2.62C27.67 0.94 25.37 0 22.98 0Z" fill="url(#ff-g3)"/>
+                                                <path d="M0 12.61V23.05C0 25.42 0.95 27.7 2.64 29.38C4.33 31.06 6.63 32 9.02 32H10.52V12.61H0Z" fill="url(#ff-g4)"/>
+                                                <path opacity="0.18" d="M0 0L10.52 10.44H0V0Z" fill="#9B4AB0"/>
+                                                <path opacity="0.18" d="M12.46 12.61L22.98 23.05H12.46V12.61Z" fill="#9B4AB0"/>
+                                            </svg>
+                                        ),
+                                        logoBg: 'bg-[#1a1033]',
+                                    },
+                                    {
+                                        name: 'Otter.ai',
+                                        desc: 'Real-time transcription and collaboration. Great for teams that need live notes and shared highlights.',
+                                        url: 'https://otter.ai/referrals/VFGFRNBK',
+                                        logo: (
+                                            <svg className="w-5 h-5" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M16 2C8.27 2 2 8.27 2 16s6.27 14 14 14 14-6.27 14-14S23.73 2 16 2zm0 22.4c-4.64 0-8.4-3.76-8.4-8.4S11.36 7.6 16 7.6s8.4 3.76 8.4 8.4-3.76 8.4-8.4 8.4z" fill="#007AFF"/>
+                                                <circle cx="12.5" cy="14" r="1.8" fill="#007AFF"/>
+                                                <circle cx="19.5" cy="14" r="1.8" fill="#007AFF"/>
+                                                <path d="M12.8 18.5c0 0 1.5 2 3.2 2s3.2-2 3.2-2" stroke="#007AFF" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                                            </svg>
+                                        ),
+                                        logoBg: 'bg-[#e8f4ff]',
+                                    },
                                 ].map((tool) => (
                                     <a
                                         key={tool.name}
@@ -855,8 +1020,8 @@ Please add your name under your preferred option:
                                                 : 'border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white'
                                         }`}
                                     >
-                                        <div className={`w-10 h-10 ${tool.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                                            <Video className="w-5 h-5 text-white" />
+                                        <div className={`w-10 h-10 ${tool.logoBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
+                                            {tool.logo}
                                         </div>
                                         <div className="min-w-0">
                                             <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{tool.name}</div>

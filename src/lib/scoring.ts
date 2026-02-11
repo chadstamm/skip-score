@@ -1,4 +1,158 @@
-import { AssessmentData, Recommendation } from './types';
+import { AssessmentData, Recommendation, ProtectedMeetingType, ReadinessLevel } from './types';
+
+export const detectProtectedType = (title: string): ProtectedMeetingType => {
+    const t = title?.toLowerCase() || '';
+    if (t.includes('l10') || t.includes('level 10') || t.includes('weekly l10')) return 'L10';
+    if (t.includes('ids') || t.includes('issues')) return 'IDS';
+    if (t.includes('quarterly') || t.includes('annual')) return 'QUARTERLY';
+    return null;
+};
+
+// EOS agenda template keywords per meeting type
+const EOS_AGENDA_KEYWORDS: Record<string, string[]> = {
+    L10: ['segue', 'scorecard', 'rock', 'rocks', 'headlines', 'to-do', 'todos', 'ids', 'issues', 'conclude'],
+    IDS: ['identify', 'discuss', 'solve', 'issues', 'ids'],
+    QUARTERLY: ['review', 'rocks', 'vision', 'goals', 'scorecard', 'issues', 'plan', 'next quarter'],
+};
+
+const IDEAL_TEAM_SIZE: Record<string, { min: number; max: number }> = {
+    L10: { min: 3, max: 8 },
+    IDS: { min: 2, max: 7 },
+    QUARTERLY: { min: 4, max: 12 },
+};
+
+const IDEAL_DURATION: Record<string, number> = {
+    L10: 90,
+    IDS: 60,
+    QUARTERLY: 480,
+};
+
+const IDEAL_FREQUENCY: Record<string, string> = {
+    L10: 'WEEKLY',
+    QUARTERLY: 'QUARTERLY',
+};
+
+export interface PreparednessResult {
+    score: number;
+    level: ReadinessLevel;
+    tips: string[];
+    strengths: string[];
+}
+
+export const calculatePreparednessScore = (data: AssessmentData, protectedType: NonNullable<ProtectedMeetingType>): PreparednessResult => {
+    let score = 5.0; // baseline
+    const tips: string[] = [];
+    const strengths: string[] = [];
+
+    // 1. Has agenda (+2.0 / -2.0)
+    if (data.hasAgenda) {
+        score += 2.0;
+        strengths.push('Agenda is set — you\'re ready to run it by the book.');
+    } else {
+        score -= 2.0;
+        tips.push('Add an agenda. Every EOS meeting needs a clear structure.');
+    }
+
+    // 2. Agenda matches EOS template (+1.5 / -0.5)
+    if (data.hasAgenda && data.agendaItems && data.agendaItems.length > 0) {
+        const keywords = EOS_AGENDA_KEYWORDS[protectedType] || [];
+        const agendaTitles = data.agendaItems.map(a => a.title.toLowerCase()).join(' ');
+        const matchCount = keywords.filter(kw => agendaTitles.includes(kw)).length;
+        if (matchCount >= 2) {
+            score += 1.5;
+            strengths.push(`Agenda follows the ${protectedType} template.`);
+        } else {
+            score -= 0.5;
+            tips.push(`Align your agenda with the standard ${protectedType} format (${keywords.slice(0, 3).join(', ')}, etc.).`);
+        }
+    } else if (data.hasAgenda) {
+        // Has agenda checked but no items added — mild penalty
+        score -= 0.5;
+        tips.push(`Add specific agenda items that follow the ${protectedType} template.`);
+    }
+
+    // 3. Right team size (+1.0 / -1.0)
+    const teamSize = data.attendees.length;
+    const idealSize = IDEAL_TEAM_SIZE[protectedType];
+    if (idealSize && teamSize >= idealSize.min && teamSize <= idealSize.max) {
+        score += 1.0;
+        strengths.push(`Team size (${teamSize}) is right for a ${protectedType}.`);
+    } else if (idealSize) {
+        score -= 1.0;
+        if (teamSize < idealSize.min) {
+            tips.push(`Add more attendees. A ${protectedType} works best with ${idealSize.min}-${idealSize.max} people.`);
+        } else {
+            tips.push(`Too many attendees. A ${protectedType} works best with ${idealSize.min}-${idealSize.max} people.`);
+        }
+    }
+
+    // 4. DRI/facilitator assigned (+0.5 / -1.0)
+    const hasDRI = data.attendees.some(a => a.isDRI);
+    if (hasDRI) {
+        score += 0.5;
+        strengths.push('Facilitator assigned — someone owns the meeting.');
+    } else {
+        score -= 1.0;
+        tips.push('Assign a facilitator. Every EOS meeting needs someone running it.');
+    }
+
+    // 5. Correct duration (+1.0 / -0.5)
+    const idealDuration = IDEAL_DURATION[protectedType];
+    if (idealDuration) {
+        const tolerance = protectedType === 'QUARTERLY' ? 120 : 15; // more tolerance for full-day quarterly
+        if (Math.abs(data.duration - idealDuration) <= tolerance) {
+            score += 1.0;
+            strengths.push(`Duration (${data.duration} min) matches the ${protectedType} standard.`);
+        } else {
+            score -= 0.5;
+            tips.push(`Set duration to ${idealDuration} minutes. That's the standard for a ${protectedType}.`);
+        }
+    }
+
+    // 6. Is recurring (+0.5 / -1.5)
+    if (data.isRecurring) {
+        score += 0.5;
+        strengths.push('Meeting is recurring — consistency builds rhythm.');
+    } else {
+        score -= 1.5;
+        tips.push('Make this recurring. EOS rhythms depend on consistent scheduling.');
+    }
+
+    // 7. Correct frequency (+0.5 / -0.5)
+    const idealFrequency = IDEAL_FREQUENCY[protectedType];
+    if (idealFrequency && data.isRecurring && data.recurrenceFrequency) {
+        if (data.recurrenceFrequency === idealFrequency) {
+            score += 0.5;
+            strengths.push(`Frequency (${data.recurrenceFrequency.toLowerCase()}) is correct for a ${protectedType}.`);
+        } else {
+            score -= 0.5;
+            tips.push(`A ${protectedType} should be ${idealFrequency.toLowerCase()}. Adjust your cadence.`);
+        }
+    }
+
+    // 8. No optional attendees (+0.5 / -0.5)
+    const optionalCount = data.attendees.filter(a => a.isOptional).length;
+    if (optionalCount === 0) {
+        score += 0.5;
+        strengths.push('All attendees are required — full leadership commitment.');
+    } else {
+        score -= 0.5;
+        tips.push('Mark all attendees as required. The full team should be committed.');
+    }
+
+    // Clamp 0-10
+    score = Math.max(0, Math.min(10, score));
+    score = parseFloat(score.toFixed(1));
+
+    // Determine readiness level
+    let level: ReadinessLevel;
+    if (score < 3.0) level = 'NOT_READY';
+    else if (score < 5.0) level = 'NEEDS_WORK';
+    else if (score < 7.5) level = 'ALMOST_READY';
+    else level = 'FULLY_PREPARED';
+
+    return { score, level, tips, strengths };
+};
 
 interface ScoringOptions {
     eosMode?: boolean;
@@ -8,14 +162,11 @@ export const calculateScore = (data: AssessmentData, options: ScoringOptions = {
     const { eosMode = false } = options;
     let score = 5.0;
 
-    // Detect if this looks like an L10 or IDS meeting (for EOS mode boost)
-    const isL10Like = data.title?.toLowerCase().includes('l10') ||
-                      data.title?.toLowerCase().includes('level 10') ||
-                      data.title?.toLowerCase().includes('weekly l10');
-    const isIDSLike = data.title?.toLowerCase().includes('ids') ||
-                      data.title?.toLowerCase().includes('issues');
-    const isQuarterlyPlanning = data.title?.toLowerCase().includes('quarterly') ||
-                                data.title?.toLowerCase().includes('annual');
+    // Detect meeting types using shared utility
+    const protectedType = detectProtectedType(data.title || '');
+    const isL10Like = protectedType === 'L10';
+    const isIDSLike = protectedType === 'IDS';
+    const isQuarterlyPlanning = protectedType === 'QUARTERLY';
     const is1on1 = data.title?.toLowerCase().includes('1:1') ||
                    data.title?.toLowerCase().includes('1on1') ||
                    data.title?.toLowerCase().includes('one on one');
@@ -65,9 +216,10 @@ export const calculateScore = (data: AssessmentData, options: ScoringOptions = {
         case 'LOW': score -= 0.5; break;
     }
 
-    // Async Possible - rebalanced weight (was -1.5/+1.0, now -1.0/+0.75)
-    // This factor should matter but not dominate the entire score
-    score += data.asyncPossible ? -1.0 : 0.75;
+    // Async Possible - only factor in if explicitly set
+    if (data.asyncPossible !== undefined) {
+        score += data.asyncPossible ? -1.0 : 0.75;
+    }
 
     // Has Agenda
     score += data.hasAgenda ? 0.5 : -1.0;
@@ -181,13 +333,11 @@ export const calculateScoreBreakdown = (data: AssessmentData, options: ScoringOp
     const { eosMode = false } = options;
     const factors: ScoreFactor[] = [];
 
-    // EOS Mode: Protected meeting detection
-    const isL10Like = data.title?.toLowerCase().includes('l10') ||
-                      data.title?.toLowerCase().includes('level 10');
-    const isIDSLike = data.title?.toLowerCase().includes('ids') ||
-                      data.title?.toLowerCase().includes('issues');
-    const isQuarterlyPlanning = data.title?.toLowerCase().includes('quarterly') ||
-                                data.title?.toLowerCase().includes('annual');
+    // EOS Mode: Protected meeting detection using shared utility
+    const protectedType = detectProtectedType(data.title || '');
+    const isL10Like = protectedType === 'L10';
+    const isIDSLike = protectedType === 'IDS';
+    const isQuarterlyPlanning = protectedType === 'QUARTERLY';
     const is1on1 = data.title?.toLowerCase().includes('1:1') ||
                    data.title?.toLowerCase().includes('1on1');
 
@@ -254,12 +404,14 @@ export const calculateScoreBreakdown = (data: AssessmentData, options: ScoringOp
         description: `${data.complexity.charAt(0)}${data.complexity.slice(1).toLowerCase()} complexity topic`
     });
 
-    // Async Possible (rebalanced)
-    factors.push({
-        label: 'Could Be Async',
-        impact: data.asyncPossible ? -1.0 : 0.75,
-        description: data.asyncPossible ? 'Yes, could handle async' : 'No, needs live discussion'
-    });
+    // Async Possible - only show if explicitly set
+    if (data.asyncPossible !== undefined) {
+        factors.push({
+            label: 'Could Be Async',
+            impact: data.asyncPossible ? -1.0 : 0.75,
+            description: data.asyncPossible ? 'Yes, could handle async' : 'No, needs live discussion'
+        });
+    }
 
     // Has Agenda
     factors.push({

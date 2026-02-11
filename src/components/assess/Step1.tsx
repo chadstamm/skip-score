@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AssessmentData, MeetingPurpose, MeetingUrgency, RecurrenceFrequency } from '@/lib/types';
-import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks, PenLine, RotateCcw, Handshake, Link2 } from 'lucide-react';
+import { Users, Coffee, Presentation, Lightbulb, Sparkles, Repeat, AlertTriangle, Zap, Target, ListChecks, PenLine, RotateCcw, Handshake, Link2, Video } from 'lucide-react';
 import { useEOS } from '@/contexts/EOSContext';
 
 function detectMeetingPlatform(url: string): 'zoom' | 'teams' | 'meet' | null {
@@ -37,7 +37,7 @@ const TEMPLATES = [
             duration: 30,
             interactivity: undefined,
             complexity: undefined,
-            asyncPossible: undefined,
+
             hasAgenda: undefined,
         }
     },
@@ -53,7 +53,7 @@ const TEMPLATES = [
             duration: 15,
             interactivity: 'LOW' as const,
             complexity: 'LOW' as const,
-            asyncPossible: true,
+
             hasAgenda: true,
         }
     },
@@ -69,7 +69,7 @@ const TEMPLATES = [
             duration: 30,
             interactivity: 'HIGH' as const,
             complexity: 'MEDIUM' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
         }
     },
@@ -85,7 +85,7 @@ const TEMPLATES = [
             duration: 60,
             interactivity: 'LOW' as const,
             complexity: 'LOW' as const,
-            asyncPossible: true,
+
             hasAgenda: true,
         }
     },
@@ -101,7 +101,7 @@ const TEMPLATES = [
             duration: 45,
             interactivity: 'HIGH' as const,
             complexity: 'HIGH' as const,
-            asyncPossible: false,
+
             hasAgenda: false,
         }
     },
@@ -117,7 +117,7 @@ const TEMPLATES = [
             duration: 60,
             interactivity: 'HIGH' as const,
             complexity: 'MEDIUM' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
             isRecurring: true,
             recurrenceFrequency: 'BIWEEKLY' as RecurrenceFrequency,
@@ -160,7 +160,7 @@ const EOS_TEMPLATES = [
             duration: 30,
             interactivity: undefined,
             complexity: undefined,
-            asyncPossible: undefined,
+
             hasAgenda: undefined,
         }
     },
@@ -176,7 +176,7 @@ const EOS_TEMPLATES = [
             duration: 90,
             interactivity: 'HIGH' as const,
             complexity: 'HIGH' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
             isRecurring: true,
             recurrenceFrequency: 'WEEKLY' as RecurrenceFrequency,
@@ -194,7 +194,7 @@ const EOS_TEMPLATES = [
             duration: 480,
             interactivity: 'HIGH' as const,
             complexity: 'HIGH' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
             isRecurring: true,
             recurrenceFrequency: 'QUARTERLY' as RecurrenceFrequency,
@@ -212,7 +212,7 @@ const EOS_TEMPLATES = [
             duration: 60,
             interactivity: 'HIGH' as const,
             complexity: 'HIGH' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
             decisionRequired: true,
         }
@@ -229,7 +229,7 @@ const EOS_TEMPLATES = [
             duration: 30,
             interactivity: 'HIGH' as const,
             complexity: 'MEDIUM' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
             isRecurring: true,
             recurrenceFrequency: 'WEEKLY' as RecurrenceFrequency,
@@ -247,7 +247,7 @@ const EOS_TEMPLATES = [
             duration: 60,
             interactivity: 'HIGH' as const,
             complexity: 'MEDIUM' as const,
-            asyncPossible: false,
+
             hasAgenda: true,
         }
     },
@@ -269,25 +269,27 @@ export default function Step1({ data, updateData }: Step1Props) {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="space-y-2">
-                <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
-                    {eosMode ? 'Meeting Check' : 'Meeting Essentials'}
-                </h2>
-                <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
-                    {eosMode ? 'Is this meeting necessary? Start here.' : 'Start with a template or build from scratch.'}
-                </p>
+            <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className={`text-3xl font-bold tracking-tight ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                        {eosMode ? 'Meeting Check' : 'Meeting Essentials'}
+                    </h2>
+                    <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
+                        {eosMode ? 'Is this meeting necessary? Start here.' : 'Start with a template or build from scratch.'}
+                    </p>
+                </div>
                 <button
                     onClick={() => {
                         const event = new CustomEvent('toggleEOSMode');
                         window.dispatchEvent(event);
                     }}
-                    className={`text-sm transition-colors cursor-pointer ${
+                    className={`text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-lg border transition-colors cursor-pointer flex-shrink-0 mt-1 ${
                         eosMode
-                            ? 'text-amber-400 hover:text-amber-300'
-                            : 'text-teal-600 hover:text-teal-700'
+                            ? 'text-amber-400 border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20'
+                            : 'text-teal-600 border-teal-200 bg-teal-50 hover:bg-teal-100'
                     }`}
                 >
-                    {eosMode ? 'Switch to standard mode \u2192' : 'Running on Traction/EOS? Enable EOS mode \u2192'}
+                    {eosMode ? 'Switch to Standard Mode' : 'Switch to EOS Mode'}
                 </button>
             </div>
 
@@ -306,7 +308,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                 </label>
                 {eosMode && (
                     <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg">
-                        L10 and IDS meetings are protected. Other meetings may be flagged for the Issues List.
+                        EOS rhythms are scored on preparedness, not necessity.
                     </div>
                 )}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 items-stretch">
@@ -323,7 +325,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                                             : 'border-score-teal bg-teal-50 shadow-sm'
                                         : eosMode
                                             ? 'border-neutral-700 hover:border-neutral-600 hover:bg-neutral-800'
-                                            : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                                            : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50'
                                 }`}
                             >
                                 <div className={`w-10 h-10 ${template.color} rounded-xl flex items-center justify-center mb-2 flex-shrink-0`}>
@@ -345,7 +347,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                         className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all text-lg font-medium ${
                             eosMode
                                 ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                : 'border-slate-100 focus:border-score-teal'
+                                : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                         }`}
                         value={data.title}
                         onChange={(e) => {
@@ -368,7 +370,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all font-medium ${
                                 eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                    : 'border-slate-100 focus:border-score-teal'
+                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                             } ${data.meetingPlatform ? 'pr-28' : ''}`}
                             value={data.meetingLink || ''}
                             onChange={(e) => {
@@ -387,6 +389,36 @@ export default function Step1({ data, updateData }: Step1Props) {
                             </div>
                         )}
                     </div>
+                    {/* AI Notetaker nudge */}
+                    <div className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                        eosMode ? 'bg-neutral-800 border border-neutral-700' : 'bg-slate-50 border border-slate-200'
+                    }`}>
+                        <Video className={`w-3.5 h-3.5 flex-shrink-0 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
+                        <span className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>
+                            Add an AI notetaker
+                        </span>
+                        <div className="flex gap-2 ml-auto">
+                            {[
+                                { name: 'Fathom', url: 'https://fathom.video' },
+                                { name: 'Fireflies', url: 'https://fireflies.ai/?fpr=chad10' },
+                                { name: 'Otter', url: 'https://otter.ai/referrals/VFGFRNBK' },
+                            ].map((tool) => (
+                                <a
+                                    key={tool.name}
+                                    href={tool.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`text-xs font-medium transition-colors ${
+                                        eosMode
+                                            ? 'text-amber-400/70 hover:text-amber-400'
+                                            : 'text-score-teal/70 hover:text-score-teal'
+                                    }`}
+                                >
+                                    {tool.name}
+                                </a>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="space-y-2">
@@ -403,7 +435,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                                             : 'border-score-teal bg-teal-50 shadow-sm'
                                         : eosMode
                                             ? 'border-neutral-700 hover:border-neutral-600'
-                                            : 'border-slate-100 hover:border-slate-200'
+                                            : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50'
                                 }`}
                             >
                                 <div className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{p.label}</div>
@@ -420,7 +452,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
                                 eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
-                                    : 'border-slate-100 bg-white focus:border-score-teal'
+                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                             }`}
                             value={data.urgency}
                             onChange={(e) => updateData({ urgency: e.target.value as MeetingUrgency })}
@@ -439,7 +471,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
                                 eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
-                                    : 'border-slate-100 focus:border-score-teal'
+                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                             }`}
                             value={data.duration}
                             onChange={(e) => updateData({ duration: parseInt(e.target.value) })}
@@ -450,7 +482,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                 {/* Recurring Meeting Toggle */}
                 <div className="space-y-3">
                     <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${
-                        eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-slate-50'
+                        eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-slate-50'
                     }`}>
                         <div className="flex items-center gap-3">
                             <Repeat className={`w-5 h-5 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`} />
@@ -485,7 +517,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                                                     : 'border-score-teal bg-teal-50'
                                                 : eosMode
                                                     ? 'border-neutral-700 hover:border-neutral-600'
-                                                    : 'border-slate-100 hover:border-slate-200'
+                                                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50'
                                         }`}
                                     >
                                         <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{r.label}</div>

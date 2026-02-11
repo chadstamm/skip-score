@@ -40,6 +40,13 @@ export interface AssessmentData {
     score?: number;
     recommendation?: Recommendation;
     reasoning?: string;
+    // EOS Preparedness (protected meeting types)
+    isProtectedEOS?: boolean;
+    protectedType?: ProtectedMeetingType;
+    readinessScore?: number;
+    readinessLevel?: ReadinessLevel;
+    readinessTips?: string[];
+    readinessStrengths?: string[];
     // Post-meeting feedback
     feedbackSubmitted?: boolean;
     wasNecessary?: boolean;
@@ -48,3 +55,6 @@ export interface AssessmentData {
 }
 
 export type Recommendation = 'SKIP' | 'ASYNC_FIRST' | 'SHORTEN' | 'PROCEED';
+
+export type ReadinessLevel = 'NOT_READY' | 'NEEDS_WORK' | 'ALMOST_READY' | 'FULLY_PREPARED';
+export type ProtectedMeetingType = 'L10' | 'IDS' | 'QUARTERLY' | null;
