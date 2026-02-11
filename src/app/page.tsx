@@ -111,6 +111,10 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            <p className={`mt-4 text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>
+              Your data is stored locally on this device and won&apos;t transfer to other devices or browsers.
+            </p>
           </div>
         )}
 

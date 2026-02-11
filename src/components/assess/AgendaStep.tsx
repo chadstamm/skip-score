@@ -71,35 +71,36 @@ const STANDARD_SECTIONS: Record<MeetingPurpose, { title: string; pct: number }[]
     ],
 };
 
-// EOS templates
+// EOS templates — based on the Traction/EOS standard formats
 const EOS_AGENDAS: Record<string, { title: string; duration: number }[]> = {
     l10: [
-        { title: 'Segue (Good News)', duration: 5 },
-        { title: 'Scorecard Review', duration: 5 },
+        { title: 'Segue', duration: 5 },
+        { title: 'Scorecard', duration: 5 },
         { title: 'Rock Review', duration: 5 },
-        { title: 'Customer/Employee Headlines', duration: 5 },
-        { title: 'To-Do List Review', duration: 5 },
-        { title: 'IDS (Identify, Discuss, Solve)', duration: 60 },
+        { title: 'Customer & Employee Headlines', duration: 5 },
+        { title: 'To-Do List', duration: 5 },
+        { title: 'IDS', duration: 60 },
         { title: 'Conclude', duration: 5 },
     ],
     quarterly: [
+        { title: 'Segue', duration: 15 },
         { title: 'Prior Quarter Review', duration: 60 },
-        { title: 'V/TO Review', duration: 30 },
-        { title: 'Rock Setting', duration: 90 },
-        { title: 'IDS', duration: 60 },
-        { title: 'Next Steps & Action Items', duration: 30 },
+        { title: 'Review V/TO', duration: 60 },
+        { title: 'Establish Next Quarter Rocks', duration: 120 },
+        { title: 'Tackle Key Issues (IDS)', duration: 120 },
+        { title: 'Next Steps', duration: 30 },
+        { title: 'Conclude & Rate', duration: 15 },
     ],
     ids: [
-        { title: 'Identify Issues', duration: 10 },
-        { title: 'Discuss Top Issue', duration: 30 },
-        { title: 'Solve & Document', duration: 15 },
-        { title: 'Wrap-up & To-Dos', duration: 5 },
+        { title: 'List & Prioritize Issues', duration: 5 },
+        { title: 'IDS (Identify, Discuss, Solve)', duration: 50 },
+        { title: 'Recap To-Dos', duration: 5 },
     ],
     default: [
-        { title: 'Check-in / Segue', duration: 5 },
+        { title: 'Segue', duration: 5 },
         { title: 'Review & Updates', duration: 10 },
-        { title: 'Discussion / IDS', duration: 0 }, // will be calculated
-        { title: 'Wrap-up & To-Dos', duration: 5 },
+        { title: 'IDS', duration: 0 }, // will be calculated
+        { title: 'Conclude', duration: 5 },
     ],
 };
 
@@ -656,11 +657,11 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
                         {eosMode ? 'Customize Your Agenda' : 'Structure Your Agenda'}
                     </h2>
                     <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
-                        Add or remove sections, then allocate your {meetingDuration} minutes.
+                        Allocate your {meetingDuration} minutes across the sections below.
                     </p>
                 </div>
 
-                {/* Allocate Your Time Callout */}
+                {/* Add or Remove Sections Callout */}
                 {totalAllocated === 0 && (
                     <div className={`p-4 rounded-xl border-2 border-dashed flex items-center gap-3 ${
                         eosMode
@@ -670,10 +671,10 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
                         <Clock className={`w-6 h-6 flex-shrink-0 ${eosMode ? 'text-amber-400' : 'text-score-teal'}`} />
                         <div>
                             <div className={`font-bold text-sm ${eosMode ? 'text-amber-400' : 'text-score-teal'}`}>
-                                Allocate your {meetingDuration} minutes
+                                Add or remove sections
                             </div>
                             <div className={`text-xs mt-0.5 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`}>
-                                Set the time for each section below. They all start at 0 &mdash; distribute your time as you see fit.
+                                Check or uncheck to customize your agenda, then set the duration for each section.
                             </div>
                         </div>
                     </div>
@@ -721,10 +722,10 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
                                 isChecked
                                     ? eosMode
                                         ? 'border-neutral-700 bg-neutral-800'
-                                        : 'border-slate-100 bg-white'
+                                        : 'border-slate-200 bg-white'
                                     : eosMode
                                         ? 'border-neutral-800 bg-neutral-800/30 opacity-50'
-                                        : 'border-slate-100 bg-slate-50/50 opacity-50'
+                                        : 'border-slate-200 bg-slate-50/50 opacity-50'
                             }`}>
                                 <div className="flex items-center gap-2 p-3">
                                     {/* Checkbox */}
@@ -866,7 +867,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide">
                     {activeItems.map((item, index) => (
                         <div key={item.id} className={`rounded-xl border-2 overflow-hidden ${
-                            eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-white'
+                            eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-white'
                         }`}>
                             <div className={`flex items-center gap-3 p-3 ${
                                 eosMode ? 'bg-neutral-800' : 'bg-slate-50/50'
@@ -941,7 +942,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
 
             {/* Meeting info header */}
             <div className={`p-4 rounded-xl border-2 ${
-                eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-100 bg-white'
+                eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-white'
             }`}>
                 <div className={`font-bold text-lg ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
                     {data.title || 'Meeting'}
@@ -998,7 +999,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
             {/* Save as Template */}
             {showSaveTemplate ? (
                 <div className={`flex items-center gap-2 p-3 rounded-xl border ${
-                    eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-100'
+                    eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-200'
                 }`}>
                     <Save className={`w-4 h-4 flex-shrink-0 ${eosMode ? 'text-amber-400' : 'text-score-teal'}`} />
                     <input
@@ -1055,7 +1056,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
 
             {/* Export Bar */}
             <div className={`flex items-center gap-2 p-3 rounded-xl border flex-wrap ${
-                eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-100'
+                eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-200'
             }`}>
                 <span className={`text-xs font-bold uppercase tracking-wider mr-auto ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>
                     Export

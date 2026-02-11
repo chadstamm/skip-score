@@ -18,7 +18,7 @@ export default function Step2({ data, updateData }: Step2Props) {
             className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all w-full cursor-pointer ${
                 value
                     ? eosMode ? 'border-amber-500 bg-amber-500/10' : 'border-score-teal bg-teal-50'
-                    : eosMode ? 'border-neutral-700' : 'border-slate-100'
+                    : eosMode ? 'border-neutral-700' : 'border-slate-200 bg-slate-50/50'
             }`}
         >
             <span className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>{label}</span>
@@ -79,44 +79,6 @@ export default function Step2({ data, updateData }: Step2Props) {
                                 name="decisionRequired"
                                 checked={data.decisionRequired === undefined}
                                 onChange={() => updateData({ decisionRequired: undefined })}
-                                className={radioClasses}
-                            />
-                            <span className={`font-medium ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>Unknown</span>
-                        </label>
-                    </div>
-                </div>
-
-                <div className="space-y-4">
-                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
-                        {eosMode ? 'Could this be an email, Slack, or To-Do?' : 'Could this be handled asynchronously?'}
-                    </label>
-                    <div className="flex gap-6">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="asyncPossible"
-                                checked={data.asyncPossible === true}
-                                onChange={() => updateData({ asyncPossible: true })}
-                                className={radioClasses}
-                            />
-                            <span className={`font-medium ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>Yes</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="asyncPossible"
-                                checked={data.asyncPossible === false}
-                                onChange={() => updateData({ asyncPossible: false })}
-                                className={radioClasses}
-                            />
-                            <span className={`font-medium ${eosMode ? 'text-neutral-200' : 'text-slate-700'}`}>No</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="asyncPossible"
-                                checked={data.asyncPossible === undefined}
-                                onChange={() => updateData({ asyncPossible: undefined })}
                                 className={radioClasses}
                             />
                             <span className={`font-medium ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>Unknown</span>

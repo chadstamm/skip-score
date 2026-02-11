@@ -10,9 +10,9 @@ export const detectProtectedType = (title: string): ProtectedMeetingType => {
 
 // EOS agenda template keywords per meeting type
 const EOS_AGENDA_KEYWORDS: Record<string, string[]> = {
-    L10: ['segue', 'scorecard', 'rock', 'rocks', 'headlines', 'to-do', 'todos', 'ids', 'issues', 'conclude'],
-    IDS: ['identify', 'discuss', 'solve', 'issues', 'ids'],
-    QUARTERLY: ['review', 'rocks', 'vision', 'goals', 'scorecard', 'issues', 'plan', 'next quarter'],
+    L10: ['segue', 'scorecard', 'rock', 'headlines', 'to-do', 'ids', 'conclude'],
+    IDS: ['prioritize', 'issues', 'ids', 'identify', 'discuss', 'solve', 'to-do', 'recap'],
+    QUARTERLY: ['segue', 'prior quarter', 'review', 'v/to', 'rocks', 'ids', 'next steps', 'conclude'],
 };
 
 const IDEAL_TEAM_SIZE: Record<string, { min: number; max: number }> = {

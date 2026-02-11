@@ -197,7 +197,7 @@ export default function Step3({ data, updateData }: Step3Props) {
                             className={`flex-1 p-3 rounded-xl border-2 focus:outline-none ${
                                 eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                    : 'border-slate-100 focus:border-score-teal'
+                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                             }`}
                             value={newName}
                             onChange={(e) => setNewName(e.target.value)}
@@ -209,7 +209,7 @@ export default function Step3({ data, updateData }: Step3Props) {
                             className={`sm:w-1/3 p-3 rounded-xl border-2 focus:outline-none ${
                                 eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                    : 'border-slate-100 focus:border-score-teal'
+                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                             }`}
                             value={newRole}
                             onChange={(e) => setNewRole(e.target.value)}
@@ -232,7 +232,7 @@ export default function Step3({ data, updateData }: Step3Props) {
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-hide">
                     {data.attendees?.length === 0 ? (
                         <div className={`text-center py-10 border-2 border-dashed rounded-2xl ${
-                            eosMode ? 'border-neutral-700' : 'border-slate-100'
+                            eosMode ? 'border-neutral-700' : 'border-slate-200'
                         }`}>
                             <UserCircle className={`w-12 h-12 mx-auto mb-2 ${eosMode ? 'text-neutral-600' : 'text-slate-200'}`} />
                             <p className={eosMode ? 'text-neutral-500' : 'text-slate-400'}>
@@ -244,7 +244,7 @@ export default function Step3({ data, updateData }: Step3Props) {
                     ) : (
                         data.attendees?.map((attendee) => (
                             <div key={attendee.id} className={`flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-2xl border group ${
-                                eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-100'
+                                eosMode ? 'bg-neutral-800 border-neutral-700' : 'bg-slate-50 border-slate-200'
                             }`}>
                                 <div className="flex-1">
                                     <div className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{attendee.name}</div>

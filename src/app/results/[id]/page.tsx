@@ -23,7 +23,8 @@ import {
     ChevronDown,
     ChevronUp,
     Repeat,
-    Calendar
+    Calendar,
+    ListChecks
 } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
@@ -79,6 +80,8 @@ export default function ResultsPage() {
     const [expandedReplacement, setExpandedReplacement] = useState<'slack' | 'loom' | 'doc' | null>(null);
     const [replacementCopied, setReplacementCopied] = useState<string | null>(null);
     const [animationComplete, setAnimationComplete] = useState(false);
+    const [runSheetCopied, setRunSheetCopied] = useState(false);
+    const [activeRunSheet, setActiveRunSheet] = useState<string | null>(null);
     const hasAnimated = useRef(false);
 
     useEffect(() => {
@@ -108,22 +111,20 @@ export default function ResultsPage() {
                     setAnimationComplete(true);
                     clearInterval(timer);
 
-                    // Trigger confetti
+                    // Trigger confetti for well-prepared meetings
                     if (data.isProtectedEOS && data.readinessLevel === 'FULLY_PREPARED') {
-                        // Protected EOS: celebrate being fully prepared
                         confetti({
                             particleCount: 100,
                             spread: 70,
                             origin: { y: 0.6 },
                             colors: ['#10b981', '#3b82f6', '#fbbf24', '#8b5cf6']
                         });
-                    } else if (!data.isProtectedEOS && (data.recommendation === 'SKIP' || data.recommendation === 'ASYNC_FIRST')) {
-                        // Standard: celebrate saving time
+                    } else if (!data.isProtectedEOS && data.recommendation === 'PROCEED') {
                         confetti({
                             particleCount: 100,
                             spread: 70,
                             origin: { y: 0.6 },
-                            colors: ['#F97316', '#0d9488', '#fbbf24', '#f472b6']
+                            colors: ['#10b981', '#3b82f6', '#fbbf24', '#8b5cf6']
                         });
                     }
                 } else {
@@ -285,6 +286,69 @@ Please add your name under your preferred option:
         navigator.clipboard.writeText(content);
         setReplacementCopied(type);
         setTimeout(() => setReplacementCopied(null), 2000);
+    };
+
+    // EOS Run Sheet templates
+    const EOS_RUN_SHEETS: Record<string, { title: string; duration: string; sections: { name: string; time: string; details: string[] }[] }> = {
+        L10: {
+            title: 'Level 10 Meeting',
+            duration: '90 minutes',
+            sections: [
+                { name: 'Segue', time: '5 min', details: ['Each person shares one personal and one professional good news item'] },
+                { name: 'Scorecard', time: '5 min', details: ['Review weekly metrics', 'Flag any numbers that are off-track', 'Drop off-track items to the Issues List'] },
+                { name: 'Rock Review', time: '5 min', details: ['Each Rock owner reports: On Track or Off Track', 'No discussion — off-track Rocks go to the Issues List'] },
+                { name: 'Customer & Employee Headlines', time: '5 min', details: ['Share good and bad news about customers and employees', 'Drop any issues to the Issues List'] },
+                { name: 'To-Do List', time: '5 min', details: ['Review last week\'s To-Dos', 'Each is either Done or Not Done (drop to Issues List)'] },
+                { name: 'IDS (Identify, Discuss, Solve)', time: '60 min', details: ['Prioritize the top 3 issues', 'For each: Identify the real issue, Discuss it, Solve it', 'Create a To-Do with an owner and 7-day deadline', 'Move to the next issue — repeat until time is up'] },
+                { name: 'Conclude', time: '5 min', details: ['Recap new To-Dos', 'Rate the meeting 1-10', 'Any cascading messages for the team?'] },
+            ],
+        },
+        IDS: {
+            title: 'IDS Session',
+            duration: '60 minutes',
+            sections: [
+                { name: 'List & Prioritize Issues', time: '5 min', details: ['Review the Issues List', 'As a team, pick the top 3 most important issues'] },
+                { name: 'IDS: Identify, Discuss, Solve', time: '50 min', details: ['Identify — state the real issue in one sentence', 'Discuss — everyone who can add value weighs in (no tangents)', 'Solve — agree on the solution, assign a To-Do with an owner', 'Repeat for the next issue until time is up'] },
+                { name: 'Recap To-Dos', time: '5 min', details: ['Read back all new To-Dos and owners', 'Confirm 7-day deadlines'] },
+            ],
+        },
+        QUARTERLY: {
+            title: 'Quarterly Planning Session',
+            duration: 'Full day (7-8 hours)',
+            sections: [
+                { name: 'Segue', time: '15 min', details: ['Each person shares their best personal and professional news from the quarter'] },
+                { name: 'Prior Quarter Review', time: '60 min', details: ['Review each Rock: Complete or Incomplete', 'Review the Scorecard for the quarter', 'Discuss what went well and what didn\'t'] },
+                { name: 'Review V/TO', time: '60 min', details: ['Review the Vision/Traction Organizer', 'Update 10-Year Target, 3-Year Picture, 1-Year Plan', 'Ensure the whole team is on the same page'] },
+                { name: 'Establish Next Quarter Rocks', time: '120 min', details: ['Set 3-7 company Rocks for the quarter', 'Each Rock gets one owner', 'Set individual Rocks for each leadership team member'] },
+                { name: 'Tackle Key Issues (IDS)', time: '120 min', details: ['IDS the biggest issues facing the company', 'Focus on strategic, long-term issues (not weekly fires)'] },
+                { name: 'Next Steps', time: '30 min', details: ['Confirm all new Rocks and owners', 'Review any cascading messages for the organization', 'Assign any To-Dos that came out of the session'] },
+                { name: 'Conclude & Rate', time: '15 min', details: ['Rate the session 1-10', 'Share feedback on what could improve next quarter'] },
+            ],
+        },
+    };
+
+    const generateRunSheet = (type: string) => {
+        const sheet = EOS_RUN_SHEETS[type];
+        if (!sheet) return '';
+        let output = `${sheet.title} — Run Sheet\n`;
+        output += `Duration: ${sheet.duration}\n`;
+        output += `${'═'.repeat(50)}\n\n`;
+        sheet.sections.forEach((section) => {
+            output += `▸ ${section.name} (${section.time})\n`;
+            section.details.forEach((d) => {
+                output += `  • ${d}\n`;
+            });
+            output += '\n';
+        });
+        output += `${'═'.repeat(50)}\n`;
+        output += `Generated by SkipScore — skipscore.app`;
+        return output;
+    };
+
+    const copyRunSheet = (type: string) => {
+        navigator.clipboard.writeText(generateRunSheet(type));
+        setRunSheetCopied(true);
+        setTimeout(() => setRunSheetCopied(false), 2000);
     };
 
     const displayedFinalScore = data.isProtectedEOS ? (data.readinessScore || 0) : (data.score || 0);
@@ -549,6 +613,17 @@ Please add your name under your preferred option:
                                                 )}
                                                 {(!data.readinessTips || data.readinessTips.length === 0) && (!data.readinessStrengths || data.readinessStrengths.length === 0) && (
                                                     <p className="text-neutral-500 italic">No readiness data available.</p>
+                                                )}
+                                                {(data.readinessLevel === 'NOT_READY' || data.readinessLevel === 'NEEDS_WORK' || data.readinessLevel === 'ALMOST_READY') && (
+                                                    <button
+                                                        onClick={() => {
+                                                            localStorage.setItem('skip-score-edit', JSON.stringify(data));
+                                                            router.push('/assess');
+                                                        }}
+                                                        className="flex items-center justify-center gap-2 w-full py-3 mt-2 rounded-xl font-bold text-sm transition-all bg-amber-500 text-black hover:bg-amber-400"
+                                                    >
+                                                        <ArrowLeft className="w-4 h-4" /> Adjust & Re-Score
+                                                    </button>
                                                 )}
                                             </>
                                         ) : (
@@ -918,6 +993,72 @@ Please add your name under your preferred option:
                                     )}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* EOS Meeting Run Sheet - for protected EOS meetings */}
+                {data.isProtectedEOS && data.protectedType && EOS_RUN_SHEETS[data.protectedType] && (
+                    <div className="rounded-[2.5rem] shadow-2xl overflow-hidden bg-neutral-900 border border-neutral-800">
+                        <div className="p-6 sm:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600">
+                                    <ListChecks className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-extrabold text-neutral-100">
+                                        {EOS_RUN_SHEETS[data.protectedType].title} Run Sheet
+                                    </h2>
+                                    <p className="text-sm text-neutral-400">
+                                        Standard EOS agenda — copy and use for your meeting
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                {EOS_RUN_SHEETS[data.protectedType].sections.map((section, i) => (
+                                    <div key={i} className="rounded-xl border border-neutral-700 overflow-hidden">
+                                        <button
+                                            onClick={() => setActiveRunSheet(activeRunSheet === section.name ? null : section.name)}
+                                            className="w-full flex items-center justify-between p-4 hover:bg-neutral-800 transition-colors"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <span className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                                                    {i + 1}
+                                                </span>
+                                                <span className="font-bold text-neutral-100">{section.name}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-mono text-neutral-500">{section.time}</span>
+                                                {activeRunSheet === section.name
+                                                    ? <ChevronUp className="w-4 h-4 text-neutral-500" />
+                                                    : <ChevronDown className="w-4 h-4 text-neutral-500" />
+                                                }
+                                            </div>
+                                        </button>
+                                        {activeRunSheet === section.name && (
+                                            <div className="px-4 pb-4 pt-0 border-t border-neutral-700">
+                                                <ul className="space-y-1.5 mt-3">
+                                                    {section.details.map((detail, j) => (
+                                                        <li key={j} className="flex items-start gap-2 text-sm text-neutral-400">
+                                                            <span className="text-amber-500 mt-0.5">•</span>
+                                                            {detail}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => copyRunSheet(data.protectedType!)}
+                                className="mt-4 flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-sm transition-all bg-amber-500 text-black hover:bg-amber-400"
+                            >
+                                {runSheetCopied ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                {runSheetCopied ? 'Copied!' : 'Copy Full Run Sheet'}
+                            </button>
                         </div>
                     </div>
                 )}

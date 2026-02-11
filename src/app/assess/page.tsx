@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
@@ -28,6 +28,35 @@ export default function AssessPage() {
         complexity: 'MEDIUM',
         attendees: [],
     });
+
+    // Load pre-filled data from "Adjust & Re-Score"
+    useEffect(() => {
+        const editData = localStorage.getItem('skip-score-edit');
+        if (editData) {
+            try {
+                const parsed = JSON.parse(editData);
+                setFormData({
+                    title: parsed.title || '',
+                    purpose: parsed.purpose || 'INFO_SHARE',
+                    urgency: parsed.urgency || 'THIS_WEEK',
+                    duration: parsed.duration || 30,
+                    interactivity: parsed.interactivity || 'MEDIUM',
+                    complexity: parsed.complexity || 'MEDIUM',
+                    decisionRequired: parsed.decisionRequired,
+                    asyncPossible: parsed.asyncPossible,
+                    hasAgenda: parsed.hasAgenda,
+                    attendees: parsed.attendees || [],
+                    agendaItems: parsed.agendaItems,
+                    isRecurring: parsed.isRecurring,
+                    recurrenceFrequency: parsed.recurrenceFrequency,
+                    meetingLink: parsed.meetingLink,
+                    meetingPlatform: parsed.meetingPlatform,
+                });
+            } finally {
+                localStorage.removeItem('skip-score-edit');
+            }
+        }
+    }, []);
 
     const updateFormData = (data: Partial<AssessmentData>) => {
         setFormData(prev => ({ ...prev, ...data }));
@@ -111,23 +140,39 @@ export default function AssessPage() {
                     <div className={`flex items-center justify-between pt-6 border-t ${
                         eosMode ? 'border-neutral-700' : 'border-slate-100'
                     }`}>
-                        <button
-                            onClick={prevStep}
-                            className={`flex items-center gap-2 px-6 py-2 font-semibold transition-all cursor-pointer ${
-                                step === 1 || step === 3
-                                    ? 'opacity-0 pointer-events-none'
-                                    : eosMode
+                        {step === 1 ? (
+                            <Link
+                                href="/dashboard"
+                                className={`flex items-center gap-2 px-6 py-2 font-semibold transition-all ${
+                                    eosMode
                                         ? 'text-neutral-400 hover:text-neutral-200'
                                         : 'text-slate-500 hover:text-slate-800'
-                            }`}
-                        >
-                            <ArrowLeft className="w-4 h-4" /> Back
-                        </button>
+                                }`}
+                            >
+                                <ArrowLeft className="w-4 h-4" /> Dashboard
+                            </Link>
+                        ) : (
+                            <button
+                                onClick={prevStep}
+                                className={`flex items-center gap-2 px-6 py-2 font-semibold transition-all ${
+                                    eosMode
+                                            ? 'text-neutral-400 hover:text-neutral-200'
+                                            : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                            >
+                                <ArrowLeft className="w-4 h-4" /> Back
+                            </button>
+                        )}
                         {step < TOTAL_STEPS && showBottomContinue ? (
                             <button
-                                onClick={nextStep}
-                                disabled={!formData.title}
-                                className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                                onClick={() => {
+                                    if (step === 1 && !formData.title) {
+                                        window.dispatchEvent(new CustomEvent('showTitleError'));
+                                        return;
+                                    }
+                                    nextStep();
+                                }}
+                                className={`px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all ${
                                     eosMode
                                         ? 'bg-amber-500 text-black hover:bg-amber-400'
                                         : 'bg-skip-coral text-white hover:bg-orange-600'

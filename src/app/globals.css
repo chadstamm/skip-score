@@ -36,6 +36,10 @@ body.eos-mode main {
   background: transparent !important;
 }
 
+button, [role="button"] {
+  cursor: pointer;
+}
+
 /* Custom utility for glassmorphism or cards if needed */
 .glass-card {
   background: rgba(255, 255, 255, 0.95);

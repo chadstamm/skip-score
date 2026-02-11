@@ -255,7 +255,14 @@ const EOS_TEMPLATES = [
 
 export default function Step1({ data, updateData }: Step1Props) {
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+    const [showTitleError, setShowTitleError] = useState(false);
     const { eosMode } = useEOS();
+
+    useEffect(() => {
+        const handler = () => setShowTitleError(true);
+        window.addEventListener('showTitleError', handler);
+        return () => window.removeEventListener('showTitleError', handler);
+    }, []);
 
     const activeTemplates = eosMode ? EOS_TEMPLATES : TEMPLATES;
 
@@ -275,7 +282,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                         {eosMode ? 'Meeting Check' : 'Meeting Essentials'}
                     </h2>
                     <p className={eosMode ? 'text-neutral-400' : 'text-slate-500'}>
-                        {eosMode ? 'Is this meeting necessary? Start here.' : 'Start with a template or build from scratch.'}
+                        {eosMode ? 'Is the meeting optimized or necessary? Start here.' : 'Start with a template or build from scratch.'}
                     </p>
                 </div>
                 <button
@@ -308,7 +315,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                 </label>
                 {eosMode && (
                     <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-lg">
-                        EOS rhythms are scored on preparedness, not necessity.
+                        Select from standard EOS meeting templates or build your own from scratch.
                     </div>
                 )}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 items-stretch">
@@ -340,21 +347,29 @@ export default function Step1({ data, updateData }: Step1Props) {
 
             <div className="space-y-6">
                 <div className="space-y-2">
-                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Meeting Title</label>
+                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                        Meeting Title <span className={eosMode ? 'text-amber-500' : 'text-red-500'}>*</span>
+                    </label>
                     <input
                         type="text"
                         placeholder="e.g. Q4 Strategy Review"
                         className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all text-lg font-medium ${
-                            eosMode
-                                ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
+                            showTitleError && !data.title
+                                ? 'border-red-500 bg-red-500/5'
+                                : eosMode
+                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
+                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                         }`}
                         value={data.title}
                         onChange={(e) => {
                             setSelectedTemplate(null);
+                            setShowTitleError(false);
                             updateData({ title: e.target.value });
                         }}
                     />
+                    {showTitleError && !data.title && (
+                        <p className="text-red-500 text-xs font-medium">Please enter a meeting title to continue.</p>
+                    )}
                 </div>
 
                 {/* Meeting Link */}
