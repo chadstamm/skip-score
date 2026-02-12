@@ -671,6 +671,21 @@ Please add your name under your preferred option:
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                {/* Adjust & Re-Score */}
+                                                <button
+                                                    onClick={() => {
+                                                        localStorage.setItem('skip-score-edit', JSON.stringify(data));
+                                                        router.push('/assess');
+                                                    }}
+                                                    className={`flex items-center justify-center gap-2 w-full py-3 mt-2 rounded-xl font-bold text-sm transition-all cursor-pointer ${
+                                                        eosMode
+                                                            ? 'bg-amber-500 text-black hover:bg-amber-400'
+                                                            : 'bg-slate-900 text-white hover:bg-slate-800'
+                                                    }`}
+                                                >
+                                                    <ArrowLeft className="w-4 h-4" /> Adjust & Re-Score
+                                                </button>
                                             </>
                                         )}
                                     </div>
