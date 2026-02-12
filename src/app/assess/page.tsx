@@ -69,6 +69,7 @@ export default function AssessPage() {
         const id = crypto.randomUUID();
         const fullData: AssessmentData = {
             ...formData,
+            title: formData.title?.trim() || '',
             id,
             createdAt: new Date().toISOString(),
             attendees: formData.attendees || [],
@@ -166,9 +167,15 @@ export default function AssessPage() {
                         {step < TOTAL_STEPS && showBottomContinue ? (
                             <button
                                 onClick={() => {
-                                    if (step === 1 && !formData.title) {
-                                        window.dispatchEvent(new CustomEvent('showTitleError'));
-                                        return;
+                                    if (step === 1) {
+                                        if (!formData.title?.trim()) {
+                                            window.dispatchEvent(new CustomEvent('showTitleError'));
+                                            return;
+                                        }
+                                        if (!formData.duration || formData.duration < 5 || formData.duration > 480) {
+                                            window.dispatchEvent(new CustomEvent('showDurationError'));
+                                            return;
+                                        }
                                     }
                                     nextStep();
                                 }}

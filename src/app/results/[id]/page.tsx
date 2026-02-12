@@ -779,8 +779,18 @@ Please add your name under your preferred option:
                                     <Clock className={`w-5 h-5 ${eosMode ? 'text-amber-500' : 'text-score-teal'}`} />
                                 </div>
                                 <div>
-                                    <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>{savings.potentialHoursSaved.toFixed(1)} hrs</div>
-                                    <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{data.isRecurring ? 'Per Meeting' : 'Reclaimable Time'}</div>
+                                    <div className={`text-xl font-black ${eosMode ? 'text-neutral-100' : 'text-slate-900'}`}>
+                                        {savings.potentialHoursSaved > 0
+                                            ? `${savings.potentialHoursSaved.toFixed(1)} hrs`
+                                            : `${(data.duration / 60 * data.attendees.length).toFixed(1)} hrs`
+                                        }
+                                    </div>
+                                    <div className={`text-[10px] font-bold uppercase ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>
+                                        {savings.potentialHoursSaved > 0
+                                            ? (data.isRecurring ? 'Per Meeting' : 'Reclaimable Time')
+                                            : 'Time Investment'
+                                        }
+                                    </div>
                                 </div>
                             </div>
 

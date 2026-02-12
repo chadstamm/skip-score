@@ -239,6 +239,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
     };
 
     const handleDone = () => {
+        if (timeRemaining < 0) return;
         const active = items.filter(item => sectionChecks[item.id] !== false);
         updateData({ hasAgenda: true, agendaItems: active });
         onNext();
@@ -279,6 +280,7 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
     const totalAllocated = activeItems.reduce((sum, item) => sum + item.duration, 0);
     const meetingDuration = data.duration || 30;
     const timeRemaining = meetingDuration - totalAllocated;
+    const isOverAllocated = timeRemaining < 0;
 
     // --- Export helpers ---
     const agendaAsText = () => {
@@ -1119,16 +1121,27 @@ export default function AgendaStep({ data, updateData, onNext }: AgendaStepProps
             </div>
 
             {/* Save & Continue */}
-            <button
-                onClick={handleDone}
-                className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                    eosMode
-                        ? 'bg-amber-500 text-black hover:bg-amber-400'
-                        : 'bg-skip-coral text-white hover:bg-orange-600'
-                }`}
-            >
-                Save & Continue <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="relative group">
+                <button
+                    onClick={handleDone}
+                    disabled={isOverAllocated}
+                    className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
+                        isOverAllocated
+                            ? 'opacity-50 cursor-not-allowed bg-gray-400 text-white'
+                            : `cursor-pointer ${eosMode
+                                ? 'bg-amber-500 text-black hover:bg-amber-400'
+                                : 'bg-skip-coral text-white hover:bg-orange-600'
+                            }`
+                    }`}
+                >
+                    Save & Continue <ArrowRight className="w-4 h-4" />
+                </button>
+                {isOverAllocated && (
+                    <p className="text-red-500 text-xs font-medium text-center mt-2">
+                        Reduce agenda time to fit within {meetingDuration} minutes before continuing.
+                    </p>
+                )}
+            </div>
         </div>
     );
 }

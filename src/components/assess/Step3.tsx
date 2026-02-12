@@ -64,17 +64,18 @@ export default function Step3({ data, updateData }: Step3Props) {
     };
 
     const addAttendee = () => {
-        if (!newName) return;
-        const role = newRole || 'Participant';
+        const trimmedName = newName.trim();
+        if (!trimmedName) return;
+        const role = newRole.trim() || 'Participant';
         const newAttendee: Attendee = {
             id: crypto.randomUUID(),
-            name: newName,
+            name: trimmedName,
             role,
             isDRI: data.attendees?.length === 0,
             isOptional: false,
         };
         updateData({ attendees: [...(data.attendees || []), newAttendee] });
-        saveContact(newName, role);
+        saveContact(trimmedName, role);
         setNewName('');
         setNewRole('');
     };

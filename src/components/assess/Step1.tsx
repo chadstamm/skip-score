@@ -256,12 +256,19 @@ const EOS_TEMPLATES = [
 export default function Step1({ data, updateData }: Step1Props) {
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [showTitleError, setShowTitleError] = useState(false);
+    const [showDurationError, setShowDurationError] = useState(false);
+    const [showUrlWarning, setShowUrlWarning] = useState(false);
     const { eosMode } = useEOS();
 
     useEffect(() => {
-        const handler = () => setShowTitleError(true);
-        window.addEventListener('showTitleError', handler);
-        return () => window.removeEventListener('showTitleError', handler);
+        const titleHandler = () => setShowTitleError(true);
+        const durationHandler = () => setShowDurationError(true);
+        window.addEventListener('showTitleError', titleHandler);
+        window.addEventListener('showDurationError', durationHandler);
+        return () => {
+            window.removeEventListener('showTitleError', titleHandler);
+            window.removeEventListener('showDurationError', durationHandler);
+        };
     }, []);
 
     const activeTemplates = eosMode ? EOS_TEMPLATES : TEMPLATES;
@@ -354,7 +361,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                         type="text"
                         placeholder="e.g. Q4 Strategy Review"
                         className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all text-lg font-medium ${
-                            showTitleError && !data.title
+                            showTitleError && !data.title?.trim()
                                 ? 'border-red-500 bg-red-500/5'
                                 : eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
@@ -367,7 +374,7 @@ export default function Step1({ data, updateData }: Step1Props) {
                             updateData({ title: e.target.value });
                         }}
                     />
-                    {showTitleError && !data.title && (
+                    {showTitleError && !data.title?.trim() && (
                         <p className="text-red-500 text-xs font-medium">Please enter a meeting title to continue.</p>
                     )}
                 </div>
@@ -391,6 +398,11 @@ export default function Step1({ data, updateData }: Step1Props) {
                             onChange={(e) => {
                                 const link = e.target.value;
                                 const platform = detectMeetingPlatform(link);
+                                if (link && !link.match(/^(https?:\/\/|meet\.|zoom\.|teams\.)/i)) {
+                                    setShowUrlWarning(true);
+                                } else {
+                                    setShowUrlWarning(false);
+                                }
                                 updateData({
                                     meetingLink: link,
                                     meetingPlatform: platform || undefined,
@@ -404,6 +416,11 @@ export default function Step1({ data, updateData }: Step1Props) {
                             </div>
                         )}
                     </div>
+                    {showUrlWarning && data.meetingLink && (
+                        <p className={`text-xs font-medium ${eosMode ? 'text-amber-400/70' : 'text-orange-400'}`}>
+                            This doesn&apos;t look like a meeting URL. Double-check the link?
+                        </p>
+                    )}
                     {/* AI Notetaker nudge */}
                     <div className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
                         eosMode ? 'bg-neutral-800 border border-neutral-700' : 'bg-slate-50 border border-slate-200'
@@ -482,15 +499,27 @@ export default function Step1({ data, updateData }: Step1Props) {
                         <input
                             type="number"
                             step="15"
-                            min="15"
+                            min="5"
+                            max="480"
                             className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
-                                eosMode
-                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
-                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
+                                showDurationError && (data.duration === undefined || data.duration < 5 || data.duration > 480)
+                                    ? 'border-red-500 bg-red-500/5'
+                                    : eosMode
+                                        ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
+                                        : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
                             }`}
                             value={data.duration}
-                            onChange={(e) => updateData({ duration: parseInt(e.target.value) })}
+                            onChange={(e) => {
+                                const parsed = parseInt(e.target.value);
+                                if (isNaN(parsed)) return;
+                                const clamped = Math.min(480, Math.max(5, parsed));
+                                setShowDurationError(false);
+                                updateData({ duration: clamped });
+                            }}
                         />
+                        {showDurationError && (data.duration === undefined || data.duration < 5 || data.duration > 480) && (
+                            <p className="text-red-500 text-xs font-medium">Duration must be between 5 and 480 minutes.</p>
+                        )}
                     </div>
                 </div>
 
