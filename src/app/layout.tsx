@@ -11,14 +11,14 @@ export const metadata: Metadata = {
   keywords: ["meeting score", "meeting assessment", "meeting productivity", "skip meetings", "agenda builder", "meeting cost", "Zoom", "Microsoft Teams", "Google Meet", "EOS", "Traction", "L10"],
   authors: [{ name: "Chad Stamm", url: "https://chadstamm.com" }],
   creator: "TMC Digital Media",
-  metadataBase: new URL("https://skipscore.app"),
+  metadataBase: new URL("https://www.skipscore.app"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://skipscore.app",
+    url: "https://www.skipscore.app",
     siteName: "SkipScore",
     title: "SkipScore | Score Your Meetings Before You Book Them",
     description: "Stop wasting time in bad meetings. SkipScore analyzes 10+ factors to score your meeting, build better agendas, and reclaim your calendar.",
