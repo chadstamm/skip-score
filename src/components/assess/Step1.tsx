@@ -258,6 +258,7 @@ export default function Step1({ data, updateData }: Step1Props) {
     const [showTitleError, setShowTitleError] = useState(false);
     const [showDurationError, setShowDurationError] = useState(false);
     const [showUrlWarning, setShowUrlWarning] = useState(false);
+    const [showMoreOptions, setShowMoreOptions] = useState(false);
     const { eosMode } = useEOS();
 
     useEffect(() => {
@@ -379,80 +380,6 @@ export default function Step1({ data, updateData }: Step1Props) {
                     )}
                 </div>
 
-                {/* Meeting Link */}
-                <div className="space-y-2">
-                    <label className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
-                        <Link2 className="w-3.5 h-3.5" /> Meeting Link
-                        <span className={`font-normal normal-case tracking-normal ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>(optional)</span>
-                    </label>
-                    <div className="relative">
-                        <input
-                            type="url"
-                            placeholder="Paste your Zoom, Teams, or Meet link"
-                            className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all font-medium ${
-                                eosMode
-                                    ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
-                                    : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
-                            } ${data.meetingPlatform ? 'pr-28' : ''}`}
-                            value={data.meetingLink || ''}
-                            onChange={(e) => {
-                                const link = e.target.value;
-                                const platform = detectMeetingPlatform(link);
-                                if (link && !link.match(/^(https?:\/\/|meet\.|zoom\.|teams\.)/i)) {
-                                    setShowUrlWarning(true);
-                                } else {
-                                    setShowUrlWarning(false);
-                                }
-                                updateData({
-                                    meetingLink: link,
-                                    meetingPlatform: platform || undefined,
-                                });
-                            }}
-                        />
-                        {data.meetingPlatform && (
-                            <div className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold text-white ${PLATFORM_INFO[data.meetingPlatform].bg}`}>
-                                <div className="w-2 h-2 rounded-full bg-white/40 hidden sm:block" />
-                                {PLATFORM_INFO[data.meetingPlatform].name}
-                            </div>
-                        )}
-                    </div>
-                    {showUrlWarning && data.meetingLink && (
-                        <p className={`text-xs font-medium ${eosMode ? 'text-amber-400/70' : 'text-orange-400'}`}>
-                            This doesn&apos;t look like a meeting URL. Double-check the link?
-                        </p>
-                    )}
-                    {/* AI Notetaker nudge */}
-                    <div className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-                        eosMode ? 'bg-neutral-800 border border-neutral-700' : 'bg-slate-50 border border-slate-200'
-                    }`}>
-                        <Video className={`w-3.5 h-3.5 flex-shrink-0 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
-                        <span className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>
-                            Add an AI notetaker
-                        </span>
-                        <div className="flex gap-2 ml-auto">
-                            {[
-                                { name: 'Fathom', url: 'https://fathom.video' },
-                                { name: 'Fireflies', url: 'https://fireflies.ai/?fpr=chad10' },
-                                { name: 'Otter', url: 'https://otter.ai/referrals/VFGFRNBK' },
-                            ].map((tool) => (
-                                <a
-                                    key={tool.name}
-                                    href={tool.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`text-xs font-medium transition-colors ${
-                                        eosMode
-                                            ? 'text-amber-400/70 hover:text-amber-400'
-                                            : 'text-score-teal/70 hover:text-score-teal'
-                                    }`}
-                                >
-                                    {tool.name}
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
                 <div className="space-y-2">
                     <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>What's the primary purpose?</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -477,135 +404,224 @@ export default function Step1({ data, updateData }: Step1Props) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Urgency</label>
-                        <select
-                            className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
-                                eosMode
+                <div className="space-y-2">
+                    <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Duration (min)</label>
+                    <input
+                        type="number"
+                        step="15"
+                        min="5"
+                        max="480"
+                        className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
+                            showDurationError && (data.duration === undefined || data.duration < 5 || data.duration > 480)
+                                ? 'border-red-500 bg-red-500/5'
+                                : eosMode
                                     ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
                                     : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
-                            }`}
-                            value={data.urgency}
-                            onChange={(e) => updateData({ urgency: e.target.value as MeetingUrgency })}
-                        >
-                            {URGENCY.map((u) => (
-                                <option key={u.value} value={u.value}>{u.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="space-y-2">
-                        <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Duration (min)</label>
-                        <input
-                            type="number"
-                            step="15"
-                            min="5"
-                            max="480"
-                            className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
-                                showDurationError && (data.duration === undefined || data.duration < 5 || data.duration > 480)
-                                    ? 'border-red-500 bg-red-500/5'
-                                    : eosMode
-                                        ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
-                                        : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
-                            }`}
-                            value={data.duration}
-                            onChange={(e) => {
-                                const parsed = parseInt(e.target.value);
-                                if (isNaN(parsed)) return;
-                                const clamped = Math.min(480, Math.max(5, parsed));
-                                setShowDurationError(false);
-                                updateData({ duration: clamped });
-                            }}
-                        />
-                        {showDurationError && (data.duration === undefined || data.duration < 5 || data.duration > 480) && (
-                            <p className="text-red-500 text-xs font-medium">Duration must be between 5 and 480 minutes.</p>
-                        )}
-                    </div>
+                        }`}
+                        value={data.duration}
+                        onChange={(e) => {
+                            const parsed = parseInt(e.target.value);
+                            if (isNaN(parsed)) return;
+                            const clamped = Math.min(480, Math.max(5, parsed));
+                            setShowDurationError(false);
+                            updateData({ duration: clamped });
+                        }}
+                    />
+                    {showDurationError && (data.duration === undefined || data.duration < 5 || data.duration > 480) && (
+                        <p className="text-red-500 text-xs font-medium">Duration must be between 5 and 480 minutes.</p>
+                    )}
                 </div>
 
-                {/* Recurring Meeting Toggle */}
-                <div className="space-y-3">
-                    <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${
-                        eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-slate-50'
-                    }`}>
-                        <div className="flex items-center gap-3">
-                            <Repeat className={`w-5 h-5 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`} />
-                            <div>
-                                <div className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>Recurring Meeting</div>
-                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Calculate annual time impact</div>
+                {/* More Options Toggle */}
+                <button
+                    onClick={() => setShowMoreOptions(!showMoreOptions)}
+                    className={`flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer ${
+                        eosMode ? 'text-neutral-400 hover:text-neutral-200' : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                    {showMoreOptions ? '− Less options' : '+ More options'}
+                    <span className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>(meeting link, urgency, recurring)</span>
+                </button>
+
+                {showMoreOptions && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                        {/* Meeting Link */}
+                        <div className="space-y-2">
+                            <label className={`text-sm font-bold uppercase tracking-wider flex items-center gap-2 ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>
+                                <Link2 className="w-3.5 h-3.5" /> Meeting Link
+                                <span className={`font-normal normal-case tracking-normal ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>(optional)</span>
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="url"
+                                    placeholder="Paste your Zoom, Teams, or Meet link"
+                                    className={`w-full p-4 rounded-xl border-2 focus:outline-none transition-all font-medium ${
+                                        eosMode
+                                            ? 'border-neutral-700 bg-neutral-800 text-neutral-100 placeholder-neutral-500 focus:border-amber-500'
+                                            : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
+                                    } ${data.meetingPlatform ? 'pr-28' : ''}`}
+                                    value={data.meetingLink || ''}
+                                    onChange={(e) => {
+                                        const link = e.target.value;
+                                        const platform = detectMeetingPlatform(link);
+                                        if (link && !link.match(/^(https?:\/\/|meet\.|zoom\.|teams\.)/i)) {
+                                            setShowUrlWarning(true);
+                                        } else {
+                                            setShowUrlWarning(false);
+                                        }
+                                        updateData({
+                                            meetingLink: link,
+                                            meetingPlatform: platform || undefined,
+                                        });
+                                    }}
+                                />
+                                {data.meetingPlatform && (
+                                    <div className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold text-white ${PLATFORM_INFO[data.meetingPlatform].bg}`}>
+                                        <div className="w-2 h-2 rounded-full bg-white/40 hidden sm:block" />
+                                        {PLATFORM_INFO[data.meetingPlatform].name}
+                                    </div>
+                                )}
+                            </div>
+                            {showUrlWarning && data.meetingLink && (
+                                <p className={`text-xs font-medium ${eosMode ? 'text-amber-400/70' : 'text-orange-400'}`}>
+                                    This doesn&apos;t look like a meeting URL. Double-check the link?
+                                </p>
+                            )}
+                            {/* AI Notetaker nudge */}
+                            <div className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                                eosMode ? 'bg-neutral-800 border border-neutral-700' : 'bg-slate-50 border border-slate-200'
+                            }`}>
+                                <Video className={`w-3.5 h-3.5 flex-shrink-0 ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`} />
+                                <span className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-400'}`}>
+                                    Add an AI notetaker
+                                </span>
+                                <div className="flex gap-2 ml-auto">
+                                    {[
+                                        { name: 'Fathom', url: 'https://fathom.video' },
+                                        { name: 'Fireflies', url: 'https://fireflies.ai/?fpr=chad10' },
+                                        { name: 'Otter', url: 'https://otter.ai/referrals/VFGFRNBK' },
+                                    ].map((tool) => (
+                                        <a
+                                            key={tool.name}
+                                            href={tool.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`text-xs font-medium transition-colors ${
+                                                eosMode
+                                                    ? 'text-amber-400/70 hover:text-amber-400'
+                                                    : 'text-score-teal/70 hover:text-score-teal'
+                                            }`}
+                                        >
+                                            {tool.name}
+                                        </a>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => updateData({ isRecurring: !data.isRecurring, recurrenceFrequency: data.isRecurring ? undefined : 'WEEKLY' })}
-                            className={`relative w-14 h-8 rounded-full transition-colors cursor-pointer ${
-                                data.isRecurring
-                                    ? eosMode ? 'bg-amber-500' : 'bg-score-teal'
-                                    : eosMode ? 'bg-neutral-600' : 'bg-slate-300'
-                            }`}
-                        >
-                            <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${data.isRecurring ? 'translate-x-7' : 'translate-x-1'}`} />
-                        </button>
-                    </div>
 
-                    {data.isRecurring && (
-                        <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-3">
-                            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                                {RECURRENCE.map((r) => (
-                                    <button
-                                        key={r.value}
-                                        onClick={() => updateData({ recurrenceFrequency: r.value })}
-                                        className={`p-3 rounded-xl border-2 text-center transition-all cursor-pointer ${
-                                            data.recurrenceFrequency === r.value
-                                                ? eosMode
-                                                    ? 'border-amber-500 bg-amber-500/10'
-                                                    : 'border-score-teal bg-teal-50'
-                                                : eosMode
-                                                    ? 'border-neutral-700 hover:border-neutral-600'
-                                                    : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50'
-                                        }`}
-                                    >
-                                        <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{r.label}</div>
-                                        <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{r.multiplier}x/year</div>
-                                    </button>
+                        {/* Urgency */}
+                        <div className="space-y-2">
+                            <label className={`text-sm font-bold uppercase tracking-wider ${eosMode ? 'text-neutral-300' : 'text-slate-700'}`}>Urgency</label>
+                            <select
+                                className={`w-full p-4 rounded-xl border-2 focus:outline-none font-medium ${
+                                    eosMode
+                                        ? 'border-neutral-700 bg-neutral-800 text-neutral-100 focus:border-amber-500'
+                                        : 'border-slate-200 bg-slate-50/50 focus:border-score-teal focus:bg-white'
+                                }`}
+                                value={data.urgency}
+                                onChange={(e) => updateData({ urgency: e.target.value as MeetingUrgency })}
+                            >
+                                {URGENCY.map((u) => (
+                                    <option key={u.value} value={u.value}>{u.label}</option>
                                 ))}
+                            </select>
+                        </div>
+
+                        {/* Recurring Meeting Toggle */}
+                        <div className="space-y-3">
+                            <div className={`flex items-center justify-between p-4 rounded-xl border-2 ${
+                                eosMode ? 'border-neutral-700 bg-neutral-800' : 'border-slate-200 bg-slate-50'
+                            }`}>
+                                <div className="flex items-center gap-3">
+                                    <Repeat className={`w-5 h-5 ${eosMode ? 'text-neutral-400' : 'text-slate-500'}`} />
+                                    <div>
+                                        <div className={`font-bold ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>Recurring Meeting</div>
+                                        <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>Calculate annual time impact</div>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => updateData({ isRecurring: !data.isRecurring, recurrenceFrequency: data.isRecurring ? undefined : 'WEEKLY' })}
+                                    className={`relative w-14 h-8 rounded-full transition-colors cursor-pointer ${
+                                        data.isRecurring
+                                            ? eosMode ? 'bg-amber-500' : 'bg-score-teal'
+                                            : eosMode ? 'bg-neutral-600' : 'bg-slate-300'
+                                    }`}
+                                >
+                                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow transition-transform ${data.isRecurring ? 'translate-x-7' : 'translate-x-1'}`} />
+                                </button>
                             </div>
 
-                            {/* Annual Impact Preview */}
-                            {data.duration && data.recurrenceFrequency && (
-                                <div className={`rounded-xl p-4 ${
-                                    eosMode
-                                        ? 'bg-amber-500/10 border border-amber-500/20'
-                                        : 'bg-orange-50 border border-orange-200'
-                                }`}>
-                                    <div className="flex items-start gap-3">
-                                        <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-orange-500'}`} />
-                                        <div>
-                                            <div className={`font-bold text-sm ${eosMode ? 'text-amber-400' : 'text-orange-700'}`}>Annual Time Commitment</div>
-                                            <div className={`mt-1 ${eosMode ? 'text-amber-300' : 'text-orange-600'}`}>
-                                                {(() => {
-                                                    const freq = RECURRENCE.find(r => r.value === data.recurrenceFrequency);
-                                                    const annualMinutes = (data.duration || 30) * (freq?.multiplier || 52);
-                                                    const annualHours = annualMinutes / 60;
-                                                    const attendeeCount = (data.attendees?.length || 1);
-                                                    const totalPersonHours = annualHours * attendeeCount;
-                                                    return (
-                                                        <>
-                                                            <span className="text-2xl font-black">{annualHours.toFixed(0)}</span>
-                                                            <span className="text-sm"> hours/year</span>
-                                                            {attendeeCount > 1 && (
-                                                                <span className="text-sm"> ({totalPersonHours.toFixed(0)} person-hours with {attendeeCount} attendees)</span>
-                                                            )}
-                                                        </>
-                                                    );
-                                                })()}
+                            {data.isRecurring && (
+                                <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-3">
+                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                                        {RECURRENCE.map((r) => (
+                                            <button
+                                                key={r.value}
+                                                onClick={() => updateData({ recurrenceFrequency: r.value })}
+                                                className={`p-3 rounded-xl border-2 text-center transition-all cursor-pointer ${
+                                                    data.recurrenceFrequency === r.value
+                                                        ? eosMode
+                                                            ? 'border-amber-500 bg-amber-500/10'
+                                                            : 'border-score-teal bg-teal-50'
+                                                        : eosMode
+                                                            ? 'border-neutral-700 hover:border-neutral-600'
+                                                            : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                <div className={`font-bold text-sm ${eosMode ? 'text-neutral-200' : 'text-slate-800'}`}>{r.label}</div>
+                                                <div className={`text-xs ${eosMode ? 'text-neutral-500' : 'text-slate-500'}`}>{r.multiplier}x/year</div>
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Annual Impact Preview */}
+                                    {data.duration && data.recurrenceFrequency && (
+                                        <div className={`rounded-xl p-4 ${
+                                            eosMode
+                                                ? 'bg-amber-500/10 border border-amber-500/20'
+                                                : 'bg-orange-50 border border-orange-200'
+                                        }`}>
+                                            <div className="flex items-start gap-3">
+                                                <AlertTriangle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${eosMode ? 'text-amber-500' : 'text-orange-500'}`} />
+                                                <div>
+                                                    <div className={`font-bold text-sm ${eosMode ? 'text-amber-400' : 'text-orange-700'}`}>Annual Time Commitment</div>
+                                                    <div className={`mt-1 ${eosMode ? 'text-amber-300' : 'text-orange-600'}`}>
+                                                        {(() => {
+                                                            const freq = RECURRENCE.find(r => r.value === data.recurrenceFrequency);
+                                                            const annualMinutes = (data.duration || 30) * (freq?.multiplier || 52);
+                                                            const annualHours = annualMinutes / 60;
+                                                            const attendeeCount = (data.attendees?.length || 1);
+                                                            const totalPersonHours = annualHours * attendeeCount;
+                                                            return (
+                                                                <>
+                                                                    <span className="text-2xl font-black">{annualHours.toFixed(0)}</span>
+                                                                    <span className="text-sm"> hours/year</span>
+                                                                    {attendeeCount > 1 && (
+                                                                        <span className="text-sm"> ({totalPersonHours.toFixed(0)} person-hours with {attendeeCount} attendees)</span>
+                                                                    )}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );

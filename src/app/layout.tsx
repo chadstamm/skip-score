@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Stop wasting time in bad meetings. SkipScore analyzes 10+ factors to score your meeting, build better agendas, and reclaim your calendar. Works with Zoom, Teams, and Google Meet.",
   keywords: ["meeting score", "meeting assessment", "meeting productivity", "skip meetings", "agenda builder", "meeting cost", "Zoom", "Microsoft Teams", "Google Meet", "EOS", "Traction", "L10"],
   authors: [{ name: "Chad Stamm", url: "https://chadstamm.com" }],
-  creator: "TMC Digital Media",
+  creator: "SkipScore",
   metadataBase: new URL("https://www.skipscore.app"),
   alternates: {
     canonical: "/",

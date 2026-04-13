@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/Logo';
-import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, FileText, Target, Settings, X, RotateCcw, Linkedin } from 'lucide-react';
+import { TrendingDown, Clock, Banknote, ArrowRight, CheckCircle2, Zap, Users, FileText, Target, Settings, X, RotateCcw, Linkedin, AlertCircle } from 'lucide-react';
 import Onboarding from '@/components/Onboarding';
 import { useEOS } from '@/contexts/EOSContext';
 
@@ -11,6 +11,25 @@ export default function Home() {
   const { eosMode, toggleEosMode } = useEOS();
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoScore, setDemoScore] = useState(0);
+  const demoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (showDemo && demoScore < 4.2) {
+      const timer = setTimeout(() => {
+        setDemoScore(prev => Math.min(prev + 0.1, 4.2));
+      }, 30);
+      return () => clearTimeout(timer);
+    }
+  }, [showDemo, demoScore]);
+
+  const handleShowDemo = () => {
+    setShowDemo(true);
+    setTimeout(() => {
+      demoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  };
 
   const resetAllData = () => {
     if (confirm('Are you sure you want to reset all data? This will clear all assessments and settings.')) {
@@ -25,7 +44,7 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center p-6 sm:p-12">
       <Onboarding onComplete={() => {}} />
-      <div className="max-w-5xl w-full space-y-16">
+      <div className="max-w-5xl w-full space-y-10 sm:space-y-16">
         {/* Header / Logo */}
         <div className="flex items-center justify-between pt-8">
           <div className="w-10" /> {/* Spacer for centering */}
@@ -130,7 +149,7 @@ export default function Home() {
           <p className={`text-xl sm:text-2xl max-w-2xl mx-auto ${eosMode ? 'text-neutral-300' : 'text-teal-50/90'}`}>
             {eosMode
               ? 'Keep your weekly meeting pulse sacred. Check if that extra meeting belongs on the calendar—or in a quick IDS.'
-              : 'Score your meetings before you book them. Build better agendas. Decide if they\'re truly worth everyone\'s time.'}
+              : 'Find out in 60 seconds if your next meeting is worth everyone\'s time — or if it should be an email.'}
           </p>
           <p className={`text-sm font-medium uppercase tracking-widest ${eosMode ? 'text-amber-400/80' : 'text-teal-200/80'}`}>
             {eosMode
@@ -139,55 +158,67 @@ export default function Home() {
           </p>
 
           {/* CTA */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+          <div className="flex flex-col items-center gap-4 pt-4">
             <Link
               href="/assess"
-              className={`group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white rounded-full overflow-hidden shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 ${
+              className={`group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white rounded-full overflow-hidden shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 text-xl ${
                 eosMode ? 'bg-amber-500 text-black hover:bg-amber-400' : 'bg-skip-coral hover:bg-orange-600'
               }`}
             >
-              <span className="relative flex items-center gap-2 text-lg">
-                {eosMode ? 'Check a Meeting' : 'Score a Meeting'} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <span className="relative flex items-center gap-2">
+                {eosMode ? 'Check a Meeting' : 'Score a Meeting'} <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
-            <Link
-              href="/dashboard"
-              className={`inline-flex items-center justify-center px-8 py-4 font-bold rounded-full backdrop-blur-sm border transition-all duration-300 hover:scale-105 ${
-                eosMode
-                  ? 'text-amber-400 bg-neutral-800/50 border-amber-500/30 hover:bg-neutral-800'
-                  : 'text-white/90 bg-white/10 border-white/20 hover:bg-white/20'
-              }`}
-            >
-              View Dashboard
-            </Link>
+            <p className={`text-sm ${eosMode ? 'text-neutral-500' : 'text-teal-200/70'}`}>
+              Free. No signup. Takes 60 seconds.
+            </p>
           </div>
-
-          {/* Mode Toggle Callout */}
-          {!eosMode ? (
-            <button
-              onClick={toggleEosMode}
-              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all duration-300 hover:scale-105"
-            >
-              <div className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-amber-400" />
-                <span className="font-bold text-white">Running on EOS?</span>
-              </div>
-              <span className="text-teal-200 group-hover:text-white transition-colors">
-                Switch to Traction Mode →
-              </span>
-            </button>
-          ) : (
-            <button
-              onClick={toggleEosMode}
-              className="group mt-4 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-black border border-neutral-700 hover:bg-neutral-900 transition-all duration-300 hover:scale-105"
-            >
-              <div className="flex items-center gap-2">
-                <RotateCcw className="w-5 h-5 text-teal-400" />
-                <span className="font-bold text-neutral-200">Switch to Standard Mode</span>
-              </div>
-            </button>
-          )}
         </div>
+
+        {/* Demo Score */}
+        {!eosMode && (
+          <div className="text-center">
+            {!showDemo ? (
+              <button
+                onClick={handleShowDemo}
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 text-sm font-medium"
+              >
+                <Zap className="w-4 h-4 text-skip-coral" />
+                See how a &ldquo;Weekly Team Sync&rdquo; scores
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            ) : (
+              <div
+                ref={demoRef}
+                className="max-w-md mx-auto rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500"
+              >
+                <div className="bg-white p-6 sm:p-8">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Example Result</div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">Weekly Team Sync</h3>
+                      <p className="text-sm text-slate-500">60 min &middot; 8 attendees &middot; Info Share</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-4xl font-black text-skip-coral">{demoScore.toFixed(1)}</div>
+                      <div className="text-xs font-bold text-slate-400">/10</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-teal-50 mb-4">
+                    <AlertCircle className="w-5 h-5 text-teal-600 flex-shrink-0" />
+                    <p className="text-sm font-medium text-teal-700">Async First — This could be a Slack thread or Loom video.</p>
+                  </div>
+                  <Link
+                    href="/assess"
+                    className="block w-full text-center px-6 py-3 bg-skip-coral text-white font-bold rounded-xl hover:bg-orange-600 transition-colors"
+                  >
+                    Now score your own meeting
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Problem Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -360,16 +391,14 @@ export default function Home() {
             >
               About
             </button>
-            <a
-              href="https://buymeacoffee.com/chadn"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/dashboard"
               className={`text-sm font-medium transition-colors cursor-pointer ${
                 eosMode ? 'text-neutral-500 hover:text-amber-400' : 'text-white/40 hover:text-white/80'
               }`}
             >
-              Donate
-            </a>
+              Dashboard
+            </Link>
             <a
               href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://skipscore.app')}`}
               target="_blank"
@@ -382,28 +411,6 @@ export default function Home() {
             </a>
             <span className={`text-sm ${eosMode ? 'text-neutral-600' : 'text-white/30'}`}>
               &copy; {new Date().getFullYear()} SkipScore
-            </span>
-          </div>
-          <div className="text-center">
-            <span className={`text-xs ${eosMode ? 'text-neutral-700' : 'text-white/20'}`}>
-              Powered by{' '}
-              <a
-                href="https://chadstamm.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
-              >
-                Chad Stamm
-              </a>
-              {' '}&middot;{' '}
-              <a
-                href="https://tmcdigitalmedia.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hover:underline transition-colors ${eosMode ? 'hover:text-neutral-500' : 'hover:text-white/40'}`}
-              >
-                TMC Digital Media
-              </a>
             </span>
           </div>
         </footer>
@@ -457,28 +464,6 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className={`pt-4 border-t ${eosMode ? 'border-neutral-800' : 'border-slate-100'}`}>
-                <p className={`text-xs ${eosMode ? 'text-neutral-600' : 'text-slate-400'}`}>
-                  Built by{' '}
-                  <a
-                    href="https://chadstamm.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`font-medium hover:underline ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}
-                  >
-                    Chad Stamm
-                  </a>
-                  {' '}&middot;{' '}
-                  <a
-                    href="https://tmcdigitalmedia.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`font-medium hover:underline ${eosMode ? 'text-neutral-400' : 'text-slate-600'}`}
-                  >
-                    TMC Digital Media
-                  </a>
-                </p>
-              </div>
             </div>
           </div>
         </div>
